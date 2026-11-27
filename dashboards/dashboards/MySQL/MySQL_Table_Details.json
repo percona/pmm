@@ -3533,6 +3533,33 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_info_schema_table_version, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(mysql_info_schema_table_version, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
                 "allFormat": "glob",
                 "current": {
                     "selected": false,
@@ -3567,7 +3594,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_info_schema_table_version, service_name)",
+                "definition": "label_values(mysql_info_schema_table_version{environment=~\"$environment\"}, service_name)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Service Name",
@@ -3575,7 +3602,7 @@
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_info_schema_table_version, service_name)",
+                    "query": "label_values(mysql_info_schema_table_version{environment=~\"$environment\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -3606,34 +3633,6 @@
                 },
                 "refresh": 2,
                 "regex": "/(([0-9\\.]+)\\.([0-9\\.]+)\\.([0-9\\.]+)-?([0-9?]+))/",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
                 "skipUrlSync": false,
                 "sort": 5,
                 "tagValuesQuery": "",

@@ -3616,13 +3616,35 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
+                "definition": "label_values(mongodb_up, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(mongodb_up, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "sort": 5,
+                "type": "query"
+            },
+            {
+                "allValue": ".*",
+                "current": {
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
                 "definition": "",
                 "includeAll": true,
                 "label": "Cluster",
                 "name": "cluster",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_up,cluster)",
+                    "query": "label_values(mongodb_up{environment=~\"$environment\"}, cluster)",
                     "refId": "Metrics-cluster-Variable-Query"
                 },
                 "refresh": 2,
@@ -3636,13 +3658,13 @@
                     "value": ""
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mongodb_up{cluster=~\"$cluster\"}, service_name)",
+                "definition": "label_values(mongodb_up{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
                 "includeAll": false,
                 "label": "Service Name",
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(mongodb_up{cluster=~\"$cluster\"}, service_name)",
+                    "query": "label_values(mongodb_up{environment=~\"$environment\",cluster=~\"$cluster\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -3665,29 +3687,6 @@
                 "query": {
                     "query": "label_values(mongodb_up{cluster=~\"$cluster\",service_name=~\"$service_name\"}, node_name)",
                     "refId": "Metrics-node_name-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "sort": 5,
-                "type": "query"
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
                 },
                 "refresh": 2,
                 "regex": "",

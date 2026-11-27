@@ -12,6 +12,8 @@ Percona Monitoring and Management (PMM) is an open source solution for monitorin
 
 ## 📈 Improvements
 
+- [PMM-12502](https://perconadev.atlassian.net/browse/PMM-12502): Added an **Environment** filter to the MySQL, PostgreSQL, MongoDB, PXC/Galera, ProxySQL and HAProxy dashboards that didn't have one, such as [MySQL InnoDB Details](../reference/dashboards/dashboard-mysql-innodb-details.md). Select an environment to list only its services in **Service Name** and the other filters. The **Cluster** filter on [PostgreSQL Instance Summary](../reference/dashboards/dashboard-postgresql-instance-summary.md) now lists your PostgreSQL clusters and narrows **Service Name**.
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues

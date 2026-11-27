@@ -2945,6 +2945,33 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(pg_up, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(pg_up, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
                 "current": {
                     "selected": false,
                     "text": "4194304",
@@ -2977,7 +3004,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(pg_up,node_name)",
+                "definition": "label_values(pg_up{environment=~\"$environment\"}, node_name)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Node Name",
@@ -2985,7 +3012,7 @@
                 "name": "node_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_up,node_name)",
+                    "query": "label_values(pg_up{environment=~\"$environment\"}, node_name)",
                     "refId": "Metrics-node_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -3004,7 +3031,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(pg_up{node_name=~\"$node_name\"}, service_name)",
+                "definition": "label_values(pg_up{environment=~\"$environment\",node_name=~\"$node_name\"}, service_name)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Service Name",
@@ -3012,7 +3039,7 @@
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "label_values(pg_up{node_name=~\"$node_name\"}, service_name)",
+                    "query": "label_values(pg_up{environment=~\"$environment\",node_name=~\"$node_name\"}, service_name)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -3980,34 +4007,6 @@
                 },
                 "refresh": 2,
                 "regex": "/ ([0-9\\.]+)/",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
                 "skipUrlSync": false,
                 "sort": 5,
                 "tagValuesQuery": "",

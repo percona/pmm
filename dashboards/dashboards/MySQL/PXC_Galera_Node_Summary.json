@@ -2027,6 +2027,33 @@
                 "type": "interval"
             },
             {
+                "allValue": ".*",
+                "current": {
+                    "selected": false,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": "Metrics",
+                "definition": "label_values(mysql_galera_variables_info, environment)",
+                "includeAll": true,
+                "label": "Environment",
+                "multi": true,
+                "name": "environment",
+                "options": [],
+                "query": {
+                    "query": "label_values(mysql_galera_variables_info, environment)",
+                    "refId": "Metrics-environment-Variable-Query"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+            },
+            {
                 "current": {
                     "selected": false,
                     "text": "All",
@@ -2062,7 +2089,7 @@
                     "value": "$__all"
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(mysql_galera_variables_info, wsrep_cluster_name)",
+                "definition": "label_values(mysql_galera_variables_info{environment=~\"$environment\"}, wsrep_cluster_name)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Cluster",
@@ -2071,7 +2098,7 @@
                 "name": "cluster",
                 "options": [],
                 "query": {
-                    "query": "label_values(mysql_galera_variables_info, wsrep_cluster_name)",
+                    "query": "label_values(mysql_galera_variables_info{environment=~\"$environment\"}, wsrep_cluster_name)",
                     "refId": "Metrics-cluster-Variable-Query"
                 },
                 "refresh": 2,
@@ -2090,7 +2117,7 @@
                     "value": "pxc_node__1_5263"
                 },
                 "datasource": "Metrics",
-                "definition": "query_result(mysql_galera_variables_info{wsrep_cluster_name=~\"$cluster\"} * on(service_name) mysql_global_variables_wsrep_auto_increment_control)",
+                "definition": "query_result(mysql_galera_variables_info{environment=~\"$environment\",wsrep_cluster_name=~\"$cluster\"} * on(service_name) mysql_global_variables_wsrep_auto_increment_control)",
                 "hide": 0,
                 "includeAll": false,
                 "label": "Service Name",
@@ -2099,7 +2126,7 @@
                 "name": "service_name",
                 "options": [],
                 "query": {
-                    "query": "query_result(mysql_galera_variables_info{wsrep_cluster_name=~\"$cluster\"} * on(service_name) mysql_global_variables_wsrep_auto_increment_control)",
+                    "query": "query_result(mysql_galera_variables_info{environment=~\"$environment\",wsrep_cluster_name=~\"$cluster\"} * on(service_name) mysql_global_variables_wsrep_auto_increment_control)",
                     "refId": "Metrics-service_name-Variable-Query"
                 },
                 "refresh": 2,
@@ -2107,34 +2134,6 @@
                 "regex": "/\"([^\"]+)\"/",
                 "skipUrlSync": false,
                 "sort": 5,
-                "type": "query",
-                "useTags": false
-            },
-            {
-                "allValue": ".*",
-                "current": {
-                    "selected": false,
-                    "text": "All",
-                    "value": "$__all"
-                },
-                "datasource": "Metrics",
-                "definition": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                "hide": 2,
-                "includeAll": true,
-                "label": "Environment",
-                "multi": true,
-                "name": "environment",
-                "options": [],
-                "query": {
-                    "query": "label_values({__name__=~\"pg_up|mysql_up|mongodb_up|proxysql_mysql_status_active_transactions\"}, environment)",
-                    "refId": "Metrics-environment-Variable-Query"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 5,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
                 "type": "query",
                 "useTags": false
             },
