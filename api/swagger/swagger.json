@@ -35553,6 +35553,24 @@
                                 }
                               },
                               "x-order": 14
+                            },
+                            "om_cluster_id": {
+                              "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 15
+                            },
+                            "cluster_origin": {
+                              "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 16
+                            },
+                            "cluster_kind": {
+                              "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 17
                             }
                           }
                         },
@@ -35971,6 +35989,24 @@
                               }
                             },
                             "x-order": 14
+                          },
+                          "om_cluster_id": {
+                            "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 15
+                          },
+                          "cluster_origin": {
+                            "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 16
+                          },
+                          "cluster_kind": {
+                            "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 17
                           }
                         }
                       },
@@ -37061,6 +37097,24 @@
                           }
                         },
                         "x-order": 14
+                      },
+                      "om_cluster_id": {
+                        "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 15
+                      },
+                      "cluster_origin": {
+                        "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 16
+                      },
+                      "cluster_kind": {
+                        "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 17
                       }
                     }
                   },
@@ -37267,6 +37321,24 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "om_cluster_id": {
+                      "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "cluster_origin": {
+                      "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
+                    },
+                    "cluster_kind": {
+                      "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 0

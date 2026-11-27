@@ -2223,7 +2223,14 @@ type InventoryService struct {
 	// Everything the probe recorded, including attributes with no field above.
 	Observed *structpb.Struct `protobuf:"bytes,14,opt,name=observed,proto3" json:"observed,omitempty"`
 	// How current the above is, and how it is failing.
-	Freshness     *InventoryFreshness `protobuf:"bytes,15,opt,name=freshness,proto3" json:"freshness,omitempty"`
+	Freshness *InventoryFreshness `protobuf:"bytes,15,opt,name=freshness,proto3" json:"freshness,omitempty"`
+	// The managed cluster this service is a member of, as PMM's cluster ID. Unset for a
+	// service OM does not manage as part of a cluster.
+	OmClusterId *string `protobuf:"bytes,16,opt,name=om_cluster_id,json=omClusterId,proto3,oneof" json:"om_cluster_id,omitempty"`
+	// The owning cluster's origin, "installed" or "imported". Unset when om_cluster_id is.
+	ClusterOrigin *string `protobuf:"bytes,17,opt,name=cluster_origin,json=clusterOrigin,proto3,oneof" json:"cluster_origin,omitempty"`
+	// The owning cluster's kind, "replica_set" or "sharded". Unset when om_cluster_id is.
+	ClusterKind   *string `protobuf:"bytes,18,opt,name=cluster_kind,json=clusterKind,proto3,oneof" json:"cluster_kind,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2361,6 +2368,27 @@ func (x *InventoryService) GetFreshness() *InventoryFreshness {
 		return x.Freshness
 	}
 	return nil
+}
+
+func (x *InventoryService) GetOmClusterId() string {
+	if x != nil && x.OmClusterId != nil {
+		return *x.OmClusterId
+	}
+	return ""
+}
+
+func (x *InventoryService) GetClusterOrigin() string {
+	if x != nil && x.ClusterOrigin != nil {
+		return *x.ClusterOrigin
+	}
+	return ""
+}
+
+func (x *InventoryService) GetClusterKind() string {
+	if x != nil && x.ClusterKind != nil {
+		return *x.ClusterKind
+	}
+	return ""
 }
 
 // InventoryHost is one machine OM knows about, with the services on it.
@@ -5833,7 +5861,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\vlast_run_id\x18\b \x01(\tH\x02R\tlastRunId\x88\x01\x01B\r\n" +
 	"\v_last_errorB\x12\n" +
 	"\x10_last_error_codeB\x0e\n" +
-	"\f_last_run_id\"\xeb\x05\n" +
+	"\f_last_run_id\"\x9e\a\n" +
 	"\x10InventoryService\x12\x1d\n" +
 	"\n" +
 	"service_id\x18\x01 \x01(\tR\tserviceId\x12\x17\n" +
@@ -5852,7 +5880,11 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x0euptime_seconds\x18\f \x01(\x01H\bR\ruptimeSeconds\x88\x01\x01\x12,\n" +
 	"\x0freplication_set\x18\r \x01(\tH\tR\x0ereplicationSet\x88\x01\x01\x123\n" +
 	"\bobserved\x18\x0e \x01(\v2\x17.google.protobuf.StructR\bobserved\x127\n" +
-	"\tfreshness\x18\x0f \x01(\v2\x19.om.v1.InventoryFreshnessR\tfreshnessB\a\n" +
+	"\tfreshness\x18\x0f \x01(\v2\x19.om.v1.InventoryFreshnessR\tfreshness\x12'\n" +
+	"\rom_cluster_id\x18\x10 \x01(\tH\n" +
+	"R\vomClusterId\x88\x01\x01\x12*\n" +
+	"\x0ecluster_origin\x18\x11 \x01(\tH\vR\rclusterOrigin\x88\x01\x01\x12&\n" +
+	"\fcluster_kind\x18\x12 \x01(\tH\fR\vclusterKind\x88\x01\x01B\a\n" +
 	"\x05_portB\a\n" +
 	"\x05_roleB\x14\n" +
 	"\x12_installed_versionB\x12\n" +
@@ -5862,7 +5894,10 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\r_probe_statusB\x11\n" +
 	"\x0f_server_runningB\x11\n" +
 	"\x0f_uptime_secondsB\x12\n" +
-	"\x10_replication_set\"\xd9\x06\n" +
+	"\x10_replication_setB\x10\n" +
+	"\x0e_om_cluster_idB\x11\n" +
+	"\x0f_cluster_originB\x0f\n" +
+	"\r_cluster_kind\"\xd9\x06\n" +
 	"\rInventoryHost\x12\x17\n" +
 	"\anode_id\x18\x01 \x01(\tR\x06nodeId\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1d\n" +

@@ -22,6 +22,42 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// ServiceCluster is the managed cluster a service belongs to, for an inventory read.
+type ServiceCluster struct {
+	ClusterID string
+	Origin    OmClusterOrigin
+	Kind      OmClusterKind
+}
+
+// ServiceClustersByServiceID maps each live cluster member's service ID to its owning live
+// cluster, so an inventory read can tell which managed cluster a service is part of.
+func ServiceClustersByServiceID(q *reform.Querier) (map[string]ServiceCluster, error) {
+	clusterStructs, err := q.SelectAllFrom(OmClusterTable, "WHERE removed_at IS NULL")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list managed clusters: %w", err)
+	}
+	clusters := make(map[string]*OmCluster, len(clusterStructs))
+	for _, s := range clusterStructs {
+		cluster := s.(*OmCluster) //nolint:forcetypeassert
+		clusters[cluster.ID] = cluster
+	}
+
+	memberStructs, err := q.SelectAllFrom(OmClusterMemberTable, "WHERE service_id IS NOT NULL AND removed_at IS NULL")
+	if err != nil {
+		return nil, fmt.Errorf("failed to list cluster members: %w", err)
+	}
+	result := make(map[string]ServiceCluster, len(memberStructs))
+	for _, s := range memberStructs {
+		member := s.(*OmClusterMember) //nolint:forcetypeassert
+		cluster, ok := clusters[member.ClusterID]
+		if !ok {
+			continue
+		}
+		result[*member.ServiceID] = ServiceCluster{ClusterID: cluster.ID, Origin: cluster.Origin, Kind: cluster.Kind}
+	}
+	return result, nil
+}
+
 // AppendClusterState appends the next accepted-state version and moves the cluster's current
 // pointer in one caller-provided transaction, locking the cluster row so concurrent appends serialise.
 func AppendClusterState(tx *reform.TX, clusterID string, schemaVersion int32, document []byte, operationID string) (*OmClusterState, error) {

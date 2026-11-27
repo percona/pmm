@@ -518,6 +518,14 @@ message InventoryService {
   google.protobuf.Struct observed = 14;
   // How current the above is, and how it is failing.
   InventoryFreshness freshness = 15;
+
+  // The managed cluster this service is a member of, as PMM's cluster ID. Unset for a
+  // service OM does not manage as part of a cluster.
+  optional string om_cluster_id = 16;
+  // The owning cluster's origin, "installed" or "imported". Unset when om_cluster_id is.
+  optional string cluster_origin = 17;
+  // The owning cluster's kind, "replica_set" or "sharded". Unset when om_cluster_id is.
+  optional string cluster_kind = 18;
 }
 
 // InventoryHost is one machine OM knows about, with the services on it.

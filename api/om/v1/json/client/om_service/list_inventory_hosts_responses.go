@@ -1149,6 +1149,16 @@ type ListInventoryHostsOKBodyHostsItems0ServicesItems0 struct {
 	// Everything the probe recorded, including attributes with no field above.
 	Observed any `json:"observed,omitempty"`
 
+	// The managed cluster this service is a member of, as PMM's cluster ID. Unset for a
+	// service OM does not manage as part of a cluster.
+	OMClusterID *string `json:"om_cluster_id,omitempty"`
+
+	// The owning cluster's origin, "installed" or "imported". Unset when om_cluster_id is.
+	ClusterOrigin *string `json:"cluster_origin,omitempty"`
+
+	// The owning cluster's kind, "replica_set" or "sharded". Unset when om_cluster_id is.
+	ClusterKind *string `json:"cluster_kind,omitempty"`
+
 	// freshness
 	Freshness *ListInventoryHostsOKBodyHostsItems0ServicesItems0Freshness `json:"freshness,omitempty"`
 }

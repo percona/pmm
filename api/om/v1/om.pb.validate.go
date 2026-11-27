@@ -3030,6 +3030,18 @@ func (m *InventoryService) validate(all bool) error {
 		// no validation rules for ReplicationSet
 	}
 
+	if m.OmClusterId != nil {
+		// no validation rules for OmClusterId
+	}
+
+	if m.ClusterOrigin != nil {
+		// no validation rules for ClusterOrigin
+	}
+
+	if m.ClusterKind != nil {
+		// no validation rules for ClusterKind
+	}
+
 	if len(errors) > 0 {
 		return InventoryServiceMultiError(errors)
 	}

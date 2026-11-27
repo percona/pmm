@@ -1929,6 +1929,10 @@ BEGIN
   END LOOP;
 END $$`,
 	},
+	131: {
+		`ALTER TABLE om_clusters ADD COLUMN cleanup_abandoned BOOLEAN NOT NULL DEFAULT false`,
+		`ALTER TABLE om_clusters ALTER COLUMN cleanup_abandoned DROP DEFAULT`,
+	},
 }
 
 // ^^^ Avoid default values in schema definition. ^^^

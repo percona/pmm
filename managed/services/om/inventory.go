@@ -99,9 +99,13 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 	}
 
 	support := s.readInstallSupport(ctx)
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support)
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters)
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
@@ -146,6 +150,19 @@ func (s *Service) pmmServerNodeIDs() (map[string]bool, error) {
 	return servers, nil
 }
 
+// serviceClusters maps each service to the managed cluster it belongs to, so the inventory
+// read can tell a client which cluster a service is part of.
+func (s *Service) serviceClusters() (map[string]models.ServiceCluster, error) {
+	if s.db == nil {
+		return map[string]models.ServiceCluster{}, nil
+	}
+	clusters, err := models.ServiceClustersByServiceID(s.db.Querier)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to map services to clusters: %s", err)
+	}
+	return clusters, nil
+}
+
 // GetInventoryHost returns one host.
 func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHostRequest) (*omv1.GetInventoryHostResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -170,8 +187,12 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 		return nil, err
 	}
 	support := s.readInstallSupport(ctx)
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
 	return &omv1.GetInventoryHostResponse{
-		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support),
+		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters),
 	}, nil
 }
 
@@ -220,9 +241,13 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 		return nil, err
 	}
 
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
 	response := &omv1.ListInventoryServicesResponse{Services: make([]*omv1.InventoryService, 0, len(services))}
 	for _, service := range services {
-		response.Services = append(response.Services, inventoryServiceToProto(service))
+		response.Services = append(response.Services, inventoryServiceToProto(service, serviceClusters))
 	}
 	return response, nil
 }
@@ -240,7 +265,11 @@ func (s *Service) GetInventoryService(ctx context.Context, req *omv1.GetInventor
 	if err != nil {
 		return nil, err
 	}
-	return &omv1.GetInventoryServiceResponse{Service: inventoryServiceToProto(service)}, nil
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.GetInventoryServiceResponse{Service: inventoryServiceToProto(service, serviceClusters)}, nil
 }
 
 // DeleteInventoryService forgets one service.
@@ -1185,7 +1214,13 @@ func (s *Service) DeleteInventoryConfigOverride(
 	return &omv1.DeleteInventoryConfigOverrideResponse{}, nil
 }
 
-func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool, support installSupport) *omv1.InventoryHost {
+func inventoryHostToProto(
+	host extensionsHost,
+	pmmAgentConnected bool,
+	isPMMServer bool,
+	support installSupport,
+	serviceClusters map[string]models.ServiceCluster,
+) *omv1.InventoryHost {
 	executor := executorToProto(host.Observed)
 	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host, support)
 	out := &omv1.InventoryHost{
@@ -1208,7 +1243,7 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 		SupportedMongodbVersions:  support.release(host.Observed).versions,
 	}
 	for _, service := range host.Services {
-		out.Services = append(out.Services, inventoryServiceToProto(service))
+		out.Services = append(out.Services, inventoryServiceToProto(service, serviceClusters))
 	}
 	return out
 }
@@ -1280,8 +1315,8 @@ func unregisteredMongodCount(observed map[string]any) int {
 	return len(entries)
 }
 
-func inventoryServiceToProto(service extensionsService) *omv1.InventoryService {
-	return &omv1.InventoryService{
+func inventoryServiceToProto(service extensionsService, serviceClusters map[string]models.ServiceCluster) *omv1.InventoryService {
+	out := &omv1.InventoryService{
 		ServiceId:        service.ServiceID,
 		NodeId:           service.NodeID,
 		Name:             service.Name,
@@ -1298,6 +1333,16 @@ func inventoryServiceToProto(service extensionsService) *omv1.InventoryService {
 		Observed:         observedToStruct(service.Observed),
 		Freshness:        freshnessToProto(service.extensionsFreshness),
 	}
+	cluster, ok := serviceClusters[service.ServiceID]
+	if ok {
+		clusterID := cluster.ClusterID
+		origin := string(cluster.Origin)
+		kind := string(cluster.Kind)
+		out.OmClusterId = &clusterID
+		out.ClusterOrigin = &origin
+		out.ClusterKind = &kind
+	}
+	return out
 }
 
 func inventoryRunToProto(run extensionsRun) *omv1.InventoryRun {

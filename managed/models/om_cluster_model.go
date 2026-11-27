@@ -69,6 +69,8 @@ type OmCluster struct {
 	CreatedAt      time.Time       `reform:"created_at"`
 	UpdatedAt      time.Time       `reform:"updated_at"`
 	RemovedAt      *time.Time      `reform:"removed_at"`
+	// CleanupAbandoned marks a cluster tombstoned by abandon, with hosts not proven clean.
+	CleanupAbandoned bool `reform:"cleanup_abandoned"`
 }
 
 // BeforeInsert implements reform.BeforeInserter.

@@ -18,6 +18,7 @@ package models_test
 import (
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/lib/pq"
@@ -197,4 +198,62 @@ func TestOmLeaderLease(t *testing.T) {
 	assert.Equal(t, int64(2), takeover)
 	assert.Equal(t, int64(2), acquire("node-a"))
 	assert.Equal(t, int64(3), acquire("node-b"))
+}
+
+func TestOmServiceClustersByServiceID(t *testing.T) {
+	db := omTestDB(t)
+	q := db.Querier
+
+	require.NoError(t, q.Insert(&models.Node{NodeID: "N1", NodeType: models.GenericNodeType, NodeName: "n1"}))
+	require.NoError(t, q.Insert(&models.Service{ServiceID: "S1", ServiceType: models.MongoDBServiceType, ServiceName: "svc1", NodeID: "N1"}))
+	require.NoError(t, q.Insert(&models.Service{ServiceID: "S3", ServiceType: models.MongoDBServiceType, ServiceName: "svc3", NodeID: "N1"}))
+
+	clusterID := newCluster(t, q)
+	opID := newOperation(t, q, &clusterID)
+	rsRef := newReplicaSet(t, q, clusterID, uuid.New().String())
+
+	newMember := func(host string, rsMemberID int32, serviceID *string, removed bool) *models.OmClusterMember {
+		m := &models.OmClusterMember{
+			ID: uuid.New().String(), ClusterID: clusterID, ReplicaSetRef: &rsRef,
+			Process: models.OmMemberMongod, Host: host, RSMemberID: &rsMemberID,
+			State: models.OmMemberAccepted, ServiceID: serviceID, AddedByOperation: opID,
+		}
+		if removed {
+			removedAt := time.Now()
+			m.RemovedAt = &removedAt
+		}
+		return m
+	}
+
+	svc1 := "S1"
+	svc3 := "S3"
+	require.NoError(t, q.Insert(newMember("node1:27017", 0, &svc1, false)))
+	require.NoError(t, q.Insert(newMember("node2:27017", 1, nil, false)))
+	require.NoError(t, q.Insert(newMember("node3:27017", 2, &svc3, true)))
+
+	got, err := models.ServiceClustersByServiceID(q)
+	require.NoError(t, err)
+	require.Len(t, got, 1)
+	assert.Equal(t, models.ServiceCluster{
+		ClusterID: clusterID, Origin: models.OmClusterInstalled, Kind: models.OmClusterReplicaSet,
+	}, got[svc1])
+	_, hasRemoved := got[svc3]
+	assert.False(t, hasRemoved)
+}
+
+func TestOmClusterCleanupAbandoned(t *testing.T) {
+	db := omTestDB(t)
+	q := db.Querier
+
+	id := newCluster(t, q)
+	c := &models.OmCluster{ID: id}
+	require.NoError(t, q.Reload(c))
+	assert.False(t, c.CleanupAbandoned)
+
+	c.CleanupAbandoned = true
+	require.NoError(t, q.Update(c))
+
+	reloaded := &models.OmCluster{ID: id}
+	require.NoError(t, q.Reload(reloaded))
+	assert.True(t, reloaded.CleanupAbandoned)
 }

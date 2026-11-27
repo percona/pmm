@@ -39,6 +39,7 @@ func (v *omClusterTableType) Columns() []string {
 		"created_at",
 		"updated_at",
 		"removed_at",
+		"cleanup_abandoned",
 	}
 }
 
@@ -74,6 +75,7 @@ var OmClusterTable = &omClusterTableType{
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"},
 			{Name: "RemovedAt", Type: "*time.Time", Column: "removed_at"},
+			{Name: "CleanupAbandoned", Type: "bool", Column: "cleanup_abandoned"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -82,7 +84,7 @@ var OmClusterTable = &omClusterTableType{
 
 // String returns a string representation of this struct or record.
 func (s OmCluster) String() string {
-	res := make([]string, 11)
+	res := make([]string, 12)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Name: " + reform.Inspect(s.Name, true)
 	res[2] = "Kind: " + reform.Inspect(s.Kind, true)
@@ -94,6 +96,7 @@ func (s OmCluster) String() string {
 	res[8] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[9] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	res[10] = "RemovedAt: " + reform.Inspect(s.RemovedAt, true)
+	res[11] = "CleanupAbandoned: " + reform.Inspect(s.CleanupAbandoned, true)
 	return strings.Join(res, ", ")
 }
 
@@ -112,6 +115,7 @@ func (s *OmCluster) Values() []interface{} {
 		s.CreatedAt,
 		s.UpdatedAt,
 		s.RemovedAt,
+		s.CleanupAbandoned,
 	}
 }
 
@@ -130,6 +134,7 @@ func (s *OmCluster) Pointers() []interface{} {
 		&s.CreatedAt,
 		&s.UpdatedAt,
 		&s.RemovedAt,
+		&s.CleanupAbandoned,
 	}
 }
 
