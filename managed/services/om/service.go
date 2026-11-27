@@ -212,6 +212,11 @@ func (s *Service) WithOperationRunner(extensionsURL, token string) *Service {
 		s.l.WithError(err).Error("failed to register the install operation kind")
 		return s
 	}
+	err = s.operationRegistry.Register(UninstallKind())
+	if err != nil {
+		s.l.WithError(err).Error("failed to register the uninstall operation kind")
+		return s
+	}
 	client := newExtensionsClient(extensionsURL, token)
 	l := s.l.WithField("component", "om-operations")
 	checks := newFactCheckProvider(newFactReader(client))
