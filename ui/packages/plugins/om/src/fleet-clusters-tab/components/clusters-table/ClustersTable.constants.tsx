@@ -21,13 +21,8 @@ import Tooltip from '@mui/material/Tooltip';
 import type { MRT_ColumnDef } from 'material-react-table';
 import { Percent } from '../../../components/Metric';
 import { Unavailable } from '../../../components/Unavailable';
-import { formatCompactDuration } from '../../../format';
 import { clusterHealthRank } from '../../../topology';
 import type { OmClusterHealth, OmClusterRow } from '../../../types';
-import {
-  LAG_ALERT_SECONDS,
-  OPLOG_WARN_SECONDS,
-} from '../../FleetClustersTab.constants';
 import { Messages } from '../../FleetClustersTab.messages';
 import {
   GROUP_VALUE,
@@ -38,13 +33,14 @@ import {
 } from '../../FleetClustersTab.utils';
 import { ClusterHealthCell } from '../cluster-health-cell';
 import { ClusterMembersCell } from '../cluster-members-cell';
+import { ClusterNameLink } from '../cluster-name-link';
 import { ClusterTypeCell } from '../cluster-type-cell';
 import { ClusterVersionCell } from '../cluster-version-cell';
 import { LastSeenCell } from '../last-seen-cell';
-import { ThresholdValue } from '../threshold-value';
+import { OplogWindowValue, ReplicationLagValue } from '../threshold-value';
 import { UpdateAvailableChip } from '../update-available-chip';
 
-const { columns, columnTooltips, thresholds } = Messages;
+const { columns, columnTooltips } = Messages;
 
 /** A header with its definition on hover. */
 const withTooltip = (label: string, tooltip: string) => () => (
@@ -75,8 +71,7 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
     size: 160,
     // The only column the search reads.
     enableGlobalFilter: true,
-    Cell: ({ row: { original } }) =>
-      original.cluster_name ?? <Unavailable reason="not_applicable" />,
+    Cell: ({ row: { original } }) => <ClusterNameLink cluster={original} />,
   },
   {
     // The raw type, which sorts as its label does.
@@ -155,36 +150,18 @@ export const CLUSTER_COLUMNS: MRT_ColumnDef<OmClusterRow>[] = [
       columns.maxReplicationLag,
       columnTooltips.maxReplicationLag
     ),
-    Cell: ({ row: { original } }) => {
-      const seconds = original.max_replication_lag_seconds;
-      return (
-        <ThresholdValue
-          seconds={seconds}
-          crossed={seconds != null && seconds >= LAG_ALERT_SECONDS}
-          level="error"
-          reason={thresholds.lagAbove(formatCompactDuration(LAG_ALERT_SECONDS))}
-        />
-      );
-    },
+    Cell: ({ row: { original } }) => (
+      <ReplicationLagValue seconds={original.max_replication_lag_seconds} />
+    ),
   },
   {
     accessorKey: 'min_oplog_window_seconds',
     header: columns.minOplogWindow,
     size: 140,
     Header: withTooltip(columns.minOplogWindow, columnTooltips.minOplogWindow),
-    Cell: ({ row: { original } }) => {
-      const seconds = original.min_oplog_window_seconds;
-      return (
-        <ThresholdValue
-          seconds={seconds}
-          crossed={seconds != null && seconds < OPLOG_WARN_SECONDS}
-          level="warning"
-          reason={thresholds.oplogBelow(
-            formatCompactDuration(OPLOG_WARN_SECONDS)
-          )}
-        />
-      );
-    },
+    Cell: ({ row: { original } }) => (
+      <OplogWindowValue seconds={original.min_oplog_window_seconds} />
+    ),
   },
   { accessorKey: 'total_services', header: columns.services, size: 100 },
   {

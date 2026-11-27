@@ -19,6 +19,7 @@ import { useLocation } from 'react-router-dom';
 import {
   OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_CLUSTER,
   OM_ROUTE_INSTALL,
   OM_ROUTE_NODES,
   OM_ROUTE_SETTINGS,
@@ -36,12 +37,13 @@ const CHILD_PATTERNS = [
   // Longest first: `nodes/install` has to strip before `nodes` gets a chance, or the
   // base comes back one segment too long on the install wizard.
   OM_ROUTE_INSTALL,
+  OM_ROUTE_CLUSTER,
   OM_ROUTE_NODES,
   OM_ROUTE_AUTOMATIONS,
   OM_ROUTE_SETTINGS,
   // The retired routes still resolve a base, so a redirect lands somewhere real.
   ...Object.keys(OM_LEGACY_REDIRECTS),
-].map((route) => new RegExp(`/${route}$`));
+].map((route) => new RegExp(`/${route.replace(/:\w+/g, '[^/]+')}$`));
 
 /**
  * Recover OM's mount path from the current location.

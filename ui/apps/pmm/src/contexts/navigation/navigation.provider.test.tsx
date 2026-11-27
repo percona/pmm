@@ -257,6 +257,7 @@ describe('NavigationProvider', () => {
 
     it.each([
       ['om-fleet', OM_PATH],
+      ['om-fleet', `${OM_PATH}/clusters/3f2a9c01d4e5b678`],
       ['om-nodes', `${OM_PATH}/nodes`],
       ['om-automations', `${OM_PATH}/automations`],
       ['om-settings', `${OM_PATH}/settings`],

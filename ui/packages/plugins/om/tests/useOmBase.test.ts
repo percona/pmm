@@ -56,6 +56,10 @@ describe('omBase', () => {
     }
   );
 
+  it('strips a cluster page, whatever its id', () => {
+    expect(omBase(`${MOUNT}/clusters/3f2a9c01d4e5b678`)).toBe(MOUNT);
+  });
+
   it('does not care where the shell mounts the plugin', () => {
     expect(omBase(`/somewhere/else/${OM_ROUTE_NODES}`)).toBe('/somewhere/else');
   });

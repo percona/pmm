@@ -170,6 +170,35 @@ describe('FleetClustersTab', () => {
     });
   });
 
+  it('links each cluster, named or not, to its own page', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              id: 'named-id',
+              name: 'orders',
+              services: [service({})],
+            }),
+            cluster({ id: 'unnamed-id', name: null, services: [service({})] }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    expect(screen.getByRole('link', { name: 'orders' })).toHaveAttribute(
+      'href',
+      '/clusters/named-id'
+    );
+    expect(
+      screen.getByRole('link', { name: 'Unnamed cluster' })
+    ).toHaveAttribute('href', '/clusters/unnamed-id');
+  });
+
   it('warns, with the server error, when the scan results cannot be read', () => {
     useOmInventoryServices.mockReturnValue({
       data: undefined,

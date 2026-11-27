@@ -15,4 +15,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { ThresholdValue } from './ThresholdValue';
+export {
+  OplogWindowValue,
+  ReplicationLagValue,
+  ThresholdValue,
+} from './ThresholdValue';

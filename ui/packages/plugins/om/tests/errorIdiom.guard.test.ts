@@ -44,6 +44,8 @@ const ERROR_TEXT =
  * message added to one of these files still fails.
  */
 const STATUS_RED: Record<string, number> = {
+  // a cluster's "N down" beside its members
+  'cluster-details/components/members-table/MembersTable.tsx': 1,
   // a cluster's members count while one of them is down
   'fleet-clusters-tab/components/cluster-members-cell/ClusterMembersCell.tsx': 1,
   // "N down", a service's "failing 3h", and its failure's short reason

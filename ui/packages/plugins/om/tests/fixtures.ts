@@ -78,6 +78,93 @@ export const topology = (
   environments,
 });
 
+/** A three-member replica set, primary first, with one secondary lagging. */
+export const replicaSetCluster = (overrides: Partial<OmCluster> = {}) =>
+  cluster({
+    name: 'reporting',
+    type: 'CLUSTER_TYPE_REPLICA_SET',
+    services: [
+      service({
+        service_name: 'rpt-1',
+        service_id: 'rpt-1-id',
+        host: 'rpt-1.eu',
+        endpoint: 'rpt-1.eu:27017',
+        replication_set: 'rs-reporting',
+        state: 'PRIMARY',
+        oplog_window_seconds: 3300,
+        replication_lag_seconds: 0,
+      }),
+      service({
+        service_name: 'rpt-3',
+        service_id: 'rpt-3-id',
+        host: 'rpt-3.eu',
+        endpoint: 'rpt-3.eu:27017',
+        replication_set: 'rs-reporting',
+        state: 'SECONDARY',
+        oplog_window_seconds: 7200,
+        replication_lag_seconds: 45,
+      }),
+      service({
+        service_name: 'rpt-2',
+        service_id: 'rpt-2-id',
+        host: 'rpt-2.eu',
+        endpoint: 'rpt-2.eu:27017',
+        replication_set: 'rs-reporting',
+        state: 'SECONDARY',
+        oplog_window_seconds: 7200,
+        replication_lag_seconds: 0.4,
+      }),
+    ],
+    ...overrides,
+  });
+
+/** Two routers, a config server replica set and two shards. */
+export const shardedCluster = (overrides: Partial<OmCluster> = {}) =>
+  cluster({
+    name: 'orders',
+    type: 'CLUSTER_TYPE_SHARDED',
+    services: [
+      service({
+        service_name: 'shard-b-1',
+        host: 'host-b1',
+        endpoint: 'host-b1:27018',
+        replication_set: 'rs-b',
+        process_role: 'PROCESS_ROLE_SHARDSVR',
+      }),
+      service({
+        service_name: 'mongos-1',
+        host: 'mongos-1',
+        endpoint: 'mongos-1:27017',
+        replication_set: null,
+        state: null,
+        process_role: 'PROCESS_ROLE_MONGOS',
+      }),
+      service({
+        service_name: 'cfg-1',
+        host: 'cfg-1',
+        endpoint: 'cfg-1:27019',
+        replication_set: 'configRS',
+        process_role: 'PROCESS_ROLE_CONFIGSVR',
+      }),
+      service({
+        service_name: 'shard-a-1',
+        host: 'host-a1',
+        endpoint: 'host-a1:27018',
+        replication_set: 'rs-a',
+        process_role: 'PROCESS_ROLE_SHARDSVR',
+      }),
+      service({
+        service_name: 'mongos-2',
+        host: 'mongos-2',
+        endpoint: 'mongos-2:27017',
+        replication_set: null,
+        state: null,
+        process_role: 'PROCESS_ROLE_MONGOS',
+      }),
+    ],
+    ...overrides,
+  });
+
 /**
  * One environment holding a healthy cluster named first and a degraded one named
  * second, so name order and health order disagree.

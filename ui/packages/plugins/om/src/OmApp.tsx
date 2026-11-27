@@ -21,12 +21,14 @@ import { ReadOnlyNotice } from '@pmm-extensions/framework';
 import {
   OM_LEGACY_REDIRECTS,
   OM_ROUTE_AUTOMATIONS,
+  OM_ROUTE_CLUSTER,
   OM_ROUTE_INSTALL,
   OM_ROUTE_NODES,
   OM_ROUTE_SETTINGS,
 } from './constants';
 import { AutomationsPage } from './AutomationsPage';
 import { BootstrapPage } from './BootstrapPage';
+import { ClusterDetailsPage } from './cluster-details';
 import { FleetPage } from './FleetPage';
 import { LegacyRedirect } from './LegacyRedirect';
 import { NodesPage } from './NodesPage';
@@ -42,11 +44,9 @@ import { ScanFeedbackProvider } from './ScanFeedback';
  * Automations rather than on a page called Inventory, which collided with PMM's own.
  * See om-design-review/structure-and-glossary-proposal.md for why that is the rule.
  *
- * There is no per-cluster or per-run route: every table renders what it holds and
- * expands in place, so a detail page would only re-show rows the reader already has.
- * The install wizard is the one exception -- it needs the node selection `NodesPage`
- * made, carried across as a `?nodes=` query param rather than duplicated as a second
- * selection UI (see {@link BootstrapPage}'s own doc comment).
+ * A cluster has its own page, since it shows more than its Fleet row holds; runs
+ * still expand in place. The install wizard takes the node selection `NodesPage`
+ * made as a `?nodes=` query param (see {@link BootstrapPage}'s own doc comment).
  *
  * The legacy redirects exist because the feature build is already out with people
  * clicking round it; see {@link OM_LEGACY_REDIRECTS}.
@@ -59,6 +59,7 @@ export const OmApp = () => {
     <ScanFeedbackProvider>
       <Routes>
         <Route index element={<FleetPage />} />
+        <Route path={OM_ROUTE_CLUSTER} element={<ClusterDetailsPage />} />
         <Route path={OM_ROUTE_NODES} element={<NodesPage />} />
         <Route
           path={OM_ROUTE_INSTALL}

@@ -28,19 +28,30 @@ vi.mock('../src/inventoryHooks', () => ({
 vi.mock('../src/BootstrapPage', () => ({
   BootstrapPage: () => <div data-testid="bootstrap-page" />,
 }));
+vi.mock('../src/cluster-details', () => ({
+  ClusterDetailsPage: () => <div data-testid="cluster-details-page" />,
+}));
 
 const MOUNT = '/operations';
 
-const openInstall = () =>
+const open = (path: string) =>
   render(
-    <MemoryRouter initialEntries={[`${MOUNT}/${OM_ROUTE_INSTALL}`]}>
+    <MemoryRouter initialEntries={[`${MOUNT}/${path}`]}>
       <Routes>
         <Route path={`${MOUNT}/*`} element={<OmApp />} />
       </Routes>
     </MemoryRouter>
   );
 
+const openInstall = () => open(OM_ROUTE_INSTALL);
+
 describe('OmApp', () => {
+  it('serves a cluster its own page', () => {
+    open('clusters/3f2a9c01d4e5b678');
+
+    expect(screen.getByTestId('cluster-details-page')).toBeInTheDocument();
+  });
+
   it('serves the install page to a reader who may act', () => {
     openInstall();
 
