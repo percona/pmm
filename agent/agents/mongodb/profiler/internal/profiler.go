@@ -31,13 +31,14 @@ import (
 )
 
 // New creates new Profiler.
-func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32) *Profiler {
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string, maxQueryLength int32, disableQueryExamples bool) *Profiler {
 	return &Profiler{
-		mongoDSN:       mongoDSN,
-		maxQueryLength: maxQueryLength,
-		logger:         logger,
-		w:              w,
-		agentID:        agentID,
+		mongoDSN:             mongoDSN,
+		maxQueryLength:       maxQueryLength,
+		disableQueryExamples: disableQueryExamples,
+		logger:               logger,
+		w:                    w,
+		agentID:              agentID,
 	}
 }
 
@@ -65,7 +66,8 @@ type Profiler struct {
 	wg       *sync.WaitGroup // Wait() for goroutines to stop after being notified they should shutdown
 
 	// others
-	maxQueryLength int32
+	maxQueryLength       int32
+	disableQueryExamples bool
 }
 
 // Start starts analyzer but doesn't wait until it exits.
@@ -84,7 +86,7 @@ func (p *Profiler) Start(ctx context.Context) error {
 	p.client = client
 
 	// create aggregator which collects documents and aggregates them into qan report
-	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength)
+	p.aggregator = aggregator.New(time.Now(), p.agentID, p.logger, p.maxQueryLength, p.disableQueryExamples)
 	reportChan := p.aggregator.Start() //nolint:contextcheck // stopped explicitly in Stop()
 
 	// create sender which sends qan reports and start it

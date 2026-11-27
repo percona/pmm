@@ -8102,9 +8102,11 @@ type AddQANMongoDBProfilerAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Log level for agent.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Disable query examples.
+	DisableQueryExamples bool `protobuf:"varint,16,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AddQANMongoDBProfilerAgentParams) Reset() {
@@ -8242,6 +8244,13 @@ func (x *AddQANMongoDBProfilerAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANMongoDBProfilerAgentParams) GetDisableQueryExamples() bool {
+	if x != nil {
+		return x.DisableQueryExamples
+	}
+	return false
+}
+
 type ChangeQANMongoDBProfilerAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8276,8 +8285,10 @@ type ChangeQANMongoDBProfilerAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Disable query examples.
+	DisableQueryExamples *bool `protobuf:"varint,17,opt,name=disable_query_examples,json=disableQueryExamples,proto3,oneof" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBProfilerAgentParams) Reset() {
@@ -8422,6 +8433,13 @@ func (x *ChangeQANMongoDBProfilerAgentParams) GetSkipConnectionCheck() bool {
 	return false
 }
 
+func (x *ChangeQANMongoDBProfilerAgentParams) GetDisableQueryExamples() bool {
+	if x != nil && x.DisableQueryExamples != nil {
+		return *x.DisableQueryExamples
+	}
+	return false
+}
+
 type AddQANMongoDBMongologAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The pmm-agent identifier which runs this instance.
@@ -8455,9 +8473,11 @@ type AddQANMongoDBMongologAgentParams struct {
 	// Authentication database.
 	AuthenticationDatabase string `protobuf:"bytes,14,opt,name=authentication_database,json=authenticationDatabase,proto3" json:"authentication_database,omitempty"`
 	// Log level for agent.
-	LogLevel      LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	LogLevel LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel" json:"log_level,omitempty"`
+	// Disable query examples.
+	DisableQueryExamples bool `protobuf:"varint,16,opt,name=disable_query_examples,json=disableQueryExamples,proto3" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *AddQANMongoDBMongologAgentParams) Reset() {
@@ -8595,6 +8615,13 @@ func (x *AddQANMongoDBMongologAgentParams) GetLogLevel() LogLevel {
 	return LogLevel_LOG_LEVEL_UNSPECIFIED
 }
 
+func (x *AddQANMongoDBMongologAgentParams) GetDisableQueryExamples() bool {
+	if x != nil {
+		return x.DisableQueryExamples
+	}
+	return false
+}
+
 type ChangeQANMongoDBMongologAgentParams struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Enable this Agent. Agents are enabled by default when they get added.
@@ -8629,8 +8656,10 @@ type ChangeQANMongoDBMongologAgentParams struct {
 	LogLevel *LogLevel `protobuf:"varint,15,opt,name=log_level,json=logLevel,proto3,enum=inventory.v1.LogLevel,oneof" json:"log_level,omitempty"`
 	// Skip connection check.
 	SkipConnectionCheck *bool `protobuf:"varint,16,opt,name=skip_connection_check,json=skipConnectionCheck,proto3,oneof" json:"skip_connection_check,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	// Disable query examples.
+	DisableQueryExamples *bool `protobuf:"varint,17,opt,name=disable_query_examples,json=disableQueryExamples,proto3,oneof" json:"disable_query_examples,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *ChangeQANMongoDBMongologAgentParams) Reset() {
@@ -8771,6 +8800,13 @@ func (x *ChangeQANMongoDBMongologAgentParams) GetLogLevel() LogLevel {
 func (x *ChangeQANMongoDBMongologAgentParams) GetSkipConnectionCheck() bool {
 	if x != nil && x.SkipConnectionCheck != nil {
 		return *x.SkipConnectionCheck
+	}
+	return false
+}
+
+func (x *ChangeQANMongoDBMongologAgentParams) GetDisableQueryExamples() bool {
+	if x != nil && x.DisableQueryExamples != nil {
+		return *x.DisableQueryExamples
 	}
 	return false
 }
@@ -12057,7 +12093,7 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x16_skip_connection_checkB\x1b\n" +
 	"\x19_disable_comments_parsingB\f\n" +
 	"\n" +
-	"_log_level\"\xbf\x06\n" +
+	"_log_level\"\xf5\x06\n" +
 	" AddQANMongoDBProfilerAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12076,10 +12112,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x124\n" +
+	"\x16disable_query_examples\x18\x10 \x01(\bR\x14disableQueryExamples\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdf\t\n" +
 	"#ChangeQANMongoDBProfilerAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12098,7 +12135,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01\x129\n" +
+	"\x16disable_query_examples\x18\x11 \x01(\bH\x0fR\x14disableQueryExamples\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12114,7 +12152,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xbf\x06\n" +
+	"\x16_skip_connection_checkB\x19\n" +
+	"\x17_disable_query_examples\"\xf5\x06\n" +
 	" AddQANMongoDBMongologAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +
@@ -12133,10 +12172,11 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x15skip_connection_check\x18\f \x01(\bR\x13skipConnectionCheck\x129\n" +
 	"\x18authentication_mechanism\x18\r \x01(\tR\x17authenticationMechanism\x127\n" +
 	"\x17authentication_database\x18\x0e \x01(\tR\x16authenticationDatabase\x123\n" +
-	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x1a?\n" +
+	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelR\blogLevel\x124\n" +
+	"\x16disable_query_examples\x18\x10 \x01(\bR\x14disableQueryExamples\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x89\t\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xdf\t\n" +
 	"#ChangeQANMongoDBMongologAgentParams\x12\x1b\n" +
 	"\x06enable\x18\x01 \x01(\bH\x00R\x06enable\x88\x01\x01\x12;\n" +
 	"\rcustom_labels\x18\x02 \x01(\v2\x11.common.StringMapH\x01R\fcustomLabels\x88\x01\x01\x123\n" +
@@ -12155,7 +12195,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18authentication_mechanism\x18\r \x01(\tH\vR\x17authenticationMechanism\x88\x01\x01\x12<\n" +
 	"\x17authentication_database\x18\x0e \x01(\tH\fR\x16authenticationDatabase\x88\x01\x01\x128\n" +
 	"\tlog_level\x18\x0f \x01(\x0e2\x16.inventory.v1.LogLevelH\rR\blogLevel\x88\x01\x01\x127\n" +
-	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01B\t\n" +
+	"\x15skip_connection_check\x18\x10 \x01(\bH\x0eR\x13skipConnectionCheck\x88\x01\x01\x129\n" +
+	"\x16disable_query_examples\x18\x11 \x01(\bH\x0fR\x14disableQueryExamples\x88\x01\x01B\t\n" +
 	"\a_enableB\x10\n" +
 	"\x0e_custom_labelsB\x16\n" +
 	"\x14_enable_push_metricsB\v\n" +
@@ -12171,7 +12212,8 @@ const file_inventory_v1_agents_proto_rawDesc = "" +
 	"\x18_authentication_databaseB\f\n" +
 	"\n" +
 	"_log_levelB\x18\n" +
-	"\x16_skip_connection_check\"\xd4\x05\n" +
+	"\x16_skip_connection_checkB\x19\n" +
+	"\x17_disable_query_examples\"\xd4\x05\n" +
 	"'AddQANPostgreSQLPgStatementsAgentParams\x12)\n" +
 	"\fpmm_agent_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\n" +
 	"pmmAgentId\x12&\n" +

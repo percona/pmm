@@ -37,7 +37,7 @@ func TestAggregator(t *testing.T) {
 	// we need at least one test per package to correctly calculate coverage
 	t.Run("Add", func(t *testing.T) {
 		t.Run("error if aggregator is not running", func(t *testing.T) {
-			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
+			a := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 			err := a.Add(context.TODO(), proto.SystemProfile{})
 			require.EqualError(t, err, "aggregator is not running")
 		})
@@ -46,7 +46,7 @@ func TestAggregator(t *testing.T) {
 	t.Run("createResult", func(t *testing.T) {
 		agentID := "test-agent"
 		startPeriod := time.Now()
-		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
+		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()
@@ -102,10 +102,39 @@ func TestAggregator(t *testing.T) {
 		}, *result)
 	})
 
+	t.Run("createResultDisableQueryExamples", func(t *testing.T) {
+		aggregator := New(time.Now(), "test-agent", logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength(), true)
+		aggregator.Start()
+		defer aggregator.Stop()
+		ctx := context.TODO()
+		err := aggregator.Add(ctx, proto.SystemProfile{
+			Nreturned: 3,
+			Ns:        "collection.people",
+			Op:        "query",
+			Command: bson.D{
+				primitive.E{Key: "find", Value: "people"},
+				primitive.E{Key: "filter", Value: bson.D{primitive.E{Key: "name", Value: "secret value"}}},
+			},
+			DocsExamined: 2,
+			KeysExamined: 3,
+		})
+		require.NoError(t, err)
+
+		result := aggregator.createResult(ctx)
+
+		require.Len(t, result.Buckets, 1)
+		common := result.Buckets[0].Common
+		assert.Equal(t, `db.people.find({"name":"?"})`, common.Fingerprint)
+		assert.Empty(t, common.Example)
+		assert.Equal(t, agentv1.ExampleType_EXAMPLE_TYPE_UNSPECIFIED, common.ExampleType)
+		assert.False(t, common.IsTruncated)
+		assert.Equal(t, float32(1), common.NumQueries)
+	})
+
 	t.Run("createResultInvalidUTF8", func(t *testing.T) {
 		agentID := "test-agent"
 		startPeriod := time.Now()
-		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength())
+		aggregator := New(startPeriod, agentID, logrus.WithField("component", "test"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 		aggregator.Start()
 		defer aggregator.Stop()
 		ctx := context.TODO()

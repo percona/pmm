@@ -106,6 +106,8 @@ message AddMongoDBServiceParams {
   }];
   // Enable collecting histogram bucket metrics from getDiagnosticData.
   bool enable_diagnostic_data_histograms = 39;
+  // Disable query examples.
+  bool disable_query_examples = 40;
 }
 
 // Update MongoDB
@@ -179,6 +181,8 @@ message UpdateMongoDBServiceParams {
   }];
   // Skip connection check.
   bool skip_connection_check = 31;
+  // Disable query examples.
+  optional bool disable_query_examples = 32;
 }
 
 message MongoDBServiceResult {

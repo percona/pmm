@@ -9518,6 +9518,9 @@ type ChangeAgentParamsBodyQANMongodbMongologAgent struct {
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples *bool `json:"disable_query_examples,omitempty"`
+
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbMongologAgentCustomLabels `json:"custom_labels,omitempty"`
 
@@ -9860,6 +9863,9 @@ type ChangeAgentParamsBodyQANMongodbProfilerAgent struct {
 
 	// Skip connection check.
 	SkipConnectionCheck *bool `json:"skip_connection_check,omitempty"`
+
+	// Disable query examples.
+	DisableQueryExamples *bool `json:"disable_query_examples,omitempty"`
 
 	// custom labels
 	CustomLabels *ChangeAgentParamsBodyQANMongodbProfilerAgentCustomLabels `json:"custom_labels,omitempty"`

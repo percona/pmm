@@ -33,7 +33,7 @@ import (
 
 func TestNew(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 
 	type args struct {
 		docsChan   <-chan pm.SystemProfile
@@ -65,7 +65,7 @@ func TestNew(t *testing.T) {
 func TestParserStartStop(t *testing.T) {
 	var err error
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 
 	ctx := context.TODO()
 	parser1 := New(docsChan, a, logrus.WithField("component", "test-parser"))
@@ -83,7 +83,7 @@ func TestParserStartStop(t *testing.T) {
 
 func TestParserContextCancel(t *testing.T) {
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 
 	ctx, cancel := context.WithCancel(t.Context())
 	parser := New(docsChan, a, logrus.WithField("component", "test-parser"))
@@ -120,7 +120,7 @@ func TestParserRunning(t *testing.T) {
 	aggregator.DefaultInterval = 10 * time.Second
 	defer func() { aggregator.DefaultInterval = oldInterval }()
 	docsChan := make(chan pm.SystemProfile)
-	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength())
+	a := aggregator.New(time.Now(), "test-id", logrus.WithField("component", "aggregator"), truncate.GetMongoDBDefaultMaxQueryLength(), false)
 	reportChan := a.Start()
 	defer a.Stop()
 	d := aggregator.DefaultInterval

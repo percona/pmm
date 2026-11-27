@@ -93,7 +93,7 @@ func testProfiler(t *testing.T, url string) {
 		t:       t,
 		reports: []*report.Report{},
 	}
-	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength())
+	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id", truncate.GetMongoDBDefaultMaxQueryLength(), false)
 	err = prof.Start(t.Context())
 	require.NoError(t, err)
 	t.Cleanup(func() {

@@ -956,17 +956,19 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentv1.SetState
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_PROFILER_AGENT:
 		params := &mongoprofiler.Params{
-			DSN:            dsn,
-			AgentID:        agentID,
-			MaxQueryLength: builtinAgent.MaxQueryLength,
+			DSN:                  dsn,
+			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
+			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
 		agent, err = mongoprofiler.New(params, l)
 
 	case inventoryv1.AgentType_AGENT_TYPE_QAN_MONGODB_MONGOLOG_AGENT:
 		params := &mongolog.Params{
-			DSN:            dsn,
-			AgentID:        agentID,
-			MaxQueryLength: builtinAgent.MaxQueryLength,
+			DSN:                  dsn,
+			AgentID:              agentID,
+			MaxQueryLength:       builtinAgent.MaxQueryLength,
+			DisableQueryExamples: builtinAgent.DisableQueryExamples,
 		}
 		agent, err = mongolog.New(params, l)
 

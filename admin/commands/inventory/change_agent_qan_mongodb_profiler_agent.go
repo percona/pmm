@@ -83,7 +83,8 @@ type ChangeAgentQANMongoDBProfilerAgentCommand struct {
 	AuthenticationDatabase  *string `help:"Authentication database for MongoDB"`
 
 	// QAN specific options
-	MaxQueryLength *int32 `help:"Maximum query length for QAN (default: server-defined; -1: no limit)"`
+	MaxQueryLength       *int32 `help:"Maximum query length for QAN (default: server-defined; -1: no limit)"`
+	DisableQueryExamples *bool  `help:"Disable query examples"`
 
 	// Custom labels
 	CustomLabels *map[string]string `mapsep:"," help:"Custom user-assigned labels"`
@@ -132,6 +133,7 @@ func (cmd *ChangeAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result,
 		AuthenticationMechanism:       cmd.AuthenticationMechanism,
 		AuthenticationDatabase:        cmd.AuthenticationDatabase,
 		MaxQueryLength:                cmd.MaxQueryLength,
+		DisableQueryExamples:          cmd.DisableQueryExamples,
 		LogLevel:                      convertLogLevelPtr(cmd.LogLevel),
 		SkipConnectionCheck:           cmd.SkipConnectionCheck,
 	}
@@ -200,6 +202,13 @@ func (cmd *ChangeAgentQANMongoDBProfilerAgentCommand) RunCmd() (commands.Result,
 	}
 	if cmd.MaxQueryLength != nil {
 		changes = append(changes, fmt.Sprintf("changed max query length to %d", *cmd.MaxQueryLength))
+	}
+	if cmd.DisableQueryExamples != nil {
+		if *cmd.DisableQueryExamples {
+			changes = append(changes, "disabled query examples")
+		} else {
+			changes = append(changes, "enabled query examples")
+		}
 	}
 	if cmd.LogLevel != nil {
 		changes = append(changes, fmt.Sprintf("changed log level to %s", *cmd.LogLevel))

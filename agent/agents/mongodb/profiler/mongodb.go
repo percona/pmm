@@ -34,15 +34,17 @@ type MongoDB struct {
 	l       *logrus.Entry
 	changes chan agents.Change
 
-	mongoDSN       string
-	maxQueryLength int32
+	mongoDSN             string
+	maxQueryLength       int32
+	disableQueryExamples bool
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN            string
-	AgentID        string
-	MaxQueryLength int32
+	DSN                  string
+	AgentID              string
+	MaxQueryLength       int32
+	DisableQueryExamples bool
 }
 
 // New creates new MongoDB QAN service.
@@ -58,9 +60,10 @@ func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
 
 func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 	return &MongoDB{
-		agentID:        params.AgentID,
-		mongoDSN:       mongoDSN,
-		maxQueryLength: params.MaxQueryLength,
+		agentID:              params.AgentID,
+		mongoDSN:             mongoDSN,
+		maxQueryLength:       params.MaxQueryLength,
+		disableQueryExamples: params.DisableQueryExamples,
 
 		l:       l,
 		changes: make(chan agents.Change, 10), //nolint:mnd
@@ -83,7 +86,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength)
+	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID, m.maxQueryLength, m.disableQueryExamples)
 	err := prof.Start(ctx)
 	if err != nil {
 		m.l.Errorf("can't run profiler, reason: %v", err)

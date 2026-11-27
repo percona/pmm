@@ -3655,6 +3655,9 @@ type UpdateServiceParamsBodyMongodb struct {
 	// Skip connection check.
 	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
 
+	// Disable query examples.
+	DisableQueryExamples *bool `json:"disable_query_examples,omitempty"`
+
 	// custom labels
 	CustomLabels *UpdateServiceParamsBodyMongodbCustomLabels `json:"custom_labels,omitempty"`
 

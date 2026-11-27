@@ -1025,8 +1025,8 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, p *inve
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
 		QANOptions: models.QANOptions{
-			MaxQueryLength: p.MaxQueryLength,
-			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+			MaxQueryLength:        p.MaxQueryLength,
+			QueryExamplesDisabled: p.DisableQueryExamples,
 		},
 		MongoDBOptions:      models.MongoDBOptionsFromRequest(p),
 		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1074,7 +1074,8 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(
 
 	// Set QANOptions
 	params.QANOptions = &models.ChangeQANOptions{
-		MaxQueryLength: p.MaxQueryLength,
+		MaxQueryLength:        p.MaxQueryLength,
+		QueryExamplesDisabled: p.DisableQueryExamples,
 	}
 
 	// Set MongoDBOptions
@@ -1122,8 +1123,8 @@ func (as *AgentsService) AddQANMongoDBMongologAgent(ctx context.Context, p *inve
 		TLS:           p.Tls,
 		TLSSkipVerify: p.TlsSkipVerify,
 		QANOptions: models.QANOptions{
-			MaxQueryLength: p.MaxQueryLength,
-			// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-4650 - done, but not included in params.
+			MaxQueryLength:        p.MaxQueryLength,
+			QueryExamplesDisabled: p.DisableQueryExamples,
 		},
 		MongoDBOptions:      models.MongoDBOptionsFromRequest(p),
 		LogLevel:            services.SpecifyLogLevel(p.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -1171,7 +1172,8 @@ func (as *AgentsService) ChangeQANMongoDBMongologAgent(
 
 	// Set QANOptions
 	params.QANOptions = &models.ChangeQANOptions{
-		MaxQueryLength: p.MaxQueryLength,
+		MaxQueryLength:        p.MaxQueryLength,
+		QueryExamplesDisabled: p.DisableQueryExamples,
 	}
 
 	// Set MongoDBOptions

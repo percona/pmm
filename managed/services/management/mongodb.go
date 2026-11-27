@@ -126,8 +126,8 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
-					MaxQueryLength: req.MaxQueryLength,
-					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
+					MaxQueryLength:        req.MaxQueryLength,
+					QueryExamplesDisabled: req.DisableQueryExamples,
 				},
 				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),
@@ -153,8 +153,8 @@ func (s *ManagementService) addMongoDB(ctx context.Context, req *managementv1.Ad
 				TLS:           req.Tls,
 				TLSSkipVerify: req.TlsSkipVerify,
 				QANOptions: models.QANOptions{
-					MaxQueryLength: req.MaxQueryLength,
-					// TODO QueryExamplesDisabled https://jira.percona.com/browse/PMM-7860
+					MaxQueryLength:        req.MaxQueryLength,
+					QueryExamplesDisabled: req.DisableQueryExamples,
 				},
 				MongoDBOptions: models.MongoDBOptionsFromRequest(req),
 				LogLevel:       services.SpecifyLogLevel(req.LogLevel, inventoryv1.LogLevel_LOG_LEVEL_FATAL),

@@ -11515,6 +11515,8 @@ func (m *AddQANMongoDBProfilerAgentParams) validate(all bool) error {
 
 	// no validation rules for LogLevel
 
+	// no validation rules for DisableQueryExamples
+
 	if len(errors) > 0 {
 		return AddQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11736,6 +11738,10 @@ func (m *ChangeQANMongoDBProfilerAgentParams) validate(all bool) error {
 		// no validation rules for SkipConnectionCheck
 	}
 
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
+	}
+
 	if len(errors) > 0 {
 		return ChangeQANMongoDBProfilerAgentParamsMultiError(errors)
 	}
@@ -11888,6 +11894,8 @@ func (m *AddQANMongoDBMongologAgentParams) validate(all bool) error {
 	// no validation rules for AuthenticationDatabase
 
 	// no validation rules for LogLevel
+
+	// no validation rules for DisableQueryExamples
 
 	if len(errors) > 0 {
 		return AddQANMongoDBMongologAgentParamsMultiError(errors)
@@ -12108,6 +12116,10 @@ func (m *ChangeQANMongoDBMongologAgentParams) validate(all bool) error {
 
 	if m.SkipConnectionCheck != nil {
 		// no validation rules for SkipConnectionCheck
+	}
+
+	if m.DisableQueryExamples != nil {
+		// no validation rules for DisableQueryExamples
 	}
 
 	if len(errors) > 0 {
