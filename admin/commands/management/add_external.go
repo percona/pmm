@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/percona/pmm/admin/agentlocal"
 	"github.com/percona/pmm/admin/commands"
@@ -78,6 +79,7 @@ type ExternalFlags struct {
 	CustomLabels        map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	Group               string            `default:"${externalDefaultGroupExporter}" help:"Group name of external service (default: ${externalDefaultGroupExporter})"`
 	SkipConnectionCheck bool              `help:"Skip exporter connection checks"`
+	ConnectionTimeout   *time.Duration    `placeholder:"DURATION" help:"Connection timeout to use for exporter (e.g. 1s, 1.5s)"`
 	TLSSkipVerify       bool              `negatable:"" help:"Skip TLS certificate verification"`
 }
 
@@ -148,6 +150,7 @@ func (cmd *AddExternalCommand) RunCmd() (commands.Result, error) {
 				Group:               cmd.Group,
 				SkipConnectionCheck: cmd.SkipConnectionCheck,
 				TLSSkipVerify:       cmd.TLSSkipVerify,
+				ConnectionTimeout:   commands.DurationString(cmd.ConnectionTimeout),
 			},
 		},
 		Context: commands.Ctx,

@@ -14,6 +14,7 @@ import (
 	_ "github.com/envoyproxy/protoc-gen-validate/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	durationpb "google.golang.org/protobuf/types/known/durationpb"
 
 	common "github.com/percona/pmm/api/common"
 	_ "github.com/percona/pmm/api/extensions/v1"
@@ -78,8 +79,10 @@ type AddExternalServiceParams struct {
 	SkipConnectionCheck bool `protobuf:"varint,18,opt,name=skip_connection_check,json=skipConnectionCheck,proto3" json:"skip_connection_check,omitempty"`
 	// Skip TLS certificate and hostname validation.
 	TlsSkipVerify bool `protobuf:"varint,19,opt,name=tls_skip_verify,json=tlsSkipVerify,proto3" json:"tls_skip_verify,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// Connection timeout for exporter (if set).
+	ConnectionTimeout *durationpb.Duration `protobuf:"bytes,20,opt,name=connection_timeout,json=connectionTimeout,proto3" json:"connection_timeout,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
 }
 
 func (x *AddExternalServiceParams) Reset() {
@@ -243,6 +246,13 @@ func (x *AddExternalServiceParams) GetTlsSkipVerify() bool {
 		return x.TlsSkipVerify
 	}
 	return false
+}
+
+func (x *AddExternalServiceParams) GetConnectionTimeout() *durationpb.Duration {
+	if x != nil {
+		return x.ConnectionTimeout
+	}
+	return nil
 }
 
 // UpdateExternalServiceParams holds the External Service settings to change. Only the fields that are set are changed.
@@ -456,7 +466,7 @@ var File_management_v1_external_proto protoreflect.FileDescriptor
 
 const file_management_v1_external_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmanagement/v1/external.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xda\x06\n" +
+	"\x1cmanagement/v1/external.proto\x12\rmanagement.v1\x1a\x13common/common.proto\x1a\x1aextensions/v1/redact.proto\x1a\x1egoogle/protobuf/duration.proto\x1a\x19inventory/v1/agents.proto\x1a\x1binventory/v1/services.proto\x1a\x1bmanagement/v1/metrics.proto\x1a\x18management/v1/node.proto\x1a\x17validate/validate.proto\"\xae\a\n" +
 	"\x18AddExternalServiceParams\x12%\n" +
 	"\x0fruns_on_node_id\x18\x01 \x01(\tR\frunsOnNodeId\x12\x1b\n" +
 	"\tnode_name\x18\x02 \x01(\tR\bnodeName\x127\n" +
@@ -478,7 +488,8 @@ const file_management_v1_external_proto_rawDesc = "" +
 	"\x05group\x18\x10 \x01(\tR\x05group\x12=\n" +
 	"\fmetrics_mode\x18\x11 \x01(\x0e2\x1a.management.v1.MetricsModeR\vmetricsMode\x122\n" +
 	"\x15skip_connection_check\x18\x12 \x01(\bR\x13skipConnectionCheck\x12&\n" +
-	"\x0ftls_skip_verify\x18\x13 \x01(\bR\rtlsSkipVerify\x1a?\n" +
+	"\x0ftls_skip_verify\x18\x13 \x01(\bR\rtlsSkipVerify\x12R\n" +
+	"\x12connection_timeout\x18\x14 \x01(\v2\x19.google.protobuf.DurationB\b\xfaB\x05\xaa\x01\x022\x00R\x11connectionTimeout\x1a?\n" +
 	"\x11CustomLabelsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xf4\x05\n" +
@@ -537,9 +548,10 @@ var (
 		nil,                                 // 3: management.v1.AddExternalServiceParams.CustomLabelsEntry
 		(*AddNodeParams)(nil),               // 4: management.v1.AddNodeParams
 		MetricsMode(0),                      // 5: management.v1.MetricsMode
-		(*common.StringMap)(nil),            // 6: common.StringMap
-		(*v1.ExternalService)(nil),          // 7: inventory.v1.ExternalService
-		(*v1.ExternalExporter)(nil),         // 8: inventory.v1.ExternalExporter
+		(*durationpb.Duration)(nil),         // 6: google.protobuf.Duration
+		(*common.StringMap)(nil),            // 7: common.StringMap
+		(*v1.ExternalService)(nil),          // 8: inventory.v1.ExternalService
+		(*v1.ExternalExporter)(nil),         // 9: inventory.v1.ExternalExporter
 	}
 )
 
@@ -547,15 +559,16 @@ var file_management_v1_external_proto_depIdxs = []int32{
 	4, // 0: management.v1.AddExternalServiceParams.add_node:type_name -> management.v1.AddNodeParams
 	3, // 1: management.v1.AddExternalServiceParams.custom_labels:type_name -> management.v1.AddExternalServiceParams.CustomLabelsEntry
 	5, // 2: management.v1.AddExternalServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	6, // 3: management.v1.UpdateExternalServiceParams.custom_labels:type_name -> common.StringMap
-	5, // 4: management.v1.UpdateExternalServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
-	7, // 5: management.v1.ExternalServiceResult.service:type_name -> inventory.v1.ExternalService
-	8, // 6: management.v1.ExternalServiceResult.external_exporter:type_name -> inventory.v1.ExternalExporter
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	6, // 3: management.v1.AddExternalServiceParams.connection_timeout:type_name -> google.protobuf.Duration
+	7, // 4: management.v1.UpdateExternalServiceParams.custom_labels:type_name -> common.StringMap
+	5, // 5: management.v1.UpdateExternalServiceParams.metrics_mode:type_name -> management.v1.MetricsMode
+	8, // 6: management.v1.ExternalServiceResult.service:type_name -> inventory.v1.ExternalService
+	9, // 7: management.v1.ExternalServiceResult.external_exporter:type_name -> inventory.v1.ExternalExporter
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_management_v1_external_proto_init() }
