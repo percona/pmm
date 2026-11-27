@@ -42,10 +42,10 @@ Use the appropriate command for your deployment method to stop and remove the PM
 
 === "Kubernetes/Helm"
     ```bash
-    # Scale down the PMM deployment
-    kubectl scale deployment pmm-server --replicas=0 -n <namespace>
+    # Scale down the PMM StatefulSet
+    kubectl scale statefulset pmm --replicas=0 -n <namespace>
     # Wait for the pod to terminate
-    kubectl wait --for=delete pod -l app=pmm-server -n <namespace>
+    kubectl wait --for=delete pod -l app.kubernetes.io/name=pmm -n <namespace>
     ```
 
 ### 3. Replace the database URL with individual parameters
@@ -130,27 +130,22 @@ Modify your startup command or configuration file to use the new parameters:
     ```
 
 === "Kubernetes/Helm"
-    Update your values file to include the new parameters:
+    Add the new parameters to `pmmEnv` in your values file. The chart passes `pmmEnv` to PMM Server as environment variables:
 
     ```yaml
-    env:
-      - name: GF_DATABASE_USER
-        value: your_user
-      - name: GF_DATABASE_PASSWORD
-        value: your_password
-      - name: GF_DATABASE_HOST
-        value: your_host:your_port
-      - name: GF_DATABASE_NAME
-        value: your_db_name
-      - name: PMM_DISABLE_BUILTIN_POSTGRES
-        value: "1"
+    pmmEnv:
+      GF_DATABASE_USER: your_user
+      GF_DATABASE_PASSWORD: your_password
+      GF_DATABASE_HOST: your_host:your_port
+      GF_DATABASE_NAME: your_db_name
+      PMM_DISABLE_BUILTIN_POSTGRES: "1"
     ```
 
-    Then upgrade or restart:
+    Then upgrade PMM Server and scale the StatefulSet back up. Without `--version`, `helm upgrade` installs the latest `percona/pmm` chart. If your values file sets `image.tag`, set it to the PMM version that you're upgrading to:
     ```bash
-    helm upgrade pmm percona/pmm-server -n <namespace> -f values.yaml
-    # Or scale back up if you scaled down earlier
-    kubectl scale deployment pmm-server --replicas=1 -n <namespace>
+    helm repo update percona
+    helm upgrade pmm percona/pmm -n <namespace> -f values.yaml
+    kubectl scale statefulset pmm --replicas=1 -n <namespace>
     ```
     
 ### 5. Verify the upgrade
