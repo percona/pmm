@@ -53,6 +53,23 @@
     "unicorn/prefer-includes": "warn"
   },
   "overrides": [
+    // Peak UI's Table is where material-react-table gets wrapped.
+    {
+      "files": ["packages/peak-ui/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "@percona/percona-ui",
+                "message": "Former name of @percona/peak-ui; import from '@percona/peak-ui'."
+              }
+            ]
+          }
+        ]
+      }
+    },
     // Files that predate no-restricted-imports, each exempted only from the
     // restriction it breaks. Remove an entry once its file moves to peak-ui, and
     // add none.

@@ -108,8 +108,6 @@ const extensionsProxy = () => ({
     });
   },
 });
-// pnpm link'd packages don't bump the lockfile hash, so Vite's dep cache can go stale for them.
-
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
@@ -136,10 +134,6 @@ export default defineConfig({
     https: hasNginxCerts
       ? { key: fs.readFileSync(CERT_KEY), cert: fs.readFileSync(CERT_CRT) }
       : undefined,
-    watch: {
-      // Watch the linked package for changes (negated pattern means "don't ignore")
-      ignored: ['!**/node_modules/@percona/peak-ui/**'],
-    },
     proxy: {
       '/v1': {
         target,

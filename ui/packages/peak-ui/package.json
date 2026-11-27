@@ -1,0 +1,118 @@
+{
+  "name": "@percona/peak-ui",
+  "version": "0.0.0",
+  "private": false,
+  "description": "PEAK UI lib",
+  "homepage": "https://main--6a31152ea29e3a78e1060595.chromatic.com/",
+  "bugs": {
+    "url": "https://perconadev.atlassian.net/projects/PMM"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": "Percona",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/percona/pmm.git",
+    "directory": "ui/packages/peak-ui"
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.js.map",
+    "dist/index.d.ts",
+    "AGENTS.md",
+    "llms.txt",
+    "CHANGELOG.md"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      }
+    },
+    "access": "public"
+  },
+  "scripts": {
+    "build:package": "rollup -c",
+    "build:package:watch": "rollup -c -w",
+    "check-types": "tsc -p tsconfig.json && tsc -p .storybook/tsconfig.json",
+    "lint": "oxlint --config ../../oxlintrc.json src .storybook scripts",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "storybook:dev": "storybook dev -p 6006 --no-open",
+    "storybook:build": "storybook build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepack": "pnpm build:package"
+  },
+  "dependencies": {
+    "@fontsource/poppins": "^5.2.7",
+    "@fontsource/roboto": "^5.2.9",
+    "@fontsource/roboto-mono": "^5.2.8",
+    "material-react-table": "^3.2.1",
+    "prism-react-renderer": "^2.4.1"
+  },
+  "devDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/utils": "^7.3.7",
+    "@mui/x-date-pickers": "^7.29.4",
+    "@rollup/plugin-commonjs": "^29.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@storybook/addon-docs": "^10.4.1",
+    "@storybook/react": "^10.4.1",
+    "@storybook/react-vite": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.1.0",
+    "chromatic": "18.14.1",
+    "date-fns": "4.1.0",
+    "jsdom": "^29.1.1",
+    "notistack": "^3.0.2",
+    "prop-types": "15.8.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-is": "19.1.0",
+    "rollup": "^4.53.5",
+    "rollup-plugin-dts": "^6.3.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "storybook": "^10.4.1",
+    "storybook-addon-pseudo-states": "^10.4.1",
+    "storybook-addon-tag-badges": "^3.1.0",
+    "tslib": "^2.8.1",
+    "typescript": "~6.0.3",
+    "vite": "^7.3.0",
+    "vitest": "^4.1.7"
+  },
+  "peerDependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
+    "@mui/icons-material": "^7.3.7",
+    "@mui/material": "^7.3.7",
+    "@mui/utils": "^7.3.7",
+    "@mui/x-date-pickers": "^7.29.4",
+    "notistack": "^3.0.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-hook-form": "^7.50.0"
+  }
+}
