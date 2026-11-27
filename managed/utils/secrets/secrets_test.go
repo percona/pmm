@@ -227,6 +227,12 @@ func TestPrepare(t *testing.T) {
 		require.EqualError(t, err, "vm-password: is set both in "+filepath.Join(dir, string(VMPassword))+" and in PMM_VM_URL: remove one of them")
 	})
 
+	t.Run("refuses a VictoriaMetrics password that is only whitespace", func(t *testing.T) {
+		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://vmuser:%20@vmauth:8427/"}))
+		require.EqualError(t, err, "vm-password: the password in PMM_VM_URL contains only whitespace: "+
+			"set the password, or remove it from the URL")
+	})
+
 	t.Run("refuses a padded VictoriaMetrics password", func(t *testing.T) {
 		_, err := Prepare(testOptions(t, map[string]string{VMURLEnvVar: "http://vmuser:%20q7v-padded@vmauth:8427/"}))
 		require.EqualError(t, err, "vm-password: the password in PMM_VM_URL has leading or trailing whitespace, "+

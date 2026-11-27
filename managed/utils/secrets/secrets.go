@@ -408,6 +408,9 @@ func resolveSource(opts Options, s spec) (Resolved, error) {
 			return r, fmt.Errorf("%s: %w", key, err)
 		}
 		// A value that is only whitespace is no value, also for the keys kept as written.
+		if strings.TrimSpace(value) == "" && key == s.urlEnv {
+			return r, fmt.Errorf("the password in %s contains only whitespace: set the password, or remove it from the URL", key)
+		}
 		if strings.TrimSpace(value) == "" {
 			return r, fmt.Errorf("%s is empty or contains only whitespace: set the password or key, or remove the variable", key)
 		}
@@ -493,9 +496,7 @@ func urlUserinfo(raw string) (string, string) {
 	return u.User.Username(), password
 }
 
-// checkURLUser refuses a password that the URL in env can't carry: VictoriaMetrics checks it together with a
-// username, and without the URL PMM Server uses the built-in VictoriaMetrics, which takes no password. The username
-// goes into the supervisord configuration decoded, where a control character such as a line break ends the command.
+// checkURLUser refuses a password when the URL in env is unset, or has no username or a control character in it.
 func checkURLUser(raw, env string) error {
 	if raw == "" {
 		return fmt.Errorf("%s isn't set, so PMM Server uses the built-in VictoriaMetrics, which takes no password: "+
@@ -514,8 +515,7 @@ func checkURLUser(raw, env string) error {
 	return nil
 }
 
-// parseURL parses a URL that may hold a password. Its error is a fixed message, since url.Parse quotes the URL or a
-// part of it, such as an invalid port or escape, which can come from the password.
+// parseURL parses a URL that may hold a password, and returns a fixed error that quotes no part of the URL.
 func parseURL(raw string) (*url.URL, error) {
 	u, err := url.Parse(raw)
 	if err != nil {
@@ -537,18 +537,15 @@ func URLWithoutPassword(raw string) (string, error) {
 	if _, ok := u.User.Password(); !ok {
 		return raw, nil
 	}
-	switch {
-	case u.User == nil:
-	case u.User.Username() == "":
+	if u.User.Username() == "" {
 		u.User = nil
-	default:
+	} else {
 		u.User = url.User(u.User.Username())
 	}
 	return u.String(), nil
 }
 
-// VMURL returns the VictoriaMetrics URL raw with the password from its credential file, for pmm-managed's own clients
-// (the entrypoint passes PMM_VM_URL on without it, and the other programs read the file), or raw when nothing resolved
+// VMURL returns the VictoriaMetrics URL raw with the password from its credential file, or raw when nothing resolved
 // the password.
 func VMURL(raw string) (string, error) {
 	return vmURLIn(Dir, raw)
@@ -565,9 +562,7 @@ func vmURLIn(dir, raw string) (string, error) {
 	return urlWithPassword(raw, password), nil
 }
 
-// urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse, for
-// models.ParseVictoriaMetricsURL to report without the credentials. Prepare links a password only for a URL with a
-// username, so raw has one whenever the password comes from its file.
+// urlWithPassword returns raw with password in its userinfo, keeping the username, or raw when it doesn't parse.
 func urlWithPassword(raw, password string) string {
 	u, err := url.Parse(raw)
 	if err != nil {

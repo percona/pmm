@@ -532,10 +532,8 @@ func (s *Service) marshalConfig(tmpl *template.Template, settings *models.Settin
 	return b, nil
 }
 
-// supervisordArg returns s as part of one argument in a supervisord command. The INI parser of supervisord ends a value
-// at a ; or # after whitespace, and the command is then split like in a POSIX shell, so a value with whitespace, a
-// quote or a backslash is single-quoted, with the quotes closed and reopened before such a ; or #. A percent sign
-// starts a variable, and the whole configuration is refused when none follows, so every one is doubled.
+// supervisordArg returns s escaped as part of one argument in a supervisord command: quoted where the INI parser or
+// the shell-like split would cut it, and with every percent sign doubled.
 func supervisordArg(s string) string {
 	if strings.ContainsFunc(s, func(r rune) bool { return unicode.IsSpace(r) || strings.ContainsRune(`'"\`, r) }) {
 		var b strings.Builder
