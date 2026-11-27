@@ -63,11 +63,19 @@ import {
 } from '../api';
 import { formatRunElapsed } from '../format';
 import { useCancelBootstrapRun, useOmInventoryHosts } from '../inventoryHooks';
-import { runHasFailure, runSummaryLine } from '../runSummary';
+import {
+  runFailures,
+  runHasFailure,
+  runReasons,
+  runSummaryLine,
+  stepFailureReason,
+  type StepFailure,
+} from '../runSummary';
 import type { OmBootstrapStep, OmGetBootstrapRunResponse } from '../types';
 import { useOmBase } from '../useOmBase';
 import { AdminAction } from './AdminAction';
 import { useNow } from '../useNow';
+import { RAW_OUTPUT_SX } from './ScanFailureDetail';
 import { SecurityPosture } from './SecurityPosture';
 import { OmError } from './OmError';
 
@@ -89,7 +97,7 @@ import { OmError } from './OmError';
 const StepStatusIcon = ({ step }: { step: OmBootstrapStep }) => {
   const label = `${bootstrapStepLabel(step.name)}: ${BOOTSTRAP_STEP_LABEL[step.status] ?? step.status}${
     step.attempt_count > 1 ? ` (attempt ${step.attempt_count})` : ''
-  }${step.detail ? ` — ${step.detail}` : ''}`;
+  }${step.detail ? ` — ${stepFailureReason(step.detail).excerpt}` : ''}`;
   return (
     <Tooltip title={label}>
       <Box
@@ -131,7 +139,7 @@ type NodeNameOf = (host: string) => string;
  * resolve too, in case the key is ever the id the install was requested with; a key
  * the list does not know - a node forgotten since the run - shows as itself.
  */
-function useNodeNames(): NodeNameOf {
+export function useNodeNames(): NodeNameOf {
   const { data: hosts } = useOmInventoryHosts();
   return useMemo(() => {
     const names = new Map<string, string>();
@@ -504,6 +512,102 @@ const CompletionCard = ({
   );
 };
 
+/** A button that shows or hides `children`, saying which with `what`. */
+const Disclosure = ({
+  what,
+  id,
+  open,
+  onToggle,
+  children,
+}: {
+  what: string;
+  id: string;
+  open: boolean;
+  onToggle: () => void;
+  children: ReactNode;
+}) => (
+  <Box>
+    <Button
+      size="small"
+      aria-expanded={open}
+      aria-controls={id}
+      onClick={onToggle}
+    >
+      {open ? `Hide ${what}` : `Show ${what}`}
+    </Button>
+    {open && (
+      <Box id={id} sx={{ mt: 1 }}>
+        {children}
+      </Box>
+    )}
+  </Box>
+);
+
+/**
+ * Why the run failed or is failing, in place of its raw error once there is one, with
+ * that error and every failed step's full output and task history behind a toggle.
+ */
+const RunFailure = ({
+  run,
+  failures,
+}: {
+  run: OmGetBootstrapRunResponse;
+  failures: StepFailure[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const lines = runReasons(run, failures);
+  const replaced = run.error && !lines.includes(run.error) ? run.error : null;
+  if (lines.length === 0 && failures.length === 0) {
+    return null;
+  }
+  return (
+    <Box>
+      {run.error ? (
+        <OmError placement="item" messages={lines} />
+      ) : (
+        lines.map((line) => (
+          <Typography key={line} variant="body2">
+            {line}
+          </Typography>
+        ))
+      )}
+      {failures.length > 0 && (
+        <Disclosure
+          what="failure details"
+          id={`run-${run.run_id}-failure`}
+          open={open}
+          onToggle={() => setOpen((shown) => !shown)}
+        >
+          <Stack spacing={1}>
+            {replaced && (
+              <Box>
+                <Typography variant="subtitle2">Run error</Typography>
+                <Box component="pre" sx={RAW_OUTPUT_SX}>
+                  {replaced}
+                </Box>
+              </Box>
+            )}
+            {failures.map((failure, index) => (
+              <Box key={index}>
+                <Typography variant="subtitle2">
+                  {bootstrapStepLabel(failure.step)}
+                  {failure.node && ` on ${failure.node}`}, attempt{' '}
+                  {failure.attempt}
+                  {failure.reason.taskHistoryId &&
+                    `, task history ${failure.reason.taskHistoryId}`}
+                </Typography>
+                <Box component="pre" sx={RAW_OUTPUT_SX}>
+                  {failure.reason.detail}
+                </Box>
+              </Box>
+            ))}
+          </Stack>
+        </Disclosure>
+      )}
+    </Box>
+  );
+};
+
 /**
  * A run's full progress: the replica set and its status, one line saying where the
  * run has got to, the completion card once it succeeds, and the step matrix behind a
@@ -512,6 +616,7 @@ const CompletionCard = ({
 export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   const status = bootstrapRunDisplayStatus(run);
   const nodeName = useNodeNames();
+  const failures = useMemo(() => runFailures(run, nodeName), [run, nodeName]);
   const failed = runHasFailure(run);
   const [showDetails, setShowDetails] = useState(failed);
   // Opens on the transition too, not only on mount: a reader watching a run live
@@ -534,7 +639,6 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
       host.rollback_steps.every((step) => step.status === 'skipped')
     );
   const labels = [run.environment, run.cluster].filter(Boolean).join(' / ');
-  const detailsId = `run-${run.run_id}-steps`;
 
   return (
     <Stack spacing={2}>
@@ -565,7 +669,7 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
           {summary.slice(announced.length)}
         </Typography>
       )}
-      {run.error && <OmError placement="item" messages={run.error} />}
+      <RunFailure run={run} failures={failures} />
       {status === 'running' && run.cancel_requested && !rollingBack && (
         <Typography variant="body2" color="warning.main">
           Abort requested - rolling back once the current step stops.
@@ -585,21 +689,14 @@ export const RunProgress = ({ run }: { run: OmGetBootstrapRunResponse }) => {
       {status === 'succeeded' && (
         <CompletionCard run={run} nodeName={nodeName} />
       )}
-      <Box>
-        <Button
-          size="small"
-          aria-expanded={showDetails}
-          aria-controls={detailsId}
-          onClick={() => setShowDetails((open) => !open)}
-        >
-          {showDetails ? 'Hide step details' : 'Show step details'}
-        </Button>
-        {showDetails && (
-          <Box id={detailsId} sx={{ mt: 1 }}>
-            <StepMatrix run={run} nodeName={nodeName} />
-          </Box>
-        )}
-      </Box>
+      <Disclosure
+        what="step details"
+        id={`run-${run.run_id}-steps`}
+        open={showDetails}
+        onToggle={() => setShowDetails((open) => !open)}
+      >
+        <StepMatrix run={run} nodeName={nodeName} />
+      </Disclosure>
     </Stack>
   );
 };

@@ -104,8 +104,9 @@ export function useScanConflict(trigger: {
   error: Error | null;
   submittedAt: number;
   reset: () => void;
+  variables?: string[];
 }): { conflict: OmApiError | null; runningScan: OmInventoryRun | undefined } {
-  const { run, updatedAt } = useActiveInventoryRun();
+  const { run, updatedAt } = useActiveInventoryRun(trigger.variables);
   const conflict =
     trigger.error instanceof OmApiError && trigger.error.status === 409
       ? trigger.error

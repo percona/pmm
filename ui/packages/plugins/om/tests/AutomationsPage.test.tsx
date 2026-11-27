@@ -28,7 +28,10 @@ const { useOmBootstrapRuns } = vi.hoisted(() => ({
   useOmBootstrapRuns: vi.fn(),
 }));
 
-vi.mock('../src/inventoryHooks', () => ({ useOmBootstrapRuns }));
+vi.mock('../src/inventoryHooks', () => ({
+  useOmBootstrapRuns,
+  useOmInventoryHosts: () => ({ data: [] }),
+}));
 // The header is what these tests read; the Scans tab's content has its own suite.
 vi.mock('../src/AutomationsScansTab', () => ({
   AutomationsScansTab: () => null,
@@ -91,6 +94,103 @@ describe('AutomationsPage installs', () => {
     expect(
       screen.queryByText(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/)
     ).toBeNull();
+  });
+});
+
+describe('AutomationsPage status chip', () => {
+  it('says why a run is failing on hover, while it still rolls back', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [
+        {
+          ...run('failing', RECENT),
+          status: 'running',
+          finished_at: null,
+          hosts: [
+            {
+              host: 'node03',
+              steps: [
+                {
+                  name: 'start_service',
+                  status: 'failed',
+                  attempt_count: 2,
+                  detail:
+                    'Starting mongod: Failed\nError setting up listener: setup bind (task history 7)',
+                },
+              ],
+              rollback_steps: [
+                { name: 'stop_service', status: 'running', attempt_count: 1 },
+              ],
+              finalize_steps: [],
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      error: null,
+    });
+    render(
+      <MemoryRouter initialEntries={['/operations/automations']}>
+        <AutomationsPage />
+      </MemoryRouter>
+    );
+
+    fireEvent.mouseOver(screen.getByText('Running'));
+
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      'Rolling back. Why: Error setting up listener: setup bind (on node03)'
+    );
+  });
+
+  it('takes keyboard focus, and stops saying rolling back once a rollback step is out of retries', async () => {
+    useOmBootstrapRuns.mockReturnValue({
+      data: [
+        {
+          ...run('stuck', RECENT),
+          status: 'running',
+          finished_at: null,
+          hosts: [
+            {
+              host: 'node03',
+              steps: [
+                {
+                  name: 'start_service',
+                  status: 'failed',
+                  attempt_count: 2,
+                  detail:
+                    'Error setting up listener: setup bind (task history 7)',
+                },
+              ],
+              rollback_steps: [
+                {
+                  name: 'remove_data',
+                  status: 'failed',
+                  attempt_count: 2,
+                  detail: 'rm: Device or resource busy (task history 8)',
+                },
+              ],
+              finalize_steps: [],
+            },
+          ],
+        },
+      ],
+      isLoading: false,
+      error: null,
+    });
+    render(
+      <MemoryRouter initialEntries={['/operations/automations']}>
+        <AutomationsPage />
+      </MemoryRouter>
+    );
+    const chip = screen.getByText('Running').closest('.MuiChip-root');
+    expect(chip).toHaveAttribute('tabindex', '0');
+
+    fireEvent.mouseOver(screen.getByText('Running'));
+
+    const tooltip = await screen.findByRole('tooltip');
+    expect(tooltip).toHaveTextContent(
+      'Rollback failed: rm: Device or resource busy (on node03)'
+    );
+    expect(tooltip).not.toHaveTextContent('Rolling back');
   });
 });
 

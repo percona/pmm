@@ -21,6 +21,7 @@ import {
   missingRowReason,
   type OmEstateStatus,
 } from '../inventory';
+import { FOCUS_RING_SX } from '../focusRing';
 import { formatCompactDuration } from '../format';
 import { Unavailable } from './Unavailable';
 import type { OmInventoryService } from '../types';
@@ -102,15 +103,7 @@ export const ProbeValue = ({
       <Box
         component="span"
         tabIndex={0}
-        sx={{
-          cursor: 'help',
-          '&:focus-visible': {
-            outline: '2px solid',
-            outlineColor: 'primary.main',
-            outlineOffset: 2,
-            borderRadius: 0.5,
-          },
-        }}
+        sx={{ cursor: 'help', ...FOCUS_RING_SX }}
       >
         {value}
         <Box

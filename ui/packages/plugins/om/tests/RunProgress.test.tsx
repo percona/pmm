@@ -369,6 +369,100 @@ describe('RunProgress', () => {
     ).not.toBeInTheDocument();
   });
 
+  describe('a failed step', () => {
+    const BIND =
+      'Starting mongod: Failed\nError setting up listener: setup bind :: caused by :: Cannot assign requested address (task history 4242)';
+    const failed = (
+      status: OmGetBootstrapRunResponse['status'],
+      error?: string
+    ) =>
+      run({
+        status,
+        error,
+        finished_at: status === 'running' ? undefined : '2026-01-01T00:05:00Z',
+        hosts: [
+          host({
+            host: 'n2',
+            steps: [
+              step('pre_check', 'succeeded'),
+              {
+                ...step('start_service', 'failed'),
+                attempt_count: 2,
+                detail: BIND,
+              },
+            ],
+            rollback_steps: [
+              step(
+                'stop_service',
+                status === 'running' ? 'running' : 'succeeded'
+              ),
+            ],
+          }),
+        ],
+      });
+
+    it('says why while the rollback runs, and shows the end of the output on the cell', async () => {
+      renderWithClient(<RunProgress run={failed('running')} />);
+
+      expect(
+        screen.getByText(
+          'Why: Error setting up listener: setup bind :: caused by :: Cannot assign requested address (on db-2)'
+        )
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(
+          /Starting mongod: Failed \(attempt 2\) — Error setting up listener: .*address$/
+        )
+      ).toBeInTheDocument();
+    });
+
+    it('puts the same reason in place of the raw run error, with both one click away', async () => {
+      const error = `start_service failed on n2 after 2 attempts: ${BIND}; every host was rolled back`;
+      renderWithClient(<RunProgress run={failed('rolled_back', error)} />);
+
+      expect(screen.getByTestId('om-error')).toHaveTextContent(
+        /^Why: Error setting up listener: setup bind :: caused by :: Cannot assign requested address \(on db-2\)$/
+      );
+      expect(screen.queryByText(/task history 4242/)).toBeNull();
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Show failure details' })
+      );
+      expect(
+        screen.getByText(
+          'Starting mongod on db-2, attempt 2, task history 4242'
+        )
+      ).toBeInTheDocument();
+      expect(screen.getByText('Run error')).toBeInTheDocument();
+      const [runError, output] = [...document.querySelectorAll('pre')].map(
+        (pre) => pre.textContent
+      );
+      expect(runError).toBe(error);
+      // The output keeps its lines.
+      expect(output).toBe(BIND.replace(' (task history 4242)', ''));
+    });
+
+    it('shows a run error with no failed step as it is', () => {
+      renderWithClient(
+        <RunProgress
+          run={run({
+            status: 'rolled_back',
+            error:
+              'an operator requested cancellation; every host was rolled back',
+            hosts: [host()],
+          })}
+        />
+      );
+
+      expect(screen.getByTestId('om-error')).toHaveTextContent(
+        'an operator requested cancellation; every host was rolled back'
+      );
+      expect(
+        screen.queryByRole('button', { name: 'Show failure details' })
+      ).toBeNull();
+    });
+  });
+
   it('says the nodes are rolling back while the rollback is still going', () => {
     renderWithClient(
       <RunProgress

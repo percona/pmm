@@ -25,11 +25,12 @@ import {
   Stack,
   Tab,
   Tabs,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { Table, type MRT_ColumnDef } from '@percona/percona-ui';
 import { RunTime } from '@pmm-extensions/framework';
-import { bootstrapRunDisplayStatus } from './api';
+import { bootstrapRunDisplayStatus, isHostRollingBack } from './api';
 import {
   BOOTSTRAP_RUN_COLOR,
   BOOTSTRAP_RUN_LABEL,
@@ -39,11 +40,13 @@ import { useAuth } from '@pmm-extensions/api';
 import { AdminAction } from './components/AdminAction';
 import { OmHeader } from './components/OmHeader';
 import { EmptyState } from './components/EmptyState';
-import { RunProgress } from './components/RunProgress';
+import { RunProgress, useNodeNames } from './components/RunProgress';
 import { AutomationsScansTab } from './AutomationsScansTab';
+import { FOCUS_RING_SX } from './focusRing';
 import { formatRunElapsed, runDurationSeconds } from './format';
 import { useOmBootstrapRuns } from './inventoryHooks';
 import { tabPanelProps, tabProps } from './tabA11y';
+import { runFailures, runReasons } from './runSummary';
 import { useOmBase } from './useOmBase';
 import { useNow } from './useNow';
 import type { OmGetBootstrapRunResponse } from './types';
@@ -79,21 +82,47 @@ const RunDuration = ({ run }: { run: OmGetBootstrapRunResponse }) => {
   return <>{formatRunElapsed(run.started_at, run.finished_at, now)}</>;
 };
 
+/** Why a run failed or is failing, for its status chip's hover. */
+const RunWhy = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+  const nodeName = useNodeNames();
+  const failures = runFailures(run, nodeName);
+  const why = runReasons(run, failures).join(' ');
+  // A rollback step out of retries waits on an operator rather than rolling back.
+  const rollingBack =
+    bootstrapRunDisplayStatus(run) === 'running' &&
+    run.hosts.some(isHostRollingBack) &&
+    !failures.some((failure) => failure.rollback && failure.final);
+  return <>{rollingBack ? `Rolling back. ${why}` : why}</>;
+};
+
+const RunStatusChip = ({ run }: { run: OmGetBootstrapRunResponse }) => {
+  const status = bootstrapRunDisplayStatus(run);
+  // The hover asks for node names only once it opens: a row each asking would poll.
+  const hasWhy = runReasons(run, runFailures(run, String)).length > 0;
+  const chip = (
+    <Chip
+      size="small"
+      label={BOOTSTRAP_RUN_LABEL[status] ?? status}
+      color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
+      tabIndex={hasWhy ? 0 : undefined}
+      sx={hasWhy ? FOCUS_RING_SX : undefined}
+    />
+  );
+  return hasWhy ? (
+    <Tooltip title={<RunWhy run={run} />} describeChild>
+      {chip}
+    </Tooltip>
+  ) : (
+    chip
+  );
+};
+
 const RUN_COLUMNS: MRT_ColumnDef<OmGetBootstrapRunResponse>[] = [
   {
     accessorFn: (row) => bootstrapRunDisplayStatus(row),
     id: 'status',
     header: 'Status',
-    Cell: ({ row: { original } }) => {
-      const status = bootstrapRunDisplayStatus(original);
-      return (
-        <Chip
-          size="small"
-          label={BOOTSTRAP_RUN_LABEL[status] ?? status}
-          color={BOOTSTRAP_RUN_COLOR[status] ?? 'default'}
-        />
-      );
-    },
+    Cell: ({ row: { original } }) => <RunStatusChip run={original} />,
   },
   {
     accessorKey: 'replica_set_name',

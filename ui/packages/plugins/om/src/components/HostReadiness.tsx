@@ -18,6 +18,7 @@
 import { Chip, Link, Stack, Tooltip, Typography } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { OM_ROUTE_NODES } from '../constants';
+import { reasonSentences } from '../format';
 import type { OmInventoryHost } from '../types';
 
 /**
@@ -46,7 +47,7 @@ export const HostReadiness = ({
   }
   return (
     <Stack spacing={0.5}>
-      <Tooltip title={host.automation_blocked_reasons.join('; ')}>
+      <Tooltip title={reasonSentences(host.automation_blocked_reasons)}>
         <Chip
           size="small"
           // Neutral when nothing is wrong with the node, amber when something is.
@@ -59,7 +60,7 @@ export const HostReadiness = ({
         />
       </Tooltip>
       <Typography variant="caption" color="text.secondary">
-        {host.automation_blocked_reasons.join('; ')}
+        {reasonSentences(host.automation_blocked_reasons)}
       </Typography>
       {/* Only for a fault: there is no scan to go and read about a node that is
           working exactly as intended. */}

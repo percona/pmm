@@ -181,6 +181,21 @@ describe('useScanConflict', () => {
     expect(reset).not.toHaveBeenCalled();
   });
 
+  it('looks for the running scan that holds the nodes asked for', () => {
+    useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 5 });
+
+    renderHook(() =>
+      useScanConflict({
+        error: conflict,
+        submittedAt: 10,
+        reset: vi.fn(),
+        variables: ['n2'],
+      })
+    );
+
+    expect(useActiveInventoryRun).toHaveBeenLastCalledWith(['n2']);
+  });
+
   it('clears it once the history, read after the click, shows no scan', () => {
     useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 20 });
     const reset = vi.fn();

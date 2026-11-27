@@ -30,7 +30,7 @@ import { OmApiError } from '../src/api';
 import { NodesPage } from '../src/NodesPage';
 import { ADMIN_REQUIRED } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
-import type { OmInventoryHost } from '../src/types';
+import type { OmInventoryHost, OmInventoryRun } from '../src/types';
 
 const {
   useOmInventoryHosts,
@@ -39,6 +39,7 @@ const {
   useForgetHost,
   useOmBootstrapRuns,
   useActiveInventoryRun,
+  scanHistory,
 } = vi.hoisted(() => ({
   useOmInventoryHosts: vi.fn(),
   useRefreshInventory: vi.fn(),
@@ -46,17 +47,24 @@ const {
   useForgetHost: vi.fn(),
   useOmBootstrapRuns: vi.fn(),
   useActiveInventoryRun: vi.fn(),
+  // The runs useIsScanHeld reads; the rule over them is the real one.
+  scanHistory: { runs: [] as OmInventoryRun[] },
 }));
 
-vi.mock('../src/inventoryHooks', () => ({
-  useOmInventoryHosts,
-  useRefreshInventory,
-  useIsEstateRefreshing,
-  useForgetHost,
-  useOmBootstrapRuns,
-  useActiveInventoryRun,
-  useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
-}));
+vi.mock('../src/inventoryHooks', async () => {
+  const { isScanHeld } = await import('../src/inventory');
+  return {
+    useOmInventoryHosts,
+    useRefreshInventory,
+    useIsEstateRefreshing,
+    useIsScanHeld: (requesting?: boolean) => (wanted: string[]) =>
+      isScanHeld(scanHistory.runs, wanted, requesting),
+    useForgetHost,
+    useOmBootstrapRuns,
+    useActiveInventoryRun,
+    useScanInFlight: () => ({ run: undefined, expectedSeconds: null }),
+  };
+});
 
 const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
   node_id: 'node-1',
@@ -152,6 +160,7 @@ describe('NodesPage', () => {
       isError: false,
     });
     useIsEstateRefreshing.mockReturnValue(false);
+    scanHistory.runs = [];
     useActiveInventoryRun.mockReturnValue({ run: undefined, updatedAt: 0 });
     useForgetHost.mockReturnValue({ mutateAsync: forgetOne, isPending: false });
     useOmBootstrapRuns.mockReturnValue({ data: [] });
@@ -358,8 +367,6 @@ describe('NodesPage', () => {
     ).toBeDisabled();
   });
 
-  // Scanning is estate-wide, so a sweep in flight has to disable the per-row trigger
-  // too - otherwise a reader queues a second scan of a node already being scanned.
   // PMM Server's own node gets no actions menu at all. Forget there would clear
   // Operations' record of the machine PMM runs on, the next scan would put it
   // straight back, and in between the fleet would be wrong - so there is nothing
@@ -523,16 +530,153 @@ describe('NodesPage', () => {
     expect(screen.getByText('node01')).toBeInTheDocument();
   });
 
-  it('disables the row Scan while a sweep is running', () => {
-    useIsEstateRefreshing.mockReturnValue(true);
-    renderPage();
+  it('searches node names and addresses by substring, nothing else', async () => {
+    renderPage(
+      [
+        host({
+          node_id: 'n1',
+          name: 'sharded-cluster-cfg01',
+          address: '10.0.0.1',
+        }),
+        host({
+          node_id: 'n2',
+          name: 'sharded-cluster-mongos01',
+          address: '10.0.0.2',
+        }),
+        host({
+          node_id: 'n3',
+          name: 'sharded-cluster-shard00svr1',
+          address: '10.0.0.3',
+        }),
+        host({
+          node_id: 'n4',
+          name: 'sharded-cluster-shard01svr0',
+          address: '10.0.0.4',
+        }),
+        host({ node_id: 'node-9', name: 'rs-node', address: '10.0.1.5' }),
+        host({ node_id: 'n6', name: 'arbiter', address: '10.0.0.9' }),
+      ],
+      '/?node=shard01'
+    );
+    const shown = () =>
+      ['cfg01', 'mongos01', 'shard00svr1', 'shard01svr0']
+        .map((suffix) => `sharded-cluster-${suffix}`)
+        .concat('rs-node', 'arbiter')
+        .filter((name) => screen.queryByText(name));
 
-    expect(
-      within(rowFor('node00')).getByRole('button', { name: 'Scan' })
-    ).toBeDisabled();
+    expect(shown()).toEqual(['sharded-cluster-shard01svr0']);
+
+    // The only 9 in rs-node is in its node ID, which is not searched.
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search name or address' }),
+      { target: { value: '9' } }
+    );
+    await waitFor(() => expect(shown()).toEqual(['arbiter']));
   });
 
-  it('puts the local collection time and zone on the Collected hover', () => {
+  it('leaves a selected node the search hides out of the bulk actions', async () => {
+    const refreshHosts = vi.fn();
+    useRefreshInventory.mockReturnValue({
+      refreshAll: vi.fn(),
+      refreshHosts,
+      isPending: false,
+      isError: false,
+    });
+    renderPage([
+      host({ node_id: 'n1', name: 'shard-01' }),
+      host({ node_id: 'n2', name: 'shard01' }),
+    ]);
+    selectRows('shard-01', 'shard01');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show/Hide search' }));
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Search name or address' }),
+      { target: { value: 'shard01' } }
+    );
+    await waitFor(() => expect(screen.queryByText('shard-01')).toBeNull());
+    fireEvent.click(screen.getByRole('button', { name: 'Scan selected' }));
+
+    expect(refreshHosts).toHaveBeenCalledWith(['n2']);
+  });
+
+  // PMM Extensions refuses a scan that overlaps a running one, and a scan of every
+  // node while any scan runs, so only those are disabled.
+  describe('while a scan runs', () => {
+    const fleet3 = () => [
+      host({ node_id: 'n1', name: 'node00' }),
+      host({ node_id: 'n2', name: 'node01' }),
+      host({ node_id: 'n3', name: 'node02' }),
+    ];
+    const hold = (...scopes: string[][]) => {
+      useIsEstateRefreshing.mockReturnValue(true);
+      scanHistory.runs = scopes.map(
+        (scope) =>
+          ({
+            run_id: scope.join(),
+            status: 'RUN_STATUS_RUNNING',
+            scope,
+          }) as OmInventoryRun
+      );
+    };
+    const rowScan = (name: string) =>
+      within(rowFor(name)).getByRole('button', { name: 'Scan' });
+    const scanSelected = () =>
+      screen.getByRole('button', { name: 'Scan selected' });
+
+    it('disables Scan only on the nodes the scans hold', async () => {
+      hold(['n1'], ['n3']);
+      renderPage(fleet3());
+
+      expect(rowScan('node00')).toBeDisabled();
+      expect(rowScan('node01')).toBeEnabled();
+      expect(rowScan('node02')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Scanning…' })).toBeDisabled();
+      fireEvent.mouseOver(rowScan('node00').parentElement as HTMLElement);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'A scan of this node is already running.'
+      );
+    });
+
+    it('disables every Scan during a scan of every node', () => {
+      hold([]);
+      renderPage(fleet3());
+
+      for (const name of ['node00', 'node01', 'node02']) {
+        expect(rowScan(name)).toBeDisabled();
+      }
+    });
+
+    it('disables Scan selected once a selected node is held', () => {
+      hold(['n2']);
+      renderPage(fleet3());
+
+      selectRows('node00', 'node02');
+      expect(scanSelected()).toBeEnabled();
+      selectRows('node01');
+      expect(scanSelected()).toBeDisabled();
+    });
+
+    // They share one mutation, whose error and state follow only the last request.
+    it('holds every Scan while a scan request is still being sent, and says so', async () => {
+      useRefreshInventory.mockReturnValue({
+        refreshAll: vi.fn(),
+        refreshHosts: vi.fn(),
+        isPending: true,
+        isError: false,
+        variables: ['n2'],
+      });
+      renderPage(fleet3());
+
+      expect(rowScan('node00')).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Scan all' })).toBeDisabled();
+      fireEvent.mouseOver(rowScan('node00').parentElement as HTMLElement);
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(
+        'A scan request is being sent.'
+      );
+    });
+  });
+
+  it('puts the local collection time and zone on the Collected hover', async () => {
     const collected = new Date(Date.now() - 3 * 60 * 1000).toISOString();
     renderPage([
       host({
@@ -540,13 +684,13 @@ describe('NodesPage', () => {
       }),
     ]);
 
-    expect(within(rowFor('node00')).getByText('3m ago')).toHaveAttribute(
-      'title',
-      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    fireEvent.mouseOver(within(rowFor('node00')).getByText('3m ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
 
-  it("puts the local collection time and zone on a failing node's last collection", () => {
+  it("puts the local collection time and zone on a failing node's last collection", async () => {
     const collected = new Date(Date.now() - 40 * 60 * 1000).toISOString();
     renderPage([
       host({
@@ -562,9 +706,9 @@ describe('NodesPage', () => {
     expect(rowFor('node00')).toHaveTextContent(
       'Last collected 40m ago. Expand for the full error.'
     );
-    expect(within(rowFor('node00')).getByText('40m ago')).toHaveAttribute(
-      'title',
-      `${new Date(collected).toLocaleString()} (${browserTimezone()})`
+    fireEvent.mouseOver(within(rowFor('node00')).getByText('40m ago'));
+    expect(await screen.findByRole('tooltip')).toHaveTextContent(
+      `Last collected ${new Date(collected).toLocaleString()} (${browserTimezone()})`
     );
   });
 
@@ -729,6 +873,9 @@ describe('NodesPage', () => {
         is_pmm_server_node: true,
         automation_eligible: false,
         automation_blocked_by_design: true,
+        automation_blocked_reasons: [
+          'this is the node PMM Server itself runs on, which Operations never installs onto',
+        ],
         freshness: failing(),
       }),
       host({ node_id: 'node-2', name: 'node01', freshness: failing() }),
@@ -754,7 +901,7 @@ describe('NodesPage', () => {
 
       fireEvent.mouseOver(chip);
       expect((await screen.findByRole('tooltip')).textContent).toBe(
-        'this is the node PMM Server itself runs on, which Operations never installs onto'
+        'This is the node PMM Server itself runs on, which Operations never installs onto.'
       );
     });
 
@@ -765,13 +912,35 @@ describe('NodesPage', () => {
         name: 'Toggle select row',
       });
       expect(checkbox).toBeDisabled();
-      expect(checkbox).toHaveAccessibleDescription(
-        "This is the PMM Server. Operations can't install or change databases here."
-      );
+      // The same text as its Automation hover.
+      const why =
+        'This is the node PMM Server itself runs on, which Operations never installs onto.';
+      expect(checkbox).toHaveAccessibleDescription(why);
 
       fireEvent.mouseOver(checkbox.closest('span.MuiBox-root') as HTMLElement);
+      expect((await screen.findByRole('tooltip')).textContent).toBe(why);
+    });
+
+    it('keeps a node Operations cannot install onto selectable, with its reasons as sentences', async () => {
+      renderPage([
+        host({
+          name: 'old-os',
+          automation_eligible: false,
+          automation_blocked_reasons: [
+            'this node runs Ubuntu 20.04, which Operations cannot install onto (supported: Ubuntu 22.04, Ubuntu 24.04)',
+            'PMM has no address for this node',
+          ],
+        }),
+      ]);
+
+      expect(within(rowFor('old-os')).getByRole('checkbox')).toBeEnabled();
+      fireEvent.mouseOver(
+        within(rowFor('old-os')).getByRole('button', {
+          name: 'Install MongoDB',
+        }).parentElement as HTMLElement
+      );
       expect((await screen.findByRole('tooltip')).textContent).toBe(
-        "This is the PMM Server. Operations can't install or change databases here."
+        'This node runs Ubuntu 20.04, which Operations cannot install onto (supported: Ubuntu 22.04, Ubuntu 24.04). PMM has no address for this node.'
       );
     });
 

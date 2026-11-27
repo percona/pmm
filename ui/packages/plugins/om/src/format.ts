@@ -184,3 +184,18 @@ export function pluralize(
 ): string {
   return count === 1 ? singular : plural;
 }
+
+/**
+ * Reasons PMM sends as clauses, so it can embed them in a sentence of its own, as
+ * sentences: each capitalized and ended with a period, joined by a space.
+ */
+export function reasonSentences(reasons: string[]): string {
+  return reasons
+    .map((reason) => reason.trim())
+    .filter(Boolean)
+    .map(
+      (reason) =>
+        `${reason[0].toUpperCase()}${reason.slice(1)}${/[.!?]$/.test(reason) ? '' : '.'}`
+    )
+    .join(' ');
+}
