@@ -31,13 +31,8 @@ const (
 )
 
 // GRPCMetricsExtension for extra labels in /debug/metrics.
-type GRPCMetricsExtension struct { //nolint:recvcheck
+type GRPCMetricsExtension struct {
 	DefaultExtension
-}
-
-// MetricsNameAdjust adjusts the given metric name and returns the adjusted name.
-func (e GRPCMetricsExtension) MetricsNameAdjust(name string) string {
-	return "pmm_" + name
 }
 
 // ServerStreamMsgReceivedCounterCustomLabels returns custom labels for the server stream message received counter.
@@ -66,15 +61,19 @@ func getCallerOriginStr(ctx context.Context) string {
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
+	// Health probes (HAProxy polls LeaderHealthCheck on every HA replica) and pmm-agent streams,
+	// including the PMM 2 agent's /agent.Agent/Connect, aren't API usage.
 	if method == "/server.v1.ServerService/Readiness" ||
+		method == "/server.v1.ServerService/LeaderHealthCheck" ||
 		method == "/agent.v1.AgentService/Connect" ||
+		method == "/agent.Agent/Connect" ||
 		method == "/realtimeanalytics.v1.CollectorService/Collect" {
 		return internalCallerOrigin
 	}
 
 	headers, _ := metadata.FromIncomingContext(ctx)
 
-	// if referer is present - the caller is an external one
+	// without a referer, the caller is an external one
 	if len(headers.Get("grpcgateway-referer")) == 0 {
 		return externalCallerOrigin
 	}

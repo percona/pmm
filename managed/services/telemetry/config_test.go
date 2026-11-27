@@ -16,20 +16,27 @@
 package telemetry
 
 import (
+	"context"
 	"slices"
 	"testing"
 	"time"
 
 	telemetryv1 "github.com/percona/platform/gen/telemetry/generic"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/common/model"
+	"github.com/prometheus/prometheus/promql/parser"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 	"gopkg.in/yaml.v3"
 
 	"github.com/percona/pmm/managed/models"
 	"github.com/percona/pmm/managed/utils/envvars"
+	"github.com/percona/pmm/managed/utils/interceptors"
 	"github.com/percona/pmm/managed/utils/testdb"
 )
 
@@ -378,4 +385,98 @@ func TestDefaultConfigReportsAdvisorUsage(t *testing.T) {
 			assert.Equal(t, want, got)
 		})
 	}
+}
+
+func TestDefaultConfigReportsAPIUsage(t *testing.T) {
+	logger, _ := test.NewNullLogger()
+	cfg := ServiceConfig{l: logger.WithField("test", t.Name())}
+
+	telemetry, err := cfg.loadMetricsConfig("")
+	require.NoError(t, err)
+
+	idx := slices.IndexFunc(telemetry, func(c Config) bool { return c.ID == "APIUsageMetrics" })
+	require.NotEqual(t, -1, idx, "APIUsageMetrics datapoint is missing")
+	apiUsage := telemetry[idx]
+	assert.Equal(t, string(dsVM), apiUsage.Source)
+
+	expr, err := parser.NewParser(parser.Options{}).ParseExpr(apiUsage.Query)
+	require.NoError(t, err)
+
+	var dataLabels []string
+	for _, data := range apiUsage.Data {
+		if data.Label != "" {
+			dataLabels = append(dataLabels, data.Label)
+		}
+	}
+
+	// In HA, every replica's pmm-managed is scraped with its own instance label, so any label
+	// outside data would split one report item into one item per replica.
+	agg, ok := expr.(*parser.AggregateExpr)
+	require.True(t, ok, "query must aggregate: %s", apiUsage.Query)
+	assert.Equal(t, parser.ItemType(parser.SUM), agg.Op)
+	assert.False(t, agg.Without)
+	assert.ElementsMatch(t, dataLabels, agg.Grouping)
+
+	// Sum the raw counter: a function such as rate() would change what the value means.
+	selector, ok := agg.Expr.(*parser.VectorSelector)
+	require.True(t, ok, "query must sum a plain selector: %s", apiUsage.Query)
+
+	// Only the job matcher: qan-api2 exports a metric with the same name but without
+	// caller_origin, and any other matcher would drop part of the usage.
+	var metricName string
+	matchers := make([]string, 0, len(selector.LabelMatchers))
+	for _, m := range selector.LabelMatchers {
+		if m.Name == model.MetricNameLabel {
+			metricName = m.Value
+			continue
+		}
+		matchers = append(matchers, m.String())
+	}
+	assert.Equal(t, []string{`job="pmm-managed"`}, matchers)
+
+	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
+	registry := prometheus.NewRegistry()
+	registry.MustRegister(grpcMetrics)
+
+	// UnaryAdd sets caller_origin, as in main.go.
+	interceptor := interceptors.UnaryAdd(grpcMetrics.UnaryServerInterceptor())
+	info := &grpc.UnaryServerInfo{FullMethod: "/server.v1.ServerService/Version"}
+	handler := func(context.Context, any) (any, error) { return struct{}{}, nil }
+	gatewayCtx := metadata.NewIncomingContext(t.Context(), metadata.Pairs("grpcgateway-referer", "https://pmm-server/"))
+
+	// A CounterVec exports no series until a call is recorded.
+	for _, ctx := range []context.Context{t.Context(), gatewayCtx} {
+		_, err = interceptor(ctx, nil, info, handler)
+		require.NoError(t, err)
+	}
+
+	families, err := registry.Gather()
+	require.NoError(t, err)
+
+	var series []map[string]string
+	for _, family := range families {
+		if family.GetName() != metricName {
+			continue
+		}
+		for _, metric := range family.GetMetric() {
+			labels := make(map[string]string)
+			for _, label := range metric.GetLabel() {
+				labels[label.GetName()] = label.GetValue()
+			}
+			series = append(series, labels)
+		}
+	}
+	require.NotEmpty(t, series, "pmm-managed does not expose %s", metricName)
+
+	origins := make([]string, 0, len(series))
+	for _, labels := range series {
+		origins = append(origins, labels["caller_origin"])
+		for _, label := range dataLabels {
+			// The job label comes from the VictoriaMetrics scrape config, not from pmm-managed.
+			if label != "job" {
+				assert.Contains(t, labels, label)
+			}
+		}
+	}
+	assert.ElementsMatch(t, []string{"external", "internal"}, origins)
 }
