@@ -121,6 +121,12 @@ To make a common change, find it in this list and run its command:
     pmm-admin update postgresql postgresql-prod --password=new_secret_pass
     ```
 
+- turn on PostgreSQL collectors that postgres_exporter doesn't run by default. The list replaces the stored one, and `--enable-collectors=` clears it:
+
+    ```bash
+    pmm-admin update postgresql postgresql-prod --enable-collectors=long_running_transactions,stat_io
+    ```
+
 - read new credentials from a file, which keeps the password out of the shell history:
 
     ```bash
