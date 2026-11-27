@@ -134,6 +134,13 @@ func (s *Service) Add(task Task, params AddParams) (*models.ScheduledTask, error
 
 // Remove stops task specified by id and removes it from DB and scheduler.
 func (s *Service) Remove(id string) error {
+	err := s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveScheduledTask(tx.Querier, id)
+	})
+	if err != nil {
+		return err
+	}
+
 	s.taskMx.RLock()
 	if cancel, ok := s.tasks[id]; ok {
 		cancel()
@@ -143,13 +150,6 @@ func (s *Service) Remove(id string) error {
 	s.jobsMx.Lock()
 	delete(s.jobs, id)
 	s.jobsMx.Unlock()
-
-	err := s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveScheduledTask(tx.Querier, id)
-	})
-	if err != nil {
-		return err
-	}
 
 	s.mx.Lock()
 	_ = s.scheduler.RemoveByTag(id)
