@@ -200,6 +200,13 @@ type Config struct {
 
 	Setup      Setup      `yaml:"-"`
 	Encryption Encryption `yaml:"-"`
+	Offline    Offline    `yaml:"-"`
+}
+
+// Offline contains `pmm-agent offline-run` and `offline-push` arguments. It is never stored in configuration file.
+type Offline struct {
+	ConfigFile string
+	QueueDir   string
 }
 
 // ConfigFileDoesNotExistError error is returned from Get method if configuration file is expected,
@@ -653,6 +660,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_EXPOSE_EXPORTER").BoolVar(&cfg.Setup.ExposeExporter)
 	setupCmd.Flag("proc-mounts-path", "Path to /proc/mounts file for the filesystem collector [PMM_AGENT_SETUP_PROC_MOUNTS_PATH]").
 		Envar("PMM_AGENT_SETUP_PROC_MOUNTS_PATH").StringVar(&cfg.Setup.ProcMountsPath)
+
+	app.Command("offline-run", "Collect metrics without PMM Server into vmagent's on-disk queue").
+		Arg("offline-config", "YAML file listing what to monitor").Required().StringVar(&cfg.Offline.ConfigFile)
+	app.Command("offline-push", "Push metrics collected by offline-run to PMM Server").
+		Arg("queue-dir", "queue_dir copied from the offline node").Required().StringVar(&cfg.Offline.QueueDir)
 
 	return app, configFileF
 }

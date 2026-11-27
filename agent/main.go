@@ -47,6 +47,10 @@ func main() {
 	case "setup":
 		config.ConfigureLogger(&cfg)
 		commands.Setup()
+	case "offline-run":
+		commands.OfflineRun(cfg.Offline.ConfigFile)
+	case "offline-push":
+		commands.OfflinePush(cfg.Offline.QueueDir)
 	default:
 		// not reachable due to default kingpin's termination handler; keep it just in case
 		kingpin.Fatalf("Unexpected command %q.", cmd)
