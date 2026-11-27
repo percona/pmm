@@ -22,7 +22,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { SnackbarProvider } from 'notistack';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { browserTimezone } from '@pmm-extensions/framework';
@@ -31,6 +31,7 @@ import { NodesPage } from '../src/NodesPage';
 import { ADMIN_REQUIRED } from '../src/components/AdminAction';
 import { asReadOnlyReader } from './auth';
 import type { OmInventoryHost } from '../src/types';
+import { LocationProbe } from './testUtils';
 
 const {
   useOmInventoryHosts,
@@ -80,12 +81,6 @@ const host = (overrides: Partial<OmInventoryHost> = {}): OmInventoryHost => ({
 });
 
 const forgetOne = vi.fn();
-
-/** Where the page has sent the router: its own filter, or the install wizard. */
-const LocationProbe = () => {
-  const { pathname, search } = useLocation();
-  return <output data-testid="location">{`${pathname}${search}`}</output>;
-};
 
 const currentLocation = () => screen.getByTestId('location').textContent;
 

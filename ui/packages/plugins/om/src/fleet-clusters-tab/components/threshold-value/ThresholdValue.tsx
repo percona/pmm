@@ -19,6 +19,12 @@ import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import { StatusIcon } from '@percona/peak-ui';
 import { Duration } from '../../../components/Metric';
+import { formatCompactDuration } from '../../../format';
+import {
+  LAG_ALERT_SECONDS,
+  OPLOG_WARN_SECONDS,
+} from '../../FleetClustersTab.constants';
+import { Messages } from '../../FleetClustersTab.messages';
 import { THRESHOLDS_VALUE_CUE } from './ThresholdValue.constants';
 
 /**
@@ -60,3 +66,27 @@ export const ThresholdValue = ({
     </Tooltip>
   );
 };
+
+type Seconds = { seconds: number | null | undefined };
+
+export const ReplicationLagValue = ({ seconds }: Seconds) => (
+  <ThresholdValue
+    seconds={seconds}
+    crossed={seconds != null && seconds >= LAG_ALERT_SECONDS}
+    level="error"
+    reason={Messages.thresholds.lagAbove(
+      formatCompactDuration(LAG_ALERT_SECONDS)
+    )}
+  />
+);
+
+export const OplogWindowValue = ({ seconds }: Seconds) => (
+  <ThresholdValue
+    seconds={seconds}
+    crossed={seconds != null && seconds < OPLOG_WARN_SECONDS}
+    level="warning"
+    reason={Messages.thresholds.oplogBelow(
+      formatCompactDuration(OPLOG_WARN_SECONDS)
+    )}
+  />
+);

@@ -16,11 +16,11 @@
  */
 
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import type { MRT_TableInstance } from 'material-react-table';
 import { describe, expect, it, vi } from 'vitest';
 import type { OmClusterHealth, OmClusterRow } from '../../../types';
 import { FleetHealthCard } from './FleetHealthCard';
+import { PmmTheme } from '../../../../tests/testUtils';
 
 const rowsOf = (...health: OmClusterHealth[]) =>
   health.map((h, i) => ({ id: String(i), health: h }) as OmClusterRow);
@@ -31,9 +31,9 @@ const renderCard = (rows: OmClusterRow[]) => {
     getColumn: () => ({ setFilterValue }),
   } as unknown as MRT_TableInstance<OmClusterRow>;
   render(
-    <ThemeContextProvider themeOptions={pmmThemeOptions}>
+    <PmmTheme>
       <FleetHealthCard table={table} rows={rows} />
-    </ThemeContextProvider>
+    </PmmTheme>
   );
   return { setFilterValue };
 };

@@ -15,6 +15,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { generatePath } from 'react-router-dom';
 import type { ChipProps } from '@mui/material/Chip';
 import type {
   OmBootstrapRunStatus,
@@ -47,6 +48,11 @@ export const OM_ROUTE_INSTALL = 'nodes/install';
 export const OM_ROUTE_AUTOMATIONS = 'automations';
 /** This app's own configuration. PMM's on/off switch stays in PMM's settings. */
 export const OM_ROUTE_SETTINGS = 'settings';
+/** One cluster, keyed by its server-issued id. */
+export const OM_ROUTE_CLUSTER = 'clusters/:clusterId';
+
+export const clusterPath = (base: string, clusterId: string) =>
+  `${base}/${generatePath(OM_ROUTE_CLUSTER, { clusterId })}`;
 
 /**
  * The routes that existed before the structure changed, kept only to redirect.

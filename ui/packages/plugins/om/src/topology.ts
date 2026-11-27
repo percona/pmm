@@ -158,15 +158,20 @@ export function compareVersions(a: string, b: string): number {
 const sortedVersions = (versions: Iterable<string>) =>
   [...versions].sort(compareVersions);
 
+export const isRouter = (service: Pick<OmService, 'process_role'>) =>
+  service.process_role === 'PROCESS_ROLE_MONGOS';
+
+/** An arbiter reads `ARBITER` only while up, so its role is checked too. */
+export const isArbiter = (service: Pick<OmService, 'process_role' | 'state'>) =>
+  service.process_role === 'PROCESS_ROLE_ARBITER' ||
+  service.state === 'ARBITER';
+
 /**
  * A member that holds data: a router holds none, and an arbiter only votes, so
- * neither can drift a replica set's data off its version. An arbiter reads
- * `ARBITER` only while up, so its role is checked too.
+ * neither can drift a replica set's data off its version.
  */
 const isDataBearing = (service: OmService) =>
-  service.process_role !== 'PROCESS_ROLE_MONGOS' &&
-  service.process_role !== 'PROCESS_ROLE_ARBITER' &&
-  service.state !== 'ARBITER';
+  !isRouter(service) && !isArbiter(service);
 
 /**
  * Each replica set's versions among its data-bearing members, the same rule as

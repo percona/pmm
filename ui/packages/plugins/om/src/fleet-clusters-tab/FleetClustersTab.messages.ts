@@ -19,6 +19,7 @@ import { pluralize } from '../format';
 
 export const Messages = {
   unnamedEnvironment: 'Unassigned environment',
+  unnamedCluster: 'Unnamed cluster',
   groupBy: {
     health: 'Health status',
     env_name: 'Environment',

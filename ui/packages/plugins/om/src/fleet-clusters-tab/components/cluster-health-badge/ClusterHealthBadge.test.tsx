@@ -16,10 +16,10 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
 import { describe, expect, it } from 'vitest';
 import type { OmClusterHealth } from '../../../types';
 import { ClusterHealthBadge } from './ClusterHealthBadge';
+import { PmmTheme } from '../../../../tests/testUtils';
 
 describe('ClusterHealthBadge', () => {
   it.each([
@@ -31,9 +31,9 @@ describe('ClusterHealthBadge', () => {
     'reads %s as "%s" with the status icon used across the tab',
     (health, label) => {
       render(
-        <ThemeContextProvider themeOptions={pmmThemeOptions}>
+        <PmmTheme>
           <ClusterHealthBadge health={health as OmClusterHealth} />
-        </ThemeContextProvider>
+        </PmmTheme>
       );
 
       const chip = screen.getByTestId('om-cluster-health');

@@ -42,6 +42,9 @@ import type {
 export const environmentLabel = (row: OmClusterRow) =>
   row.env_name || Messages.unnamedEnvironment;
 
+export const clusterDisplayName = (row: OmClusterRow) =>
+  row.cluster_name || Messages.unnamedCluster;
+
 export const typeLabel = (row: OmClusterRow) => CLUSTER_TYPE_LABEL[row.type];
 
 export const getEnvironmentValue = (row: OmClusterRow) =>

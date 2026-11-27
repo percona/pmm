@@ -369,6 +369,7 @@ export const addOm = (): NavItem => ({
       id: 'om-fleet',
       text: 'Fleet',
       url: OM_PATH,
+      matches: [`${OM_PATH}/clusters/:clusterId`],
     },
     {
       // The machines, including the ones with no database on them -- which no fleet

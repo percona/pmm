@@ -29,13 +29,13 @@ import {
   RouterProvider,
   createMemoryRouter,
 } from 'react-router-dom';
-import type { ReactNode } from 'react';
 import { hexToRgb } from '@mui/material/styles';
-import { ThemeContextProvider, pmmThemeOptions } from '@percona/peak-ui';
+import { pmmThemeOptions } from '@percona/peak-ui';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { FLEET_NOT_COLLECTED, OPERATIONS_DOC_URL } from '../constants';
 import { FleetClustersTab } from './FleetClustersTab';
 import { cluster, mixedEstate, service, topology } from '../../tests/fixtures';
+import { PmmTheme } from '../../tests/testUtils';
 
 const { useOmTopology, useOmInventoryServices } = vi.hoisted(() => ({
   useOmTopology: vi.fn(),
@@ -48,19 +48,12 @@ vi.mock('../inventoryHooks', () => ({
   useLastScanFinishedAt: () => ({ status: 'ready', finishedAt: null }),
 }));
 
-/** The app's theme, which peak-ui's status icons read their colours from. */
-const Theme = ({ children }: { children: ReactNode }) => (
-  <ThemeContextProvider themeOptions={pmmThemeOptions}>
-    {children}
-  </ThemeContextProvider>
-);
-
 const renderPage = () =>
   render(
     <MemoryRouter>
       <FleetClustersTab />
     </MemoryRouter>,
-    { wrapper: Theme }
+    { wrapper: PmmTheme }
   );
 
 const clusterRows = () =>
@@ -168,6 +161,35 @@ describe('FleetClustersTab', () => {
       isError: false,
       error: null,
     });
+  });
+
+  it('links each cluster, named or not, to its own page', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              id: 'named-id',
+              name: 'orders',
+              services: [service({})],
+            }),
+            cluster({ id: 'unnamed-id', name: null, services: [service({})] }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    expect(screen.getByRole('link', { name: 'orders' })).toHaveAttribute(
+      'href',
+      '/clusters/named-id'
+    );
+    expect(
+      screen.getByRole('link', { name: 'Unnamed cluster' })
+    ).toHaveAttribute('href', '/clusters/unnamed-id');
   });
 
   it('warns, with the server error, when the scan results cannot be read', () => {
@@ -630,7 +652,7 @@ describe('FleetClustersTab', () => {
         [{ path: '/fleet', element: <FleetClustersTab /> }],
         { initialEntries: [url] }
       );
-      render(<RouterProvider router={router} />, { wrapper: Theme });
+      render(<RouterProvider router={router} />, { wrapper: PmmTheme });
       return router;
     };
 

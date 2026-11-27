@@ -17,10 +17,23 @@
 
 import { Link as RouterLink } from 'react-router-dom';
 import Link from '@mui/material/Link';
+import { clusterPath } from '../../../constants';
+import type { OmClusterRow } from '../../../types';
+import { useOmBase } from '../../../useOmBase';
+import { clusterDisplayName } from '../../FleetClustersTab.utils';
 
-/** A cluster's name leading to its page; unused until that page exists (PMM-15879). */
-export const ClusterNameLink = ({ name, to }: { name: string; to: string }) => (
-  <Link component={RouterLink} to={to} underline="hover" fontWeight={500}>
-    {name}
-  </Link>
-);
+/** A cluster's name leading to its page; an unlabelled cluster still has one. */
+export const ClusterNameLink = ({ cluster }: { cluster: OmClusterRow }) => {
+  const base = useOmBase();
+  return (
+    <Link
+      component={RouterLink}
+      to={clusterPath(base, cluster.id)}
+      underline="hover"
+      fontWeight={500}
+      color={cluster.cluster_name ? undefined : 'text.secondary'}
+    >
+      {clusterDisplayName(cluster)}
+    </Link>
+  );
+};
