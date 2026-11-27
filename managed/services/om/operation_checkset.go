@@ -35,6 +35,8 @@ type CheckFact struct {
 type CheckContext struct {
 	ClusterID string
 	Facts     map[string]any
+	// SubjectFacts holds each subject's raw facts by subject key, including the strings and lists the aggregate drops.
+	SubjectFacts map[string]map[string]any
 }
 
 // RuleResult is a blocking rule's verdict: Blocked names what it blocks and why.

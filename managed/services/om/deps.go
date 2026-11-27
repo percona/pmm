@@ -52,7 +52,7 @@ type agentStateUpdater interface {
 // CheckProvider supplies a checking operation's declared check set and the current facts the driver
 // evaluates it against. E0-T4's health projection implements it; a fake stands in for tests.
 type CheckProvider interface {
-	CheckInputs(ctx context.Context, op *models.OmOperation, kind OperationKind) (CheckSet, map[string]any, map[string]time.Duration, error)
+	CheckInputs(ctx context.Context, op *models.OmOperation, kind OperationKind) (CheckSet, map[string]any, map[string]time.Duration, map[string]map[string]any, error)
 }
 
 // StepExecutorProvider supplies the executor that runs a running operation's steps on the host.

@@ -36,8 +36,8 @@ type fakeCheckProvider struct {
 	err   error
 }
 
-func (f fakeCheckProvider) CheckInputs(context.Context, *models.OmOperation, OperationKind) (CheckSet, map[string]any, map[string]time.Duration, error) {
-	return f.set, f.facts, f.ages, f.err
+func (f fakeCheckProvider) CheckInputs(context.Context, *models.OmOperation, OperationKind) (CheckSet, map[string]any, map[string]time.Duration, map[string]map[string]any, error) {
+	return f.set, f.facts, f.ages, nil, f.err
 }
 
 type fakeExecutorProvider struct {

@@ -53,7 +53,7 @@ func TestDriveCheckingBlockingRuleFails(t *testing.T) {
 		Facts: []CheckFact{{Name: "ready"}},
 		Rules: []BlockingRule{func(CheckContext) RuleResult { return RuleResult{Blocked: true, Reason: "not_ready"} }},
 	}
-	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), blocking, map[string]any{"ready": false}, nil, &fakeScanRequester{})
+	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), blocking, map[string]any{"ready": false}, nil, nil, &fakeScanRequester{})
 	require.NoError(t, err)
 	assert.Equal(t, CheckFailed, outcome)
 
@@ -70,7 +70,7 @@ func TestDriveCheckingAwaitsConfirmation(t *testing.T) {
 	clusterID := lockCluster(t, db.Querier)
 	op := checkingOp(t, db.Querier, clusterID)
 
-	outcome, err := driveChecking(t.Context(), db, op, driveKind(true), passingCheckSet(), readyFacts(), nil, &fakeScanRequester{})
+	outcome, err := driveChecking(t.Context(), db, op, driveKind(true), passingCheckSet(), readyFacts(), nil, nil, &fakeScanRequester{})
 	require.NoError(t, err)
 	assert.Equal(t, AwaitingConfirmation, outcome)
 
@@ -86,7 +86,7 @@ func TestDriveCheckingRunsWithoutConfirmation(t *testing.T) {
 	clusterID := lockCluster(t, db.Querier)
 	op := checkingOp(t, db.Querier, clusterID)
 
-	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), passingCheckSet(), readyFacts(), nil, &fakeScanRequester{})
+	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), passingCheckSet(), readyFacts(), nil, nil, &fakeScanRequester{})
 	require.NoError(t, err)
 	assert.Equal(t, StartedRunning, outcome)
 
@@ -103,7 +103,7 @@ func TestDriveCheckingRequestsRescanWhenStale(t *testing.T) {
 	op.ReportDigest = new("stale-digest")
 
 	fake := &fakeScanRequester{}
-	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), passingCheckSet(), readyFacts(), nil, fake)
+	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), passingCheckSet(), readyFacts(), nil, nil, fake)
 	require.NoError(t, err)
 	assert.Equal(t, CheckRescanRequested, outcome)
 	assert.Len(t, fake.requests, 1)
@@ -123,7 +123,7 @@ func TestDriveCheckingRequestsRescanWhenOverAge(t *testing.T) {
 	op.ReportDigest = &digest
 
 	fake := &fakeScanRequester{}
-	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), checkSet, readyFacts(), map[string]time.Duration{"ready": time.Hour}, fake)
+	outcome, err := driveChecking(t.Context(), db, op, driveKind(false), checkSet, readyFacts(), map[string]time.Duration{"ready": time.Hour}, nil, fake)
 	require.NoError(t, err)
 	assert.Equal(t, CheckRescanRequested, outcome)
 	assert.Len(t, fake.requests, 1)

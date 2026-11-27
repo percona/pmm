@@ -59,7 +59,7 @@ func TestCheckInputsAggregatesAndPasses(t *testing.T) {
 	}
 	provider := &factCheckProvider{reader: reader, now: func() time.Time { return now }}
 
-	set, facts, ages, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
+	set, facts, ages, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
 	assert.Equal(t, true, facts[factRepoReachable])
 	assert.InDelta(t, float64(6<<30), facts[factFreeSpaceBytes], 0, "the least free space wins")
@@ -87,10 +87,11 @@ func TestCheckInputsBuildsCheckSetWithTheOperation(t *testing.T) {
 		},
 	}
 
-	set, _, _, err := provider.CheckInputs(t.Context(), op, kind)
+	set, facts, _, _, err := provider.CheckInputs(t.Context(), op, kind)
 	require.NoError(t, err)
 	assert.Same(t, op, got, "the kind builds its check set with the operation in hand")
 	assert.Empty(t, set.Facts, "the returned set is the one the per-op func produced")
+	assert.Empty(t, facts, "an empty check set aggregates no facts")
 }
 
 func TestCheckInputsBlocksWhenOneNodeFails(t *testing.T) {
@@ -104,12 +105,46 @@ func TestCheckInputsBlocksWhenOneNodeFails(t *testing.T) {
 	}
 	provider := &factCheckProvider{reader: reader, now: func() time.Time { return now }}
 
-	set, facts, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
+	set, facts, _, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
 	assert.Equal(t, false, facts[factNoMongod])
 	block := runBlockingRules(set, CheckContext{Facts: facts})
 	assert.True(t, block.Blocked)
 	assert.Equal(t, factNoMongod, block.Path)
+}
+
+func TestCheckInputsCarriesPerSubjectFacts(t *testing.T) {
+	now := time.Now()
+	reader := &fakeFactReader{
+		facts: map[string]map[string]any{
+			"node-a": {"marker_run_id": "run-a", "owned_packages": []string{"percona-server-mongodb"}},
+			"node-b": {"marker_run_id": "run-b", "owned_packages": []string{"percona-mongodb-mongosh"}},
+		},
+		at: map[string]time.Time{"node-a": now, "node-b": now},
+	}
+	provider := &factCheckProvider{reader: reader, now: func() time.Time { return now }}
+	kind := OperationKind{
+		Kind: installKind,
+		Subjects: func(*models.OmOperation) []CheckSubject {
+			return []CheckSubject{
+				{Kind: subjectKindInstallNode, Key: "node-a"},
+				{Kind: subjectKindInstallNode, Key: "node-b"},
+			}
+		},
+		CheckSet: func(*models.OmOperation) CheckSet { return CheckSet{} },
+	}
+
+	_, facts, _, subjectFacts, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), kind)
+	require.NoError(t, err)
+
+	assert.Equal(t, "run-a", subjectFacts["node-a"]["marker_run_id"])
+	assert.Equal(t, "run-b", subjectFacts["node-b"]["marker_run_id"])
+	assert.Equal(t, []string{"percona-server-mongodb"}, subjectFacts["node-a"]["owned_packages"], "a list fact reaches a rule per subject")
+
+	_, hasMarker := facts["marker_run_id"]
+	assert.False(t, hasMarker, "the aggregate drops a string fact")
+	_, hasPackages := facts["owned_packages"]
+	assert.False(t, hasPackages, "the aggregate drops a list fact")
 }
 
 func TestCheckInputsLeavesOutAMissingFact(t *testing.T) {
@@ -123,7 +158,7 @@ func TestCheckInputsLeavesOutAMissingFact(t *testing.T) {
 	}
 	provider := &factCheckProvider{reader: reader, now: func() time.Time { return now }}
 
-	set, facts, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
+	set, facts, _, _, err := provider.CheckInputs(t.Context(), installOp(t, "node-a", "node-b"), InstallKind())
 	require.NoError(t, err)
 	_, present := facts[factPackageManagerPresent]
 	assert.False(t, present, "a fact missing from a node is left out so its rule blocks")

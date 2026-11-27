@@ -149,12 +149,12 @@ func (r *Runner) driveOneChecking(ctx context.Context, op *models.OmOperation) {
 		log.Warnf("operation kind '%s' is not registered; skipping", op.Kind)
 		return
 	}
-	checkSet, facts, ages, err := r.checks.CheckInputs(ctx, op, kind)
+	checkSet, facts, ages, subjectFacts, err := r.checks.CheckInputs(ctx, op, kind)
 	if err != nil {
 		log.WithError(err).Warn("failed to gather check inputs")
 		return
 	}
-	outcome, err := driveChecking(ctx, r.db, op, kind, checkSet, facts, ages, r.scans)
+	outcome, err := driveChecking(ctx, r.db, op, kind, checkSet, facts, ages, subjectFacts, r.scans)
 	if err != nil {
 		log.WithError(err).Warn("failed to drive checking operation")
 		return

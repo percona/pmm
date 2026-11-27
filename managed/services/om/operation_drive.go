@@ -31,7 +31,7 @@ import (
 // confirming kind awaits confirmation, else the start gate runs it; a stale report requests a rescan.
 func driveChecking(
 	ctx context.Context, db *reform.DB, op *models.OmOperation, kind OperationKind, checkSet CheckSet,
-	facts map[string]any, ages map[string]time.Duration, scanRequester ScanRequester,
+	facts map[string]any, ages map[string]time.Duration, subjectFacts map[string]map[string]any, scanRequester ScanRequester,
 ) (StartOutcome, error) {
 	if op.ClusterID == nil && !kind.ClusterLess {
 		return "", errors.New("driver needs a cluster-scoped operation")
@@ -52,7 +52,7 @@ func driveChecking(
 			return requestRescan(op, scanRequester)
 		}
 	}
-	block := runBlockingRules(checkSet, CheckContext{ClusterID: clusterScope(op), Facts: facts})
+	block := runBlockingRules(checkSet, CheckContext{ClusterID: clusterScope(op), Facts: facts, SubjectFacts: subjectFacts})
 	if block.Blocked {
 		return failChecking(ctx, db, op, block.Reason)
 	}

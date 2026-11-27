@@ -45,21 +45,25 @@ func newFactCheckProvider(reader factObservationReader) *factCheckProvider {
 	return &factCheckProvider{reader: reader, now: time.Now}
 }
 
-// CheckInputs returns the kind's check set and its declared facts aggregated across the subjects: a
-// boolean passes only when every subject does, a number is the least, a fact missing anywhere is dropped.
-func (p *factCheckProvider) CheckInputs(ctx context.Context, op *models.OmOperation, kind OperationKind) (CheckSet, map[string]any, map[string]time.Duration, error) {
+// CheckInputs returns the kind's check set, its facts aggregated across the subjects (a boolean passes only
+// when all do, a number is the least, a missing fact is dropped), and each subject's raw facts by key.
+func (p *factCheckProvider) CheckInputs(
+	ctx context.Context, op *models.OmOperation, kind OperationKind,
+) (CheckSet, map[string]any, map[string]time.Duration, map[string]map[string]any, error) {
 	profile := op.Kind + "_check"
 	subjects := kind.Subjects(op)
 	perSubject := make([]map[string]any, 0, len(subjects))
 	subjectAges := make([]time.Duration, 0, len(subjects))
+	subjectFacts := make(map[string]map[string]any, len(subjects))
 	now := p.now()
 	for _, subject := range subjects {
 		facts, collectedAt, err := p.reader.Observation(ctx, subject.Kind, subject.Key, profile)
 		if err != nil {
-			return CheckSet{}, nil, nil, err
+			return CheckSet{}, nil, nil, nil, err
 		}
 		perSubject = append(perSubject, facts)
 		subjectAges = append(subjectAges, now.Sub(collectedAt))
+		subjectFacts[subject.Key] = facts
 	}
 	set := kind.CheckSet(op)
 	facts := make(map[string]any, len(set.Facts))
@@ -72,7 +76,7 @@ func (p *factCheckProvider) CheckInputs(ctx context.Context, op *models.OmOperat
 		facts[declared.Name] = value
 		ages[declared.Name] = age
 	}
-	return set, facts, ages, nil
+	return set, facts, ages, subjectFacts, nil
 }
 
 // aggregateFact folds one fact across the subjects (booleans by AND, numbers by the least, age by the
