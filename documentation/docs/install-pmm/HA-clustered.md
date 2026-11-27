@@ -50,7 +50,8 @@ Find your chart version (`helm list -n <namespace>` for an existing installation
 
 | `pmm-ha` chart version | PMM version | Amazon EKS | OpenShift | VictoriaMetrics operator | ClickHouse operator | PostgreSQL operator |
 |------------------------|-------------|------------|-----------|--------------------------|---------------------|---------------------|
-| 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.19 to 4.22 | 0.67.3 | 0.27.3 | 3.0.0 |
+| 1.9.1 | 3.11.0 | 1.33 to 1.36 | 4.19 to 4.22 | 0.67.3 | 0.27.3 | 3.1.0 |
+| 1.8.0 | 3.10.0 | 1.33 to 1.36 | 4.19 to 4.22 | 0.67.3 | 0.27.3 | 3.1.0 |
 
 If your platform version isn't listed, upgrade the cluster or use a chart version that supports it.
 
@@ -82,8 +83,9 @@ If you monitor fewer than 100 nodes, plan for the 100-node size anyway. The char
 For more than 100 nodes, install with the matching values file from the [`pmm-ha` chart](https://github.com/percona/percona-helm-charts/tree/main/charts/pmm-ha). The values files ship inside the chart, so download the chart first, then pass the file to `helm install`. For example, for up to 500 nodes:
 
 ```sh
-helm pull percona/pmm-ha --version 1.8.0 --untar
-helm install pmm-ha percona/pmm-ha --namespace pmm --version 1.8.0 -f pmm-ha/examples/values-500-nodes.yaml
+helm repo update percona
+helm pull percona/pmm-ha --untar
+helm install pmm-ha ./pmm-ha --namespace pmm -f pmm-ha/examples/values-500-nodes.yaml
 ```
 
 These sizes also need a storage class that allows volume expansion (`allowVolumeExpansion: true`).
