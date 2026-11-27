@@ -56,7 +56,7 @@ After you enable it, **MongoDB > Operations** appears in the side menu with a **
 
 ## Prepare your nodes
 
-Before you scan or install on a node, make sure it meets the requirements and, if you want scans to connect to MongoDB, that you've provided credentials.
+Before you scan or install on a node, make sure that it meets the requirements.
 
 ### Node requirements
 
@@ -76,40 +76,19 @@ PMM checks these requirements during scans and reports the results so you can fi
     | HTTPS access to `repo.percona.com` and OS package mirrors | Reported only | Required |
     | HTTPS access to the `/extensions` URL on PMM Server | Not needed | Required |
 
-### Provide MongoDB credentials for scans
+<a id="provide-mongodb-credentials-for-scans"></a>
 
-Scans log in to MongoDB on each node to read the replica set state. They don't use the monitoring credentials that PMM already holds, so provide credentials even for instances that PMM monitors.
+### How scans connect to MongoDB
 
-To provide credentials:
-{.power-number}
+Scans connect to each `mongod` without credentials, so you don't need to create a MongoDB user or the `/root/.mongodb_uri` file on your nodes for scans. Scans read the replica set state and the running MongoDB version with commands that MongoDB answers without authentication. MongoDB 8.1 and later answers the version command only after authentication. If authentication is enabled on those versions, scans don't report the running version.
 
-1. Choose a MongoDB user with the `clusterMonitor` role. You can reuse the PMM monitoring user, which already has this role.
-2. On every node that runs MongoDB, create the `.mongodb_uri` file in root's home directory (`/root/.mongodb_uri`), because pmm-agent runs as root. Give the file one line:
+To check what a scan read, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the scan shows **Partial** and a service shows **(no answer)** in red, the scan couldn't connect to that `mongod`. To see the error, hover over the service.
 
-    ```
-    mongodb://<user>:<password>@<host>:<port>
-    ```
+#### Scan without connecting to MongoDB
 
-    Scans read only the user and password from this line and log in to the `admin` database. Nodes without MongoDB don't need this file.
+To keep scans from connecting to `mongod`, go to **MongoDB > Operations > Settings > General**, turn off **Connect to MongoDB**, and click **Save**. The change applies to the next scan, without a restart. A scan that starts within about 30 seconds of saving can still use the previous setting.
 
-3. Make the file readable only by root, because it contains a password:
-
-    ```sh
-    chown root:root /root/.mongodb_uri
-    chmod 600 /root/.mongodb_uri
-    ```
-
-4. To check the credentials, click **Scan** in the node's row on the **Nodes** page.
-5. Go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan:
-
-    - If the scan shows **Partial** and the service shows **(no answer)** in red, MongoDB may have rejected the password. To see the error, hover over the service.
-    - If the scan shows the running version but no replica set state, and no error, check that the file exists.
-
-#### Scan without credentials
-
-To skip MongoDB login entirely, go to **MongoDB > Operations > Settings > General**, turn off **Connect to MongoDB**, and click **Save**. The change applies to the next scan, without a restart. A scan that starts within about 30 seconds of saving can still use the previous setting.
-
-With **Connect to MongoDB** off, scans collect only process and OS details and the installed MongoDB version, without connecting to `mongod`. No credentials needed, but scans won't report replica set state or running version.
+With **Connect to MongoDB** off, scans collect only process and OS details and the installed MongoDB version. Scans won't report replica set state or running version.
 
 ## Scan nodes
 
@@ -269,7 +248,7 @@ If a node shows no data, or **Needs attention** in the **Automation** column on 
 
 1. Read the reason under the node's status, and fix it on the node.
 2. If the reason isn't clear, open **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for the node.
-3. If a scan shows **Partial**, MongoDB may be rejecting the scan credentials. Check [the node's service](#a-service-is-failing).
+3. If a scan shows **Partial**, the scan couldn't connect to a `mongod` on the node. Check [the node's service](#a-service-is-failing).
 
 ### A service is failing
 
@@ -277,7 +256,7 @@ If a service shows **Down** or no data on **MongoDB > Operations > Fleet**:
 {.power-number}
 
 1. Select the **Services** tab and find the service.
-2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database authentication failed**.
+2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database error**.
 3. Click the service's status to see the full error and what to do about it.
 
 A service marked **not running** had no `mongod` or `mongos` running when PMM last scanned its node.
