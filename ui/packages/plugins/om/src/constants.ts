@@ -201,7 +201,7 @@ export const SCAN_ERROR_KIND: Record<
   },
   database_auth_failed: {
     label: 'Database authentication failed',
-    hint: "The database rejected the scan's credentials. Check the credentials file the scan uses on the node.",
+    hint: 'The database rejected the login of an earlier scan. Scans no longer log in, so the next scan clears this.',
   },
   database_error: {
     label: 'Database error',
@@ -264,7 +264,7 @@ export const SERVICE_SCAN_ERROR_KIND: Record<
   },
   database_auth_failed: {
     label: 'Database authentication failed',
-    hint: "This service rejected the scan's credentials. Check the credentials file the scan uses on this service's node.",
+    hint: 'This service rejected the login of an earlier scan. Scans no longer log in, so the next scan clears this.',
   },
   database_error: {
     label: 'Database error',
@@ -377,7 +377,7 @@ export const SETTING_HELP: Record<string, string> = {
   SCHEDULE__every:
     'How often every node is scanned. Each scan sends a job to every node.',
   PROBE_DATABASE:
-    'On also asks each mongod for its replica-set state and running version, with commands MongoDB answers without a login, so it needs no credentials. Off collects process and OS facts only - and still yields the installed version.',
+    'On also asks each mongod for its replica-set state and running version, without a login, so it needs no credentials. With authentication enabled, MongoDB 8.1 and later does not report its running version without a login. Off collects process and OS facts only - and still yields the installed version.',
   REPO_URL:
     'The file each node fetches to prove it can install packages. Point it at a mirror on an air-gapped network, or every node reports as failing.',
   REPO_TIMEOUT:

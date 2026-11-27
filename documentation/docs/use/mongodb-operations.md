@@ -80,7 +80,7 @@ PMM checks these requirements during scans and reports the results so you can fi
 
 ### How scans connect to MongoDB
 
-Scans connect to each `mongod` without credentials. They read the replica set state and the running MongoDB version with commands that MongoDB answers without authentication. You don't need to create a MongoDB user or the `/root/.mongodb_uri` file on your nodes for scans.
+Scans connect to each `mongod` without credentials, so you don't need to create a MongoDB user or the `/root/.mongodb_uri` file on your nodes for scans. Scans read the replica set state and the running MongoDB version with commands that MongoDB answers without authentication. MongoDB 8.1 and later answers the version command only after authentication. If authentication is enabled on those versions, scans don't report the running version.
 
 To check what a scan read, go to **MongoDB > Operations > Automations**, select the **Scans** tab, and expand the latest scan. If the scan shows **Partial** and a service shows **(no answer)** in red, the scan couldn't connect to that `mongod`. To see the error, hover over the service.
 
@@ -248,7 +248,7 @@ If a node shows no data, or **Needs attention** in the **Automation** column on 
 
 1. Read the reason under the node's status, and fix it on the node.
 2. If the reason isn't clear, open **MongoDB > Operations > Automations**, select the **Scans** tab, and check the scan errors for the node.
-3. If a scan shows **Partial**, MongoDB may be rejecting the scan credentials. Check [the node's service](#a-service-is-failing).
+3. If a scan shows **Partial**, the scan couldn't connect to a `mongod` on the node. Check [the node's service](#a-service-is-failing).
 
 ### A service is failing
 
@@ -256,7 +256,7 @@ If a service shows **Down** or no data on **MongoDB > Operations > Fleet**:
 {.power-number}
 
 1. Select the **Services** tab and find the service.
-2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database authentication failed**.
+2. Read the reason in the **Collected** column, for example **Database unreachable** or **Database error**.
 3. Click the service's status to see the full error and what to do about it.
 
 A service marked **not running** had no `mongod` or `mongos` running when PMM last scanned its node.

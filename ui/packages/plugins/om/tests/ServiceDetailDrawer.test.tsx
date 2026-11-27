@@ -164,7 +164,7 @@ describe('ServiceDetailDrawer', () => {
       'Scans failing: Database authentication failed'
     );
     expect(panel).toHaveTextContent('Authentication failed.');
-    expect(panel).toHaveTextContent('Check the credentials file');
+    expect(panel).toHaveTextContent('the next scan clears this');
   });
 
   it('closes on the close button', () => {

@@ -12,7 +12,7 @@ Percona Monitoring and Management (PMM) is an open source solution for monitorin
 
 ## 📈 Improvements
 
-- [PMM-15974](https://perconadev.atlassian.net/browse/PMM-15974): Scans in [Operations for MongoDB](../use/mongodb-operations.md#how-scans-connect-to-mongodb) no longer need MongoDB credentials. They read the replica set state and running version of each `mongod` without logging in, and they no longer read the `/root/.mongodb_uri` file. If you created that file only for scans, you no longer need it.
+- [PMM-15974](https://perconadev.atlassian.net/browse/PMM-15974): Scans in [Operations for MongoDB](../use/mongodb-operations.md#how-scans-connect-to-mongodb) no longer need MongoDB credentials, and they no longer read the `/root/.mongodb_uri` file. If you created that file only for scans, you no longer need it. With authentication enabled, MongoDB 8.1 and later answers the version command only after authentication, so scans of those servers don't report the running version.
 
 ## ✅ Fixed issues
 
