@@ -1,6 +1,13 @@
 import { TextSelectOption } from 'components/text-select/TextSelect.types';
 import { AlertStatus } from 'types/alerting.types';
 
+// URL params linking to an alert's details pane, see PMM-15889.
+export const ALERT_LINK_PARAMS = {
+  rule: 'rule',
+  matcher: 'matcher',
+  tab: 'tab',
+} as const;
+
 export const ALL_STATES_FILTER = '__all_states__';
 export const SILENCED_FILTER = '__silenced__';
 

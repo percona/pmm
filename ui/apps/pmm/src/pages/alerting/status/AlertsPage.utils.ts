@@ -10,7 +10,8 @@ import {
 } from 'types/alerting.types';
 import { AlertRow, NodeGroupRow, SilenceInfo } from './AlertsPage.types';
 import { formatDurationSeconds } from 'utils/duration.utils';
-import { isPrivateLabelKey } from 'utils/alerting.utils';
+import { getMatcherQueryParams, isPrivateLabelKey } from 'utils/alerting.utils';
+import { ALERT_LINK_PARAMS } from './AlertsPage.constants';
 
 const NODE_NAME_LABEL = 'node_name';
 const UNKNOWN_NODE = 'unknown-node';
@@ -131,6 +132,67 @@ export const serializeVisibleLabels = (
     .sort(([a], [b]) => a.localeCompare(b));
 
   return JSON.stringify(visible);
+};
+
+// URL params identifying an alert: its rule uid plus one matcher per visible
+// label, sorted so the same alert always gives the same URL.
+export const getAlertLinkParams = (alert: AlertRow): URLSearchParams => {
+  const params = new URLSearchParams();
+  params.set(ALERT_LINK_PARAMS.rule, alert.ruleGroupUid || '');
+
+  const sortedLabels = Object.fromEntries(
+    Object.entries(alert.labels).sort(([a], [b]) => a.localeCompare(b))
+  );
+  getMatcherQueryParams(sortedLabels).forEach((value, key) =>
+    params.append(key, value)
+  );
+
+  return params;
+};
+
+// A copy of the page params linking to the alert, or with the link removed when
+// there is none; an open tab stays and moves last.
+export const withAlertLink = (
+  params: URLSearchParams,
+  alert?: AlertRow
+): URLSearchParams => {
+  const next = new URLSearchParams(params);
+  const tab = next.get(ALERT_LINK_PARAMS.tab);
+  Object.values(ALERT_LINK_PARAMS).forEach((key) => next.delete(key));
+
+  if (alert) {
+    getAlertLinkParams(alert).forEach((value, key) => next.append(key, value));
+
+    if (tab) {
+      next.set(ALERT_LINK_PARAMS.tab, tab);
+    }
+  }
+
+  return next;
+};
+
+// The first alert of the linked rule whose labels contain every linked matcher,
+// so a link keeps working after a label is added to the alert.
+export const findLinkedAlert = (
+  rows: AlertRow[],
+  params: URLSearchParams
+): AlertRow | undefined => {
+  const rule = params.get(ALERT_LINK_PARAMS.rule);
+
+  if (!rule) {
+    return undefined;
+  }
+
+  const matchers = params.getAll(ALERT_LINK_PARAMS.matcher).map((matcher) => {
+    const [key, ...value] = matcher.split('=');
+    return [key, value.join('=')];
+  });
+
+  return rows.find(
+    (row) =>
+      row.ruleGroupUid === rule &&
+      matchers.every(([key, value]) => row.labels[key] === value)
+  );
 };
 
 // Map of visible-label key -> silence info, built by correlating the suppressed
