@@ -193,6 +193,7 @@ func expectNodeQuery(mock sqlmock.Sqlmock, nodeID string, nodeType models.NodeTy
 	nodeColumns := []string{
 		"node_id", "node_type", "node_name", "machine_id", "distro", "node_model", "az", "custom_labels",
 		"address", "instance_id", "created_at", "updated_at", "container_id", "container_name", "region", "is_pmm_server_node",
+		"environment",
 	}
 	mock.ExpectQuery(`SELECT .+ FROM "nodes" WHERE .+ LIMIT 1`).
 		WithArgs(nodeID).
@@ -213,6 +214,7 @@ func expectNodeQuery(mock sqlmock.Sqlmock, nodeID string, nodeType models.NodeTy
 			nil,
 			nil,
 			false,
+			"",
 		))
 }
 

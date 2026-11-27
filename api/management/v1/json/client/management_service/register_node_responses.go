@@ -245,6 +245,9 @@ type RegisterNodeBody struct {
 
 	// AWS instance ID.
 	InstanceID string `json:"instance_id,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this register node body
@@ -876,6 +879,9 @@ type RegisterNodeOKBodyContainerNode struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this register node OK body container node
@@ -940,6 +946,9 @@ type RegisterNodeOKBodyGenericNode struct {
 
 	// True if this node is a PMM Server node (HA mode).
 	IsPMMServerNode bool `json:"is_pmm_server_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this register node OK body generic node

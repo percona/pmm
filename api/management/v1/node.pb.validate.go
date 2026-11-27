@@ -231,6 +231,8 @@ func (m *RegisterNodeRequest) validate(all bool) error {
 
 	// no validation rules for InstanceId
 
+	// no validation rules for Environment
+
 	if len(errors) > 0 {
 		return RegisterNodeRequestMultiError(errors)
 	}
@@ -902,6 +904,8 @@ func (m *UniversalNode) validate(all bool) error {
 	// no validation rules for IsPmmServerNode
 
 	// no validation rules for IsPmmInternalNode
+
+	// no validation rules for Environment
 
 	if len(errors) > 0 {
 		return UniversalNodeMultiError(errors)

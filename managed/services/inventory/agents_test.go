@@ -518,6 +518,48 @@ func TestAgents(t *testing.T) {
 		})
 	})
 
+	t.Run("ChangeKeepsAConcurrentChangeOfTheRow", func(t *testing.T) {
+		_, as, _, teardown, ctx, _ := setup(t)
+		t.Cleanup(func() { teardown(t) })
+
+		as.r.(*mockAgentsRegistry).On("IsConnected", mock.Anything).Return(false).Maybe()
+		as.state.(*mockAgentsStateUpdater).On("RequestStateUpdate", ctx, models.PMMServerAgentID).Maybe()
+		as.vmdb.(*mockPrometheusService).On("RequestConfigurationUpdate").Return().Maybe()
+		added, err := as.AddNodeExporter(ctx, &inventoryv1.AddNodeExporterParams{
+			PmmAgentId:   models.PMMServerAgentID,
+			CustomLabels: map[string]string{"environment": "pmm", "team": "db"},
+		})
+		require.NoError(t, err)
+		agentID := added.GetNodeExporter().AgentId
+
+		// Another transaction, as ChangeNode's label cleanup does, changes the row and holds it until it commits.
+		tx, err := as.db.Begin()
+		require.NoError(t, err)
+		_, err = tx.Exec(`UPDATE agents SET custom_labels = '{"team": "db"}' WHERE agent_id = $1`, agentID)
+		require.NoError(t, err)
+
+		done := make(chan error, 1)
+		go func() {
+			_, err := as.ChangeNodeExporter(ctx, agentID, &inventoryv1.ChangeNodeExporterParams{
+				LogLevel: new(inventoryv1.LogLevel_LOG_LEVEL_WARN),
+			})
+			done <- err
+		}()
+
+		require.Eventually(t, func() bool {
+			var waiting int
+			err := as.db.QueryRow(`SELECT count(*) FROM pg_stat_activity
+				WHERE wait_event_type = 'Lock' AND datname = current_database()`).Scan(&waiting)
+			return err == nil && waiting > 0
+		}, 10*time.Second, 10*time.Millisecond)
+		require.NoError(t, tx.Commit())
+		require.NoError(t, <-done)
+
+		agent, err := as.Get(ctx, agentID)
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"team": "db"}, agent.(*inventoryv1.NodeExporter).CustomLabels)
+	})
+
 	t.Run("GetEmptyID", func(t *testing.T) {
 		_, as, _, teardown, ctx, _ := setup(t)
 		t.Cleanup(func() { teardown(t) })

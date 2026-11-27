@@ -57,6 +57,7 @@ type RegisterCommand struct {
 	NodeModel         string            `help:"Node model"`
 	Region            string            `help:"Node region"`
 	Az                string            `help:"Node availability zone"`
+	Environment       string            `help:"Node environment"`
 	CustomLabels      map[string]string `mapsep:"," help:"Custom user-assigned labels"`
 	AgentPassword     string            `help:"Custom password for /metrics endpoint"`
 	Force             bool              `help:"Re-register Node"`
@@ -78,6 +79,7 @@ func (cmd *RegisterCommand) RunCmd() (commands.Result, error) {
 			NodeModel:     cmd.NodeModel,
 			Region:        cmd.Region,
 			Az:            cmd.Az,
+			Environment:   cmd.Environment,
 			CustomLabels:  *customLabels,
 			Address:       cmd.Address,
 			AgentPassword: cmd.AgentPassword,

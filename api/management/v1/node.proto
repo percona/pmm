@@ -70,6 +70,8 @@ message RegisterNodeRequest {
   bool expose_exporter = 16;
   // AWS instance ID.
   string instance_id = 17;
+  // Environment name.
+  string environment = 18;
 }
 
 message RegisterNodeResponse {
@@ -168,6 +170,8 @@ message UniversalNode {
   // True if this node belongs to the internal infrastructure of a PMM deployment
   // (e.g. the HA persistence layer) and must not host user monitoring workloads.
   bool is_pmm_internal_node = 20;
+  // Environment name.
+  string environment = 21;
 }
 
 message ListNodesRequest {

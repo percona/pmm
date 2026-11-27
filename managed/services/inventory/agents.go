@@ -2056,13 +2056,9 @@ func (as *AgentsService) executeAgentChangeChecked( //nolint:ireturn
 	var agent inventoryv1.Agent
 
 	err := as.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
-		findAgent := models.FindAgentByID
-		if check != nil {
-			findAgent = models.FindAgentByIDForUpdate
-		}
-
+		// The lock keeps the whole-row write below from restoring what a concurrent change, e.g. ChangeNode's, removed.
 		// Returning an error rolls the transaction back, so a rejected request leaves the agent untouched.
-		currentAgent, err := findAgent(tx.Querier, agentID)
+		currentAgent, err := models.FindAgentByIDForUpdate(tx.Querier, agentID)
 		if err != nil {
 			return err
 		}

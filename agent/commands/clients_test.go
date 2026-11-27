@@ -16,6 +16,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -29,7 +30,36 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
+
+	"github.com/percona/pmm/agent/config"
 )
+
+// The test configures the package level API clients, so it cannot run in parallel.
+func TestServerRegisterSendsEnvironment(t *testing.T) {
+	var body map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		assert.Equal(t, "/v1/management/nodes", req.URL.Path)
+		assert.NoError(t, json.NewDecoder(req.Body).Decode(&body))
+		rw.Header().Set("Content-Type", "application/json")
+		_, _ = rw.Write([]byte(`{"pmm_agent": {"agent_id": "agent-id"}, "token": "token"}`))
+	}))
+	t.Cleanup(server.Close)
+
+	u, err := url.Parse(server.URL)
+	require.NoError(t, err)
+	setServerTransport(u, true, logrus.WithField("test", t.Name()))
+
+	agentID, token, err := serverRegister(&config.Setup{
+		NodeType:    "generic",
+		NodeName:    "node",
+		MetricsMode: "auto",
+		Environment: "prod",
+	})
+	require.NoError(t, err)
+	assert.Equal(t, "agent-id", agentID)
+	assert.Equal(t, "token", token)
+	assert.Equal(t, "prod", body["environment"])
+}
 
 // The subtests share the package level API clients, so they cannot run in parallel.
 func TestServerNodeOfAgent(t *testing.T) {

@@ -55,6 +55,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			CustomLabels:    labels,
 			Address:         node.Address,
 			IsPmmServerNode: node.IsPMMServerNode,
+			Environment:     node.Environment,
 		}, nil
 
 	case models.ContainerNodeType:
@@ -70,6 +71,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			CustomLabels:    labels,
 			Address:         node.Address,
 			IsPmmServerNode: node.IsPMMServerNode,
+			Environment:     node.Environment,
 		}, nil
 
 	case models.RemoteNodeType:
@@ -81,6 +83,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			Az:           node.AZ,
 			CustomLabels: labels,
 			Address:      node.Address,
+			Environment:  node.Environment,
 		}, nil
 
 	case models.RemoteRDSNodeType:
@@ -93,6 +96,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			CustomLabels: labels,
 			Address:      node.Address,
 			InstanceId:   node.InstanceID,
+			Environment:  node.Environment,
 		}, nil
 
 	case models.RemoteAzureDatabaseNodeType:
@@ -104,6 +108,7 @@ func ToAPINode(node *models.Node) (inventoryv1.Node, error) { //nolint:ireturn
 			Az:           node.AZ,
 			CustomLabels: labels,
 			Address:      node.Address,
+			Environment:  node.Environment,
 		}, nil
 
 	default:

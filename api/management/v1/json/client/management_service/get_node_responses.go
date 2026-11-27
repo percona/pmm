@@ -588,6 +588,9 @@ type GetNodeOKBodyNode struct {
 	// True if this node belongs to the internal infrastructure of a PMM deployment
 	// (e.g. the HA persistence layer) and must not host user monitoring workloads.
 	IsPMMInternalNode bool `json:"is_pmm_internal_node,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 }
 
 // Validate validates this get node OK body node

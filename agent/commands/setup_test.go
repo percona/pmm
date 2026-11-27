@@ -715,10 +715,22 @@ func TestUnappliedSetupFlags(t *testing.T) {
 	assert.Empty(t, unappliedSetupFlags(&config.Setup{NodeName: "host", MetricsMode: "auto"}))
 	assert.Equal(t, []string{"--region", "--custom-labels", "--expose-exporter"},
 		unappliedSetupFlags(&config.Setup{Region: "eu", CustomLabels: "env=prod", ExposeExporter: true}))
+	assert.Equal(t, []string{"--environment"}, unappliedSetupFlags(&config.Setup{Environment: "prod"}))
 
 	// These describe the Node on PMM Server just as the rest do, and are only applied by registering.
 	assert.Equal(t, []string{"--container-id", "--container-name"},
 		unappliedSetupFlags(&config.Setup{ContainerID: "abc123", ContainerName: "mysql"}))
+}
+
+func TestUnappliedSetupMessage(t *testing.T) {
+	t.Parallel()
+
+	assert.Empty(t, unappliedSetupMessage(nil))
+	assert.Equal(t, "Settings --metrics-mode only take effect when the Node is registered.",
+		unappliedSetupMessage([]string{"--metrics-mode"}))
+	assert.Equal(t, "Settings --environment, --metrics-mode only take effect when the Node is registered. "+
+		"Change the labels of the registered Node with pmm-admin update node.",
+		unappliedSetupMessage([]string{"--environment", "--metrics-mode"}))
 }
 
 // The subtest configures the package level API clients, so it cannot run in parallel.
