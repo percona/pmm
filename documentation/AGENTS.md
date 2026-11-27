@@ -58,6 +58,8 @@ Pages carry **no YAML front matter** — not one does. Start the file with its `
 
 ## Writing rules
 
+Check every default, limit, version, and UI or menu name you state against the code or Helm chart it describes. When a change alters behavior, update every page that describes it, not only the page you started from.
+
 ### Voice and tone
 
 - Second person, present tense, active voice. Address the reader as "you".
