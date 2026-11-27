@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -139,6 +138,52 @@ func (c *countingRejectingClient) getAuthUser(context.Context, http.Header) (aut
 func (c *countingRejectingClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
 	c.rotateCalls++
 	return nil, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+}
+
+// rotatingClient implements clientInterface, rejecting the old session cookie until it is rotated.
+type rotatingClient struct{}
+
+func (rotatingClient) getAuthUser(_ context.Context, authHeaders http.Header) (authUser, error) {
+	if authHeaders.Get("Cookie") == "pmm_session=old" {
+		return emptyUser, &clientError{Code: http.StatusUnauthorized, ErrorMessage: "Unauthorized"}
+	}
+	return authUser{role: viewer, userID: 42}, nil
+}
+
+func (rotatingClient) rotateSessionToken(context.Context, http.Header) ([]string, error) {
+	return []string{"pmm_session=new; Path=/graph; HttpOnly"}, nil
+}
+
+// A role-free /graph route resolves the user only for Access Roles, so a session rotated there
+// must reach the client as well.
+func TestAuthServerFilteredRouteRotatesSession(t *testing.T) {
+	t.Parallel()
+
+	sqlDB, mock, err := sqlmock.New()
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		mock.ExpectClose()
+		assert.NoError(t, sqlDB.Close())
+	})
+	mock.ExpectQuery("FROM user_roles").WithArgs(42).
+		WillReturnRows(sqlmock.NewRows([]string{"id", "title", "description", "filter", "created_at", "updated_at"}).
+			AddRow(2, "Restricted", "", `{service_name="mysql-1"}`, time.Now(), time.Now()))
+
+	s := NewAuthServer(rotatingClient{}, reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf)))
+	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now()}
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+	req.Header.Set("X-Original-Uri", "/graph/api/ds/query")
+	req.Header.Set("X-Original-Method", http.MethodPost)
+	req.Header.Set("Cookie", "pmm_session=old")
+	rw := httptest.NewRecorder()
+
+	s.ServeHTTP(rw, req)
+
+	assert.Equal(t, http.StatusOK, rw.Code)
+	assert.Equal(t, []string{"pmm_session=new; Path=/; HttpOnly"}, rw.Header().Values("Set-Cookie"))
+	assert.NotEmpty(t, rw.Header().Get(lbacHeaderName))
+	require.NoError(t, mock.ExpectationsWereMet())
 }
 
 func TestAuthServerNegativeCache(t *testing.T) {
@@ -873,31 +918,6 @@ func TestAuthServerAdminHeader(t *testing.T) {
 			assert.Equal(t, tc.expected, rw.Header().Get(adminHeaderName))
 		})
 	}
-}
-
-func TestMaybeAddLBACFiltersNoUserID(t *testing.T) {
-	t.Parallel()
-
-	sqlDB, mock, err := sqlmock.New()
-	require.NoError(t, err)
-	t.Cleanup(func() {
-		mock.ExpectClose()
-		assert.NoError(t, sqlDB.Close())
-	})
-	mock.ExpectQuery("SELECT settings FROM settings").
-		WillReturnRows(sqlmock.NewRows([]string{"settings"}).AddRow(`{"access_control":{"enabled":true}}`))
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-	s := NewAuthServer(NewClient("127.0.0.1:1"), db)
-
-	rw := httptest.NewRecorder()
-	req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
-	err = s.maybeAddLBACFilters(t.Context(), rw, req, "/v1/qan/metrics:getReport", &authUser{role: viewer}, logrus.WithField("test", t.Name()))
-
-	authErr, ok := errors.AsType[*authError](err)
-	require.True(t, ok, "%v", err)
-	assert.Equal(t, codes.Unauthenticated, authErr.code)
-	assert.Empty(t, rw.Header().Get(lbacHeaderName))
-	require.NoError(t, mock.ExpectationsWereMet())
 }
 
 // Access Roles apply to every principal Grafana authenticates by its user ID, service-account

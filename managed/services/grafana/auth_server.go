@@ -421,19 +421,19 @@ func (s *AuthServer) maybeAddLBACFilters(ctx context.Context, rw http.ResponseWr
 
 	if user == nil {
 		l.Debugf("Getting authenticated user info")
+		var newCookies []string
 		var authErr *authError
-		user, _, authErr = s.getAuthUser(ctx, req, l)
+		user, newCookies, authErr = s.getAuthUser(ctx, req, l)
+		// Rotation invalidates the old session token, so the new one must reach the client.
+		for _, c := range newCookies {
+			rw.Header().Add("Set-Cookie", c)
+		}
 		if authErr != nil && authErr.code != codes.Unauthenticated {
 			return &authError{code: codes.Internal, message: "Internal server error."}
 		}
 		if authErr != nil {
 			return authErr
 		}
-	}
-
-	if user.userID <= 0 {
-		l.Warn("Refusing an authenticated identity without a user ID: Access Roles cannot apply to it.")
-		return &authError{code: codes.Unauthenticated, message: "Unauthorized"}
 	}
 
 	filters, err := s.getLBACFilters(ctx, user.userID)

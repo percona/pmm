@@ -44,7 +44,7 @@ To assign access roles to a service account:
       -d '{"user_id": <SERVICE_ACCOUNT_ID>, "role_ids": [<ROLE_ID>]}'
     ```
 
-    The roles that you assign replace the roles the service account had.
+    The roles that you assign replace the roles that the service account had.
 
 4. Check the assignment. The entry whose `user_id` is the service account ID lists the assigned roles in `role_ids`:
 
