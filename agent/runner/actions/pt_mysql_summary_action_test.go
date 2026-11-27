@@ -93,7 +93,21 @@ func TestBuildMyCnfConfig(t *testing.T) {
 		},
 		{
 			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "", Port: 0, Socket: "", Username: "王华", Password: `"`},
-			Expected: "[client]\n\n\nuser=王华\npassword=&#34;\n\n",
+			Expected: "[client]\n\n\nuser=王华\npassword=\"\n\n",
+		},
+		// The option file is not HTML. Every one of these used to arrive at the
+		// MySQL client as an entity, and the connection was refused.
+		{
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "localhost", Port: 3306, Username: "person", Password: "pa&ss"},
+			Expected: "[client]\nhost=localhost\nport=3306\nuser=person\npassword=pa&ss\n\n",
+		},
+		{
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "localhost", Port: 3306, Username: "person", Password: "pa<s>s"},
+			Expected: "[client]\nhost=localhost\nport=3306\nuser=person\npassword=pa<s>s\n\n",
+		},
+		{
+			Params:   &agentv1.StartActionRequest_PTMySQLSummaryParams{Host: "localhost", Port: 3306, Username: "o'brien", Password: "pa'ss"},
+			Expected: "[client]\nhost=localhost\nport=3306\nuser=o'brien\npassword=pa'ss\n\n",
 		},
 		{
 			Params:  &agentv1.StartActionRequest_PTMySQLSummaryParams{Socket: "/tmp/mysqld.sock", Username: "test-user\r", Password: "test-password"},
