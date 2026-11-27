@@ -17,6 +17,7 @@ package mongolog
 
 import (
 	"context"
+	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -25,7 +26,16 @@ import (
 	"github.com/percona/pmm/agent/agents"
 	mongolog "github.com/percona/pmm/agent/agents/mongodb/mongolog/internal"
 	"github.com/percona/pmm/agent/agents/mongodb/shared/report"
+	"github.com/percona/pmm/agent/utils/backoff"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
+)
+
+// Delays between attempts to start mongolog. A start can fail for reasons that
+// resolve on their own, e.g. the monitoring user does not exist yet on a freshly
+// started replica set member.
+const (
+	startRetryMin = time.Second
+	startRetryMax = time.Minute
 )
 
 // MongoDB extracts performance data from Mongo op log.
@@ -37,6 +47,9 @@ type MongoDB struct {
 	mongoDSN       string
 	logFilePrefix  string
 	maxQueryLength int32
+
+	newMongolog func() Mongolog
+	backoff     *backoff.Backoff
 }
 
 // Params represent Agent parameters.
@@ -59,35 +72,62 @@ func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
 }
 
 func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
-	return &MongoDB{
+	m := &MongoDB{
 		agentID:        params.AgentID,
 		mongoDSN:       mongoDSN,
 		logFilePrefix:  params.LogFilePrefix,
 		maxQueryLength: params.MaxQueryLength,
 		l:              l,
 		changes:        make(chan agents.Change, 10), //nolint:mnd
+		backoff:        backoff.New(startRetryMin, startRetryMax),
 	}
+	m.newMongolog = func() Mongolog {
+		return mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
+	}
+	return m
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
+// If mongolog cannot be started, it retries with backoff until it starts or ctx is canceled.
 func (m *MongoDB) Run(ctx context.Context) {
 	var log Mongolog
 
 	defer func() {
-		log.Stop()
-		log = nil
+		if log != nil {
+			log.Stop()
+		}
 		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_DONE}
 		close(m.changes)
 	}()
 
-	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
+	for {
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STARTING}
 
-	log = mongolog.New(m.mongoDSN, m.l, m, m.agentID, m.logFilePrefix, m.maxQueryLength)
-	err := log.Start(ctx)
-	if err != nil {
+		log = m.newMongolog()
+		err := log.Start(ctx)
+		if err == nil {
+			break
+		}
+		log = nil
 		m.l.Errorf("can't run mongolog, reason: %v", err)
-		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
-		return
+
+		if ctx.Err() != nil {
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
+			return
+		}
+
+		delay := m.backoff.Delay()
+		m.l.Infof("Retrying to start mongolog in %s.", delay)
+		m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_WAITING}
+
+		t := time.NewTimer(delay)
+		select {
+		case <-ctx.Done():
+			t.Stop()
+			m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_STOPPING}
+			return
+		case <-t.C:
+		}
 	}
 
 	m.changes <- agents.Change{Status: inventoryv1.AgentStatus_AGENT_STATUS_RUNNING}

@@ -93,6 +93,9 @@ func (l *Mongolog) Start(ctx context.Context) error {
 	}
 	logsPath, err := getLogFilePath(ctx, client)
 	if err != nil {
+		if dErr := client.Disconnect(ctx); dErr != nil {
+			l.logger.Warningln(dErr)
+		}
 		return err
 	}
 	err = client.Disconnect(ctx)
