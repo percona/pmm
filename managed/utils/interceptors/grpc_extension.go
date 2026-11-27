@@ -61,8 +61,12 @@ func getCallerOriginStr(ctx context.Context) string {
 }
 
 func callerOriginFromRequest(ctx context.Context, method string) callerOrigin {
+	// Health probes (HAProxy polls LeaderHealthCheck on every HA replica) and pmm-agent streams,
+	// including the PMM 2 agent's /agent.Agent/Connect, aren't API usage.
 	if method == "/server.v1.ServerService/Readiness" ||
+		method == "/server.v1.ServerService/LeaderHealthCheck" ||
 		method == "/agent.v1.AgentService/Connect" ||
+		method == "/agent.Agent/Connect" ||
 		method == "/realtimeanalytics.v1.CollectorService/Collect" {
 		return internalCallerOrigin
 	}
