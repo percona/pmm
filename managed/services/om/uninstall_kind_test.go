@@ -18,6 +18,7 @@ package om
 import (
 	"encoding/json"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -30,8 +31,6 @@ func passingUninstallFacts() map[string]any {
 		factMarkerPresent: true,
 		factHostReachable: true,
 		factCanElevate:    true,
-		factConfigSHA256:  "sha",
-		factBinaryVersion: "7.0.14",
 	}
 }
 
@@ -62,6 +61,8 @@ func passingUninstallContext(t *testing.T) CheckContext {
 		subjects[member.MemberID] = map[string]any{
 			factMarkerRunID:   params.InstallRunID,
 			factOwnedPackages: []any{"percona-server-mongodb"},
+			factConfigSHA256:  "sha",
+			factBinaryVersion: "7.0.14",
 		}
 	}
 	return CheckContext{Facts: passingUninstallFacts(), SubjectFacts: subjects}
@@ -106,10 +107,39 @@ func TestUninstallReadinessBlocksMissingFacts(t *testing.T) {
 
 func TestUninstallReadinessIgnoresConfigAndBinaryChange(t *testing.T) {
 	ctx := passingUninstallContext(t)
-	ctx.Facts[factConfigSHA256] = "drifted"
-	ctx.Facts[factBinaryVersion] = "7.0.99"
+	ctx.SubjectFacts["member-a"][factConfigSHA256] = "drifted"
+	ctx.SubjectFacts["member-a"][factBinaryVersion] = "7.0.99"
 	got := runBlockingRules(readinessSet(t), ctx)
 	assert.False(t, got.Blocked)
+}
+
+func TestUninstallReadinessDoesNotRescanOnStringFacts(t *testing.T) {
+	now := time.Now()
+	params := sampleUninstallParams()
+	memberFacts := func() map[string]any {
+		return map[string]any{
+			factMarkerPresent: true,
+			factHostReachable: true,
+			factCanElevate:    true,
+			factConfigSHA256:  "sha",
+			factBinaryVersion: "7.0.14",
+			factMarkerRunID:   params.InstallRunID,
+			factOwnedPackages: []any{"percona-server-mongodb"},
+		}
+	}
+	reader := &fakeFactReader{
+		facts: map[string]map[string]any{"member-a": memberFacts(), "member-b": memberFacts()},
+		at:    map[string]time.Time{"member-a": now, "member-b": now},
+	}
+	provider := &factCheckProvider{reader: reader, now: func() time.Time { return now }}
+
+	set, facts, ages, subjectFacts, err := provider.CheckInputs(t.Context(), uninstallOp(t, params), UninstallKind())
+	require.NoError(t, err)
+
+	assert.False(t, staleOrMissing(set, facts, ages), "only bool facts are declared, so readiness never loops rescanning")
+	_, hasConfig := facts[factConfigSHA256]
+	assert.False(t, hasConfig, "config_sha256 is a subject fact, not an aggregate fact")
+	assert.Equal(t, "sha", subjectFacts["member-a"][factConfigSHA256], "config_sha256 reaches rules per subject")
 }
 
 func TestUninstallReadinessBlocksMarkerMismatch(t *testing.T) {

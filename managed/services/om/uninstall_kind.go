@@ -27,8 +27,8 @@ import (
 // provider reads is derived from this name as 'uninstall_check'.
 const uninstallKind = "uninstall"
 
-// Uninstall-teardown fact names, as PMM Extensions' uninstall_check scan stores them per member;
-// marker_run_id and owned_packages are read per member from the subject facts, which the aggregate drops.
+// Uninstall-teardown fact names from PMM Extensions' uninstall_check scan; only the bools are declared
+// facts, the rest are read per member from the subject facts, which the aggregate drops.
 const (
 	factMarkerPresent = "uninstall_check.marker_present"
 	factHostReachable = "uninstall_check.host_reachable"
@@ -164,9 +164,8 @@ func UninstallKind() OperationKind {
 	}
 }
 
-// uninstallReadinessCheckSet declares uninstall readiness's facts and rules; config_sha256 and
-// binary_version are digest-bearing warning facts, not blocking rules, and sizes are not declared.
-// The marker-match and package-drift rules close over the operation's sealed plan.
+// uninstallReadinessCheckSet declares uninstall readiness's bool facts and its rules; strings are not
+// declared, since the aggregate drops them and a declared string fact would rescan the operation forever.
 func uninstallReadinessCheckSet(op *models.OmOperation) CheckSet {
 	params := uninstallParamsOf(op)
 	return CheckSet{
@@ -174,8 +173,6 @@ func uninstallReadinessCheckSet(op *models.OmOperation) CheckSet {
 			{Name: factMarkerPresent, MaxAge: uninstallFactMaxAge},
 			{Name: factHostReachable, MaxAge: uninstallFactMaxAge},
 			{Name: factCanElevate, MaxAge: uninstallFactMaxAge},
-			{Name: factConfigSHA256, MaxAge: uninstallFactMaxAge},
-			{Name: factBinaryVersion, MaxAge: uninstallFactMaxAge},
 		},
 		Rules: []BlockingRule{
 			boolFactRule(factMarkerPresent, uninstallReasonMarkerAbsent),
