@@ -1033,6 +1033,68 @@ message ConfirmUninstallLivePlanResponse {
   Operation operation = 1;
 }
 
+// GetUninstallReportRequest is the request for GetUninstallReport.
+message GetUninstallReportRequest {
+  // The uninstall operation to report on.
+  string operation_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// GetUninstallReportResponse returns one uninstall operation's readiness report.
+message GetUninstallReportResponse {
+  // The report.
+  UninstallReport report = 1;
+}
+
+// UninstallReport is an uninstall operation's readiness report: what the teardown will remove and
+// whether each member is ready, for the operator to review before confirming. It carries no secret --
+// the sealed plan's host paths and package names and the members' readiness, never the operation's
+// params or the executor output.
+message UninstallReport {
+  // The operation this report is for.
+  string operation_id = 1;
+  // The cluster being uninstalled.
+  string cluster_id = 2;
+  // The cluster's name, for display. Unset when the cluster has none.
+  optional string cluster_name = 3;
+  // The phrase the operator types to confirm, e.g. "REMOVE rs-prod ab12cd" -- pass it to
+  // ConfirmOperation, or to AbandonOperation. The short id disambiguates non-unique cluster names.
+  string confirm_phrase = 4;
+  // The reviewed report's digest, echoing Operation.report_digest, to pass to ConfirmOperation. Unset
+  // until the operation awaits confirmation.
+  optional string report_digest = 5;
+  // Whether every member is ready and the operation can be confirmed.
+  bool ready = 6;
+  // Whether readiness blocked on package drift, so the operator may adopt the live plan with
+  // ConfirmUninstallLivePlan rather than being hard-refused.
+  bool drifted = 7;
+  // Each member the teardown will remove, and whether it is ready.
+  repeated UninstallReportMember members = 8;
+}
+
+// UninstallReportMember is one member's entry in an uninstall readiness report: what the teardown
+// deletes on its host and whether it is ready.
+message UninstallReportMember {
+  // The member's id.
+  string member_id = 1;
+  // The host the member runs on.
+  string host = 2;
+  // PMM's node id for the host, when the plan sealed one.
+  optional string node_id = 3;
+  // The data directory the teardown deletes. Unset when the plan recorded none.
+  optional string data_path = 4;
+  // The config file the teardown deletes. Unset when the plan recorded none.
+  optional string config_file = 5;
+  // The keyfile the teardown deletes. Unset when the plan recorded none.
+  optional string keyfile_path = 6;
+  // The log file the teardown deletes. Unset when the plan recorded none.
+  optional string log_path = 7;
+  // The packages the teardown purges.
+  repeated string packages = 8;
+  // This member's readiness: "ready", "checking" when no fresh scan has reported, or a reason code --
+  // "marker_absent", "marker_mismatch", "host_unreachable", "cannot_elevate" or "drift".
+  string readiness = 9;
+}
+
 // BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
@@ -1816,6 +1878,15 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Adopt the live plan of a drifted uninstall"
       description: "Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version."
+    };
+  }
+
+  // GetUninstallReport returns an uninstall operation's readiness report, for the operator to review.
+  rpc GetUninstallReport(GetUninstallReportRequest) returns (GetUninstallReportResponse) {
+    option (google.api.http) = {get: "/v1/om/operations/{operation_id}/uninstallReport"};
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Get an uninstall operation's readiness report"
+      description: "Returns what an uninstall operation will remove -- the cluster, each member's host, the paths and packages the teardown deletes -- with each member's readiness, the confirm phrase and the reviewed report digest. The redacted review the operator confirms against; carries no secret."
     };
   }
 }

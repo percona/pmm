@@ -37986,6 +37986,175 @@
         }
       }
     },
+    "/v1/om/operations/{operation_id}/uninstallReport": {
+      "get": {
+        "description": "Returns what an uninstall operation will remove -- the cluster, each member's host, the paths and packages the teardown deletes -- with each member's readiness, the confirm phrase and the reviewed report digest. The redacted review the operator confirms against; carries no secret.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an uninstall operation's readiness report",
+        "operationId": "GetUninstallReport",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The uninstall operation to report on.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetUninstallReportResponse returns one uninstall operation's readiness report.",
+              "type": "object",
+              "properties": {
+                "report": {
+                  "description": "UninstallReport is an uninstall operation's readiness report: what the teardown will remove and\nwhether each member is ready, for the operator to review before confirming. It carries no secret --\nthe sealed plan's host paths and package names and the members' readiness, never the operation's\nparams or the executor output.",
+                  "type": "object",
+                  "properties": {
+                    "operation_id": {
+                      "description": "The operation this report is for.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "cluster_id": {
+                      "description": "The cluster being uninstalled.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "cluster_name": {
+                      "description": "The cluster's name, for display. Unset when the cluster has none.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "confirm_phrase": {
+                      "description": "The phrase the operator types to confirm, e.g. \"REMOVE rs-prod ab12cd\" -- pass it to\nConfirmOperation, or to AbandonOperation. The short id disambiguates non-unique cluster names.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, echoing Operation.report_digest, to pass to ConfirmOperation. Unset\nuntil the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "ready": {
+                      "description": "Whether every member is ready and the operation can be confirmed.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "drifted": {
+                      "description": "Whether readiness blocked on package drift, so the operator may adopt the live plan with\nConfirmUninstallLivePlan rather than being hard-refused.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "members": {
+                      "description": "Each member the teardown will remove, and whether it is ready.",
+                      "type": "array",
+                      "items": {
+                        "description": "UninstallReportMember is one member's entry in an uninstall readiness report: what the teardown\ndeletes on its host and whether it is ready.",
+                        "type": "object",
+                        "properties": {
+                          "member_id": {
+                            "description": "The member's id.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "host": {
+                            "description": "The host the member runs on.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "node_id": {
+                            "description": "PMM's node id for the host, when the plan sealed one.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 2
+                          },
+                          "data_path": {
+                            "description": "The data directory the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 3
+                          },
+                          "config_file": {
+                            "description": "The config file the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 4
+                          },
+                          "keyfile_path": {
+                            "description": "The keyfile the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 5
+                          },
+                          "log_path": {
+                            "description": "The log file the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
+                          },
+                          "packages": {
+                            "description": "The packages the teardown purges.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 7
+                          },
+                          "readiness": {
+                            "description": "This member's readiness: \"ready\", \"checking\" when no fresh scan has reported, or a reason code --\n\"marker_absent\", \"marker_mismatch\", \"host_unreachable\", \"cannot_elevate\" or \"drift\".",
+                            "type": "string",
+                            "x-order": 8
+                          }
+                        }
+                      },
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/operations/{operation_id}:abandon": {
       "post": {
         "description": "Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version.",

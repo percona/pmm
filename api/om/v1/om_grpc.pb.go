@@ -51,6 +51,7 @@ const (
 	OmService_AbandonOperation_FullMethodName              = "/om.v1.OmService/AbandonOperation"
 	OmService_TriggerUninstall_FullMethodName              = "/om.v1.OmService/TriggerUninstall"
 	OmService_ConfirmUninstallLivePlan_FullMethodName      = "/om.v1.OmService/ConfirmUninstallLivePlan"
+	OmService_GetUninstallReport_FullMethodName            = "/om.v1.OmService/GetUninstallReport"
 )
 
 // OmServiceClient is the client API for OmService service.
@@ -158,6 +159,8 @@ type OmServiceClient interface {
 	TriggerUninstall(ctx context.Context, in *TriggerUninstallRequest, opts ...grpc.CallOption) (*TriggerUninstallResponse, error)
 	// ConfirmUninstallLivePlan re-seals an uninstall plan that readiness blocked on drift.
 	ConfirmUninstallLivePlan(ctx context.Context, in *ConfirmUninstallLivePlanRequest, opts ...grpc.CallOption) (*ConfirmUninstallLivePlanResponse, error)
+	// GetUninstallReport returns an uninstall operation's readiness report, for the operator to review.
+	GetUninstallReport(ctx context.Context, in *GetUninstallReportRequest, opts ...grpc.CallOption) (*GetUninstallReportResponse, error)
 }
 
 type omServiceClient struct {
@@ -478,6 +481,16 @@ func (c *omServiceClient) ConfirmUninstallLivePlan(ctx context.Context, in *Conf
 	return out, nil
 }
 
+func (c *omServiceClient) GetUninstallReport(ctx context.Context, in *GetUninstallReportRequest, opts ...grpc.CallOption) (*GetUninstallReportResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetUninstallReportResponse)
+	err := c.cc.Invoke(ctx, OmService_GetUninstallReport_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OmServiceServer is the server API for OmService service.
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
@@ -583,6 +596,8 @@ type OmServiceServer interface {
 	TriggerUninstall(context.Context, *TriggerUninstallRequest) (*TriggerUninstallResponse, error)
 	// ConfirmUninstallLivePlan re-seals an uninstall plan that readiness blocked on drift.
 	ConfirmUninstallLivePlan(context.Context, *ConfirmUninstallLivePlanRequest) (*ConfirmUninstallLivePlanResponse, error)
+	// GetUninstallReport returns an uninstall operation's readiness report, for the operator to review.
+	GetUninstallReport(context.Context, *GetUninstallReportRequest) (*GetUninstallReportResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }
 
@@ -715,6 +730,10 @@ func (UnimplementedOmServiceServer) TriggerUninstall(context.Context, *TriggerUn
 
 func (UnimplementedOmServiceServer) ConfirmUninstallLivePlan(context.Context, *ConfirmUninstallLivePlanRequest) (*ConfirmUninstallLivePlanResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ConfirmUninstallLivePlan not implemented")
+}
+
+func (UnimplementedOmServiceServer) GetUninstallReport(context.Context, *GetUninstallReportRequest) (*GetUninstallReportResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetUninstallReport not implemented")
 }
 func (UnimplementedOmServiceServer) mustEmbedUnimplementedOmServiceServer() {}
 func (UnimplementedOmServiceServer) testEmbeddedByValue()                   {}
@@ -1295,6 +1314,24 @@ func _OmService_ConfirmUninstallLivePlan_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_GetUninstallReport_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetUninstallReportRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).GetUninstallReport(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_GetUninstallReport_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).GetUninstallReport(ctx, req.(*GetUninstallReportRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OmService_ServiceDesc is the grpc.ServiceDesc for OmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1425,6 +1462,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ConfirmUninstallLivePlan",
 			Handler:    _OmService_ConfirmUninstallLivePlan_Handler,
+		},
+		{
+			MethodName: "GetUninstallReport",
+			Handler:    _OmService_GetUninstallReport_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

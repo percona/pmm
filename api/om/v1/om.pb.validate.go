@@ -7597,6 +7597,530 @@ var _ interface {
 	ErrorName() string
 } = ConfirmUninstallLivePlanResponseValidationError{}
 
+// Validate checks the field values on GetUninstallReportRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUninstallReportRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUninstallReportRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUninstallReportRequestMultiError, or nil if none found.
+func (m *GetUninstallReportRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUninstallReportRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetOperationId()) < 1 {
+		err := GetUninstallReportRequestValidationError{
+			field:  "OperationId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return GetUninstallReportRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUninstallReportRequestMultiError is an error wrapping multiple validation
+// errors returned by GetUninstallReportRequest.ValidateAll() if the
+// designated constraints aren't met.
+type GetUninstallReportRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUninstallReportRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUninstallReportRequestMultiError) AllErrors() []error { return m }
+
+// GetUninstallReportRequestValidationError is the validation error returned by
+// GetUninstallReportRequest.Validate if the designated constraints aren't met.
+type GetUninstallReportRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUninstallReportRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUninstallReportRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUninstallReportRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUninstallReportRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUninstallReportRequestValidationError) ErrorName() string {
+	return "GetUninstallReportRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUninstallReportRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUninstallReportRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUninstallReportRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUninstallReportRequestValidationError{}
+
+// Validate checks the field values on GetUninstallReportResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *GetUninstallReportResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on GetUninstallReportResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// GetUninstallReportResponseMultiError, or nil if none found.
+func (m *GetUninstallReportResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *GetUninstallReportResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if all {
+		switch v := interface{}(m.GetReport()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, GetUninstallReportResponseValidationError{
+					field:  "Report",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, GetUninstallReportResponseValidationError{
+					field:  "Report",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetReport()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return GetUninstallReportResponseValidationError{
+				field:  "Report",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
+
+	if len(errors) > 0 {
+		return GetUninstallReportResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// GetUninstallReportResponseMultiError is an error wrapping multiple
+// validation errors returned by GetUninstallReportResponse.ValidateAll() if
+// the designated constraints aren't met.
+type GetUninstallReportResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m GetUninstallReportResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m GetUninstallReportResponseMultiError) AllErrors() []error { return m }
+
+// GetUninstallReportResponseValidationError is the validation error returned
+// by GetUninstallReportResponse.Validate if the designated constraints aren't met.
+type GetUninstallReportResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e GetUninstallReportResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e GetUninstallReportResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e GetUninstallReportResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e GetUninstallReportResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e GetUninstallReportResponseValidationError) ErrorName() string {
+	return "GetUninstallReportResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e GetUninstallReportResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sGetUninstallReportResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = GetUninstallReportResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = GetUninstallReportResponseValidationError{}
+
+// Validate checks the field values on UninstallReport with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// first error encountered is returned, or nil if there are no violations.
+func (m *UninstallReport) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UninstallReport with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UninstallReportMultiError, or nil if none found.
+func (m *UninstallReport) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UninstallReport) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for OperationId
+
+	// no validation rules for ClusterId
+
+	// no validation rules for ConfirmPhrase
+
+	// no validation rules for Ready
+
+	// no validation rules for Drifted
+
+	for idx, item := range m.GetMembers() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, UninstallReportValidationError{
+						field:  fmt.Sprintf("Members[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, UninstallReportValidationError{
+						field:  fmt.Sprintf("Members[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return UninstallReportValidationError{
+					field:  fmt.Sprintf("Members[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
+	if m.ClusterName != nil {
+		// no validation rules for ClusterName
+	}
+
+	if m.ReportDigest != nil {
+		// no validation rules for ReportDigest
+	}
+
+	if len(errors) > 0 {
+		return UninstallReportMultiError(errors)
+	}
+
+	return nil
+}
+
+// UninstallReportMultiError is an error wrapping multiple validation errors
+// returned by UninstallReport.ValidateAll() if the designated constraints
+// aren't met.
+type UninstallReportMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UninstallReportMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UninstallReportMultiError) AllErrors() []error { return m }
+
+// UninstallReportValidationError is the validation error returned by
+// UninstallReport.Validate if the designated constraints aren't met.
+type UninstallReportValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UninstallReportValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UninstallReportValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UninstallReportValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UninstallReportValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UninstallReportValidationError) ErrorName() string { return "UninstallReportValidationError" }
+
+// Error satisfies the builtin error interface
+func (e UninstallReportValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUninstallReport.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UninstallReportValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UninstallReportValidationError{}
+
+// Validate checks the field values on UninstallReportMember with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *UninstallReportMember) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on UninstallReportMember with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// UninstallReportMemberMultiError, or nil if none found.
+func (m *UninstallReportMember) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *UninstallReportMember) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for MemberId
+
+	// no validation rules for Host
+
+	// no validation rules for Readiness
+
+	if m.NodeId != nil {
+		// no validation rules for NodeId
+	}
+
+	if m.DataPath != nil {
+		// no validation rules for DataPath
+	}
+
+	if m.ConfigFile != nil {
+		// no validation rules for ConfigFile
+	}
+
+	if m.KeyfilePath != nil {
+		// no validation rules for KeyfilePath
+	}
+
+	if m.LogPath != nil {
+		// no validation rules for LogPath
+	}
+
+	if len(errors) > 0 {
+		return UninstallReportMemberMultiError(errors)
+	}
+
+	return nil
+}
+
+// UninstallReportMemberMultiError is an error wrapping multiple validation
+// errors returned by UninstallReportMember.ValidateAll() if the designated
+// constraints aren't met.
+type UninstallReportMemberMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m UninstallReportMemberMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m UninstallReportMemberMultiError) AllErrors() []error { return m }
+
+// UninstallReportMemberValidationError is the validation error returned by
+// UninstallReportMember.Validate if the designated constraints aren't met.
+type UninstallReportMemberValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e UninstallReportMemberValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e UninstallReportMemberValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e UninstallReportMemberValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e UninstallReportMemberValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e UninstallReportMemberValidationError) ErrorName() string {
+	return "UninstallReportMemberValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e UninstallReportMemberValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sUninstallReportMember.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = UninstallReportMemberValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = UninstallReportMemberValidationError{}
+
 // Validate checks the field values on BootstrapStep with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

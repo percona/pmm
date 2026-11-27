@@ -87,6 +87,8 @@ type ClientService interface {
 
 	GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOption) (*GetTopologyRunOK, error)
 
+	GetUninstallReport(params *GetUninstallReportParams, opts ...ClientOption) (*GetUninstallReportOK, error)
+
 	ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error)
 
 	ListInventoryHosts(params *ListInventoryHostsParams, opts ...ClientOption) (*ListInventoryHostsOK, error)
@@ -904,6 +906,50 @@ func (a *Client) GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOpti
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetTopologyRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetUninstallReport gets an uninstall operation s readiness report
+
+Returns what an uninstall operation will remove -- the cluster, each member's host, the paths and packages the teardown deletes -- with each member's readiness, the confirm phrase and the reviewed report digest. The redacted review the operator confirms against; carries no secret.
+*/
+func (a *Client) GetUninstallReport(params *GetUninstallReportParams, opts ...ClientOption) (*GetUninstallReportOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetUninstallReportParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetUninstallReport",
+		Method:             "GET",
+		PathPattern:        "/v1/om/operations/{operation_id}/uninstallReport",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetUninstallReportReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetUninstallReportOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetUninstallReportDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
