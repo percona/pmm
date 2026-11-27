@@ -37,11 +37,13 @@ Follow these steps to upgrade your PMM Server while preserving your monitoring d
 3. After the upgrade, verify that PMM Server is running correctly and all your data is accessible:
 
     ```sh
-    kubectl get pods | grep pmm-server
+    kubectl get pods -l app.kubernetes.io/name=pmm
     ```
+
+    When PMM Server has started, the `pmm-0` pod shows `1/1` in the `READY` column.
 
 4. Check the logs for any errors:
 
     ```sh
-    kubectl logs deployment/pmm-server
+    kubectl logs statefulset/pmm
     ```
