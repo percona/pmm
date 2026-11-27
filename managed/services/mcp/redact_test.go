@@ -1,0 +1,851 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package mcp
+
+import (
+	"bytes"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestMaskSQL(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name         string
+		in           string
+		doubleQuoted bool
+		want         string
+	}{
+		{"MySQLString", "(`shop`.`customers`.`email` = 'user42@example.com')", true, "(`shop`.`customers`.`email` = ?)"},
+		{"Numbers", "(`t`.`amount` > 450.00) and (`t`.`id` in (1,2,3))", true, "(`t`.`amount` > ?) and (`t`.`id` in (?,?,?))"},
+		{"DigitsInsideIdentifiers", "`sbtest1`.`k` = 42 and col1 = 5", true, "`sbtest1`.`k` = ? and col1 = ?"},
+		{"EscapedQuotes", "a = 'it''s' or b = 'a\\'b'", true, "a = ? or b = ?"},
+		{"Hex", "x = 0x1F", true, "x = ?"},
+		{"Exponent", "v > 1.5e10", true, "v > ?"},
+		{"MySQLDoubleQuotedString", `x = "abc"`, true, "x = ?"},
+		{"Unterminated", "x = 'abc", true, "x = ?"},
+		{"PostgreSQLQuotedIdentifier", `("Email")::text = 'a@b'::text`, false, `("Email")::text = ?::text`},
+		{"PostgreSQLPlaceholder", "id = $1", false, "id = $1"},
+		// A backslash ends a PostgreSQL string (standard_conforming_strings) and
+		// a MySQL one under NO_BACKSLASH_ESCAPES. Read as an escape, it would
+		// pair the quotes wrongly and print 'hunter2' in clear; the text is
+		// over-masked instead.
+		{"PostgreSQLTrailingBackslash", `((path)::text = 'C:\'::text) AND ((secret)::text = 'hunter2'::text)`, false, "((path)::text = ?"},
+		{"MySQLNoBackslashEscapes", `path = 'C:\' and pw = 'hunter2'`, true, "path = ?"},
+		{"PostgreSQLDollarQuoted", "SELECT $$hunter2$$, $q$secret$q$ WHERE id = $1", false, "SELECT ?, ? WHERE id = $1"},
+		{"PostgreSQLUnterminatedDollarQuote", "SELECT $$hunter2", false, "SELECT ?"},
+		{"PostgreSQLDollarQuoteNonASCIITag", "ALTER ROLE app PASSWORD $п$my secret text$п$ VALID UNTIL $1", false, "ALTER ROLE app PASSWORD ? VALID UNTIL $1"},
+		{"MySQLDollarIsIdentifier", "SELECT c$d, `a$b` FROM t", true, "SELECT c$d, `a$b` FROM t"},
+		{"Binary", "flags = 0b1010", true, "flags = ?"},
+		// PostgreSQL 16 takes octal literals and underscores between digits.
+		{
+			"PostgreSQL16Numbers", "a = 1_000_000 AND b = 0o17 AND c = 0x1F AND d = 0b101 AND e = 0x_FF_FF AND f = 1_000.000_5e1_0", false,
+			"a = ? AND b = ? AND c = ? AND d = ? AND e = ? AND f = ?",
+		},
+		// An apostrophe in a comment must not pair with a real quote.
+		{"LineComment", "note = 'x' -- it's\n AND ssn = 'SECRET'", false, "note = ? --?\n AND ssn = ?"},
+		{"MySQLHashComment", "SELECT * FROM t WHERE id = ? # customer john.doe@example.com\nAND a = 1", true, "SELECT * FROM t WHERE id = ? #?\nAND a = ?"},
+		{"MySQLHashCommentApostrophe", "a = 1 # it's\n AND ssn = 'SECRET'", true, "a = ? #?\n AND ssn = ?"},
+		{"MySQLHashInQuotes", "x = 'a#b' AND `c#d` = e AND f = \"g#h\" AND i = j", true, "x = ? AND `c#d` = e AND f = ? AND i = j"},
+		{"PostgreSQLHashOperator", "a # b = 1 AND c = d", false, "a # b = ? AND c = d"},
+		{"BlockComment", "/* it's */ name = 'John'", true, "/*?*/ name = ?"},
+		{"UnterminatedBlockComment", "x = 1 /* it's", true, "x = ? /*?"},
+		// A backtick means nothing to PostgreSQL; a stray one must not hide
+		// the literals after it.
+		{"PostgreSQLBacktick", "SELECT `a FROM t WHERE ssn = 'SECRET'", false, "SELECT `a FROM t WHERE ssn = ?"},
+		// A quoted identifier that never closes is read as a string, to the end.
+		{"MySQLUnclosedIdentifier", "SELECT `a FROM t WHERE ssn = 'SECRET'", true, "SELECT ?"},
+		{"MySQLUnclosedIdentifierDoubledQuote", "SELECT `a`` FROM t WHERE ssn = 42", true, "SELECT ?"},
+		{"PostgreSQLUnclosedIdentifier", `INSERT INTO "users (email) VALUES ('alice@example.com')`, false, "INSERT INTO ?"},
+		// PostgreSQL comments nest; MySQL ones end at the first */.
+		{"PostgreSQLNestedComment", "SELECT * FROM t /* a /* nested */ secret */ WHERE a = $1", false, "SELECT * FROM t /*?*/ WHERE a = $1"},
+		{"MySQLCommentsDoNotNest", "/* a /* b */ x = 'y'", true, "/*?*/ x = ?"},
+		{"Empty", "", true, ""},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			masked, _ := maskSQL(tc.in, tc.doubleQuoted)
+			assert.Equal(t, tc.want, masked)
+		})
+	}
+}
+
+func TestMaskMySQLPlan(t *testing.T) {
+	t.Parallel()
+
+	plan := `{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {"query_cost": "2014.25"},
+    "table": {
+      "table_name": "orders",
+      "access_type": "ALL",
+      "rows_examined_per_scan": 199937,
+      "attached_condition": "((` + "`school`.`orders`.`region`" + ` = 'emea') and (` + "`school`.`orders`.`amount`" + ` < 450.00))"
+    }
+  }
+}`
+	got, ok := maskMySQLPlan(plan)
+	assert.True(t, ok)
+	assert.NotContains(t, got, "emea")
+	assert.NotContains(t, got, "450.00")
+	assert.Contains(t, got, "`school`.`orders`.`region` = ?")
+	assert.Contains(t, got, "`school`.`orders`.`amount` < ?", "comparison operators stay readable, not \\u003c")
+	assert.Contains(t, got, `"rows_examined_per_scan": 199937`)
+	assert.Contains(t, got, `"query_cost": "2014.25"`, "costs are not under a condition key")
+	assert.Less(t, strings.Index(got, "cost_info"), strings.Index(got, "select_id"), "keys come sorted, as pmm-agent sends them")
+
+	// A backslash never escapes inside an identifier, whatever the reading of
+	// string literals; an identifier ending in one must not shift the quotes.
+	got, ok = maskMySQLPlan(`{"attached_condition": "((` + "`t`.`dir\\\\`" + ` = 'C:\\\\') and (` + "`t`.`n`" + ` = 'O\\'Brien') and (` + "`t`.`ssn`" + ` = 'SECRET'))"}`)
+	assert.True(t, ok)
+	assert.NotContains(t, got, "Brien")
+	assert.NotContains(t, got, "SECRET")
+
+	// Format version 2 writes a Limit node's LIMIT and OFFSET as numbers.
+	got, ok = maskMySQLPlan(`{"access_type": "limit", "limit": 10, "limit_offset": 5, "operation": "Limit/Offset: 10/5 row(s)", ` +
+		`"estimated_rows": 3, "inputs": [{"operation": "Sort: orders.amount DESC, limit input to 15 row(s) per chunk", "per_chunk_limit": 15}]}`)
+	assert.True(t, ok)
+	assert.Contains(t, got, `"limit": "?"`)
+	assert.Contains(t, got, `"limit_offset": "?"`)
+	assert.Contains(t, got, `"per_chunk_limit": "?"`, "the sum of LIMIT and OFFSET")
+	assert.NotContains(t, got, "15")
+	assert.Contains(t, got, `"estimated_rows": 3`, "estimates are kept")
+
+	// Names are kept, even those a digit starts, in both format versions.
+	got, ok = maskMySQLPlan(`{"query_block": {"table": {"table_name": "2fa_codes", "key": "1st_idx", "possible_keys": ["1st_idx"], ` +
+		`"used_key_parts": ["2nd_col"], "used_columns": ["2nd_col", "id"], "attached_condition": "(` + "`t`.`2nd_col`" + ` = 42)"}}, ` +
+		`"real_table_name": "2fa_codes", "inputs": [{"table_name": "2fa_codes", "alias": "2f", "schema_name": "3rd_db", "index_name": "1st_idx"}]}`)
+	assert.True(t, ok)
+	for _, name := range []string{
+		`"table_name": "2fa_codes"`, `"key": "1st_idx"`, `"1st_idx"`, `"2nd_col"`,
+		`"alias": "2f"`, `"schema_name": "3rd_db"`, `"index_name": "1st_idx"`,
+	} {
+		assert.Contains(t, got, name)
+	}
+	assert.Contains(t, got, "`t`.`2nd_col` = ?", "conditions are still masked")
+	assert.NotContains(t, got, "real_table_name", "pmm-agent parses it from the statement text")
+
+	// MySQL names an unaliased select-list expression after its text: a derived table's or a CTE's column can be named
+	// 'gold-tier' or total * 1.0773. A name that is not a plain name is masked, in name keys and in backquotes.
+	got, ok = maskMySQLPlan(`{"query_block": {"table": {"table_name": "d", "used_columns": ["customer_id", "zq-tier-4401", ` +
+		`"SUM(total) * 2.0517", "42", "0x1F", "Ünïcode_naïve$1"], "key": "<auto_key0>", "possible_keys": ["<auto_key0>", "<x y>"], ` +
+		`"attached_condition": "((` + "`d`.`SUM(total) * 2.0517` > 5) and (`d`.`zq-tier-4401` = `d`.`Ünïcode_naïve$1`) and (`d`.`42` = 1)" + `)", ` +
+		`"materialized_from_subquery": {"query_block": {"table": {"table_name": "<derived2>"}}}}}, ` +
+		`"union_result": {"table_name": "<union1,2>"}}`)
+	assert.True(t, ok)
+	for _, literal := range []string{"zq-tier", "4401", "2.0517", `"42"`, "`42`", "0x1F", "x y"} {
+		assert.NotContains(t, got, literal)
+	}
+	for _, kept := range []string{
+		`"customer_id"`, `"Ünïcode_naïve$1"`, `"key": "<auto_key0>"`, `"table_name": "<derived2>"`, `"table_name": "<union1,2>"`,
+		"`d`.`?` > ?", "`d`.`?` = `d`.`Ünïcode_naïve$1`",
+	} {
+		assert.Contains(t, got, kept)
+	}
+
+	_, ok = maskMySQLPlan("id | select_type | table")
+	assert.False(t, ok, "a non-JSON plan is reported, not passed off as masked")
+
+	// explain_json_format_version=2 (MySQL 8.3+) carries literals outside any
+	// condition key: the rewritten statement, the operation text, the ranges.
+	v2 := `{"query": "/* select#1 */ select ` + "`t`.`id`" + ` from ` + "`t`" + ` where (` + "`t`.`email`" + ` = 'x@y.com')",
+  "query_plan": {"operation": "Filter: (` + "`t`.`email`" + ` = 'x@y.com')", "access_type": "filter", "estimated_rows": 10.5,
+    "inputs": [{"operation": "Index range scan on t using email", "ranges": ["('a@b' <= email <= 'a@b')"]}]}}`
+	got, ok = maskMySQLPlan(v2)
+	assert.True(t, ok)
+	assert.NotContains(t, got, "x@y.com")
+	assert.Contains(t, got, `"query": "`+statementWithheld+`"`, "the rewritten statement is withheld")
+	assert.NotContains(t, got, "a@b")
+	assert.Contains(t, got, `"operation": "Filter: (`+"`t`.`email`"+` = ?)"`)
+	assert.Contains(t, got, `"operation": "Index range scan on t using email"`)
+	assert.Contains(t, got, `"estimated_rows": 10.5`)
+}
+
+// TestMaskMySQLPlanWarnings covers the SHOW WARNINGS and real_table_name that
+// pmm-agent adds to a JSON plan. Note 1003 is the rewritten statement, which
+// names an unaliased select-list expression after its own text, literals
+// included, so it is withheld.
+func TestMaskMySQLPlanWarnings(t *testing.T) {
+	t.Parallel()
+
+	// Captured on Percona Server 8.0.46, with pmm-agent's additions.
+	plan := `{
+  "query_block": {"select_id": 1, "table": {"table_name": "help_topic", "access_type": "ALL",
+    "attached_condition": "(('MEDIUMBLOB' = 'bob'))"}},
+  "real_table_name": "alice@corp.example",
+  "warnings": [
+    {"Code": 1739, "Level": "Warning", "Message": "Cannot use ref access on index 'name' due to type or collation conversion on field 'name'"},
+    {"Code": 1003, "Level": "Note",
+     "Message": "/* select#1 */ select exists(/* select#2 */ select 1 from ` + "`mysql`.`user`" + ` where (` + "`mysql`.`user`.`User`" + ` = 'alice')) AS ` +
+		"`EXISTS(SELECT 1 FROM mysql.user WHERE user = 'alice')`" + `,('42' * 1.2) AS ` + "`help_topic_id * 1.2`" + `,'vip' AS ` + "`vip`" + ` from ` +
+		"`mysql`.`help_topic`" + ` where (('MEDIUMBLOB' = 'bob'))"}
+  ]
+}`
+	got, ok := maskMySQLPlan(plan)
+	assert.True(t, ok)
+	for _, literal := range []string{"alice", "bob", "1.2", "vip", "42"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.NotContains(t, got, "real_table_name", "pmm-agent takes it from the statement text")
+	assert.Contains(t, got, `"Message": "`+statementWithheld+`"`)
+	assert.Contains(t, got, `"Code": 1003`, "warning codes are not literals")
+	assert.Contains(t, got, `"Level": "Note"`)
+	assert.Contains(t, got, `"Message": "Cannot use ref access on index ? due to type or collation conversion on field ?"`,
+		"other warnings are masked, not withheld")
+	assert.Less(t, strings.Index(got, "query_block"), strings.Index(got, "warnings"), "keys come sorted, as pmm-agent sends them")
+
+	// A message whose code is missing or not a number may be the statement.
+	got, ok = maskMySQLPlan(`{"warnings": [{"Level": "Note", "Message": "select 'alice'"}, {"Code": "1003", "Message": "select 'bob'"}, "x"]}`)
+	assert.True(t, ok)
+	assert.Equal(t, 2, strings.Count(got, statementWithheld), got)
+	assert.NotContains(t, got, "x\"")
+
+	got, ok = maskMySQLPlan(`{"query_block": {"select_id": 1}, "warnings": null, "real_table_name": "t"}`)
+	assert.True(t, ok)
+	assert.JSONEq(t, `{"query_block": {"select_id": 1}, "warnings": null}`, got, "pmm-agent writes null when MySQL has no warnings")
+}
+
+// TestMaskCapturedPlans masks every plan captured from a live server in testdata/explain, in the shape pmm-agent
+// returns it, and checks that no literal of the explained statement is left.
+func TestMaskCapturedPlans(t *testing.T) {
+	t.Parallel()
+
+	t.Run("MySQL", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 130)
+		for _, file := range files {
+			m := fixtureName.FindStringSubmatch(filepath.Base(file))
+			require.NotNil(t, m, file)
+
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				sql, err := os.ReadFile(filepath.Join("testdata", "explain", m[2]+".sql"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+				statement := strings.TrimSpace(string(sql))
+				// pmm-agent adds the word after the statement's last FROM as real_table_name.
+				table, _, _ := strings.Cut(statement[strings.LastIndex(statement, "FROM ")+len("FROM "):], " ")
+				name, err := json.Marshal(table)
+				require.NoError(t, err)
+				agentPlan := `{"real_table_name": ` + string(name) + `, ` + strings.TrimPrefix(strings.TrimSpace(string(plan)), "{")
+
+				got := redactPlan(engineMySQL, formatJSON, agentPlan, true)
+				require.NotEqual(t, planWithheld, got)
+				for _, literal := range sqlLiterals(statement) {
+					assert.NotContains(t, got, literal)
+				}
+				assert.NotContains(t, got, "real_table_name")
+				assert.NotContains(t, got, "select#", "the rewritten statement is left out")
+				assert.Contains(t, got, statementWithheld)
+				assert.Contains(t, got, `"access_type": "`, "the plan keeps its shape")
+			})
+		}
+	})
+
+	t.Run("MongoDB", func(t *testing.T) {
+		t.Parallel()
+
+		files, err := filepath.Glob("testdata/explain/mongodb/psmdb-*.json")
+		require.NoError(t, err)
+		require.Len(t, files, 2)
+		for _, file := range files {
+			t.Run(filepath.Base(file), func(t *testing.T) {
+				t.Parallel()
+
+				// psmdb-<version>-<case>.json explains <case>.example.json.
+				parts := strings.SplitN(strings.TrimSuffix(filepath.Base(file), ".json"), "-", 3)
+				example, err := os.ReadFile(filepath.Join("testdata", "explain", "mongodb", parts[2]+".example.json"))
+				require.NoError(t, err)
+				plan, err := os.ReadFile(file)
+				require.NoError(t, err)
+
+				got := redactPlan(engineMongoDB, formatJSON, string(plan), true)
+				require.NotEqual(t, planWithheld, got)
+				literals := mongoFilterLiterals(t, example)
+				require.NotEmpty(t, literals)
+				for _, literal := range literals {
+					assert.NotContains(t, got, literal)
+				}
+				assert.Contains(t, got, `"stage":"FETCH"`, "the plan keeps its shape")
+			})
+		}
+	})
+}
+
+// sqlLiterals returns the literals of a MySQL statement worth searching a masked text for: each string, its words of 5
+// or more characters, and each number of 4 or more characters.
+func sqlLiterals(statement string) []string {
+	marks := scanSQL(statement, true, true, false)
+	var out []string
+	for i := 0; i < len(marks); {
+		j := i
+		for j < len(marks) && marks[j] == marks[i] {
+			j++
+		}
+		text := statement[i:j]
+		switch marks[i] {
+		case stringMark:
+			text = text[1 : len(text)-1]
+			out = append(out, text)
+			for word := range strings.FieldsSeq(text) {
+				if len(word) >= 5 {
+					out = append(out, word)
+				}
+			}
+		case numberMark:
+			if len(text) >= 4 {
+				out = append(out, text)
+			}
+		}
+		i = j
+	}
+	return out
+}
+
+// mongoFilterLiterals returns the values of a MongoDB query example's filter, with the words of each string and the
+// numbers of 4 or more characters.
+func mongoFilterLiterals(t *testing.T, example []byte) []string {
+	t.Helper()
+
+	var doc struct {
+		Command struct {
+			Filter any `json:"filter"`
+		} `json:"command"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(example))
+	dec.UseNumber()
+	require.NoError(t, dec.Decode(&doc))
+	var out []string
+	var walk func(v any)
+	walk = func(v any) {
+		switch v := v.(type) {
+		case map[string]any:
+			for _, value := range v {
+				walk(value)
+			}
+		case []any:
+			for _, value := range v {
+				walk(value)
+			}
+		case string:
+			out = append(out, v)
+			out = append(out, strings.Fields(v)...)
+		case json.Number:
+			if len(v) >= 4 {
+				out = append(out, v.String())
+			}
+		}
+	}
+	walk(doc.Command.Filter)
+	return out
+}
+
+func TestMaskPGPlan(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Text", func(t *testing.T) {
+		t.Parallel()
+
+		plan := "Nested Loop  (cost=0.29..16.34 rows=1 width=72)\n" +
+			"  Join Filter: (o.customer_id = c.id)\n" +
+			"  ->  Seq Scan on customers c  (cost=0.00..458.00 rows=1 width=64)\n" +
+			"        Filter: ((email)::text = 'user42@example.com'::text)\n" +
+			"  ->  Index Scan using orders_pkey on orders o  (cost=0.29..8.30 rows=1 width=8)\n" +
+			"        Index Cond: (id = 42)\n" +
+			"  Sort Key: (CASE WHEN ((c.status)::text = 'vip'::text) THEN 1 ELSE 0 END)\n" +
+			"  Group Key: date_trunc('month'::text, o.created_at)\n" +
+			"  Workers Planned: 2\n" +
+			// A newline inside a constant is printed as is.
+			"  ->  Seq Scan on notes n  (cost=0.00..1.00 rows=1 width=4)\n" +
+			"        Filter: (note = 'line1\nssn 123-45-6789 ''secret'''::text)\n" +
+			"  ->  Seq Scan on tags  (cost=0.00..2.00 rows=1 width=4)"
+		got := maskPGPlan(plan)
+		assert.NotContains(t, got, "user42@example.com")
+		assert.Contains(t, got, "Filter: ((email)::text = ?::text)")
+		assert.Contains(t, got, "Index Cond: (id = ?)")
+		assert.Contains(t, got, "Join Filter: (o.customer_id = c.id)", "identifiers survive")
+		assert.Contains(t, got, "(cost=0.00..458.00 rows=1 width=64)", "estimates are not on predicate lines")
+		assert.NotContains(t, got, "vip", "every property line is masked, not only predicates")
+		assert.NotContains(t, got, "month")
+		assert.Contains(t, got, "Workers Planned: ?", "numbers are kept only in a node's estimates")
+		assert.NotContains(t, got, "123-45-6789", "a literal's continuation lines are masked too")
+		assert.NotContains(t, got, "secret")
+		assert.Contains(t, got, "Filter: (note = ?::text)\n  ->  Seq Scan on tags  (cost=0.00..2.00 rows=1 width=4)",
+			"the value ends where its quotes balance")
+
+		// A newline inside a quoted identifier is printed as is too.
+		got = maskPGPlan("Seq Scan on t\n  Filter: (\"my\ncol\" = 'secret'::text)")
+		assert.NotContains(t, got, "secret")
+
+		// Every line is masked, whatever its label, and only the trailing estimate groups of a node keep their numbers.
+		got = maskPGPlan("Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n" +
+			"  Some_Label: 'secret-1'\n" +
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n" +
+			"        Rows Removed by Filter: 4417\n" +
+			"  InitPlan 1 (returns $0)\n" +
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n" +
+			"Seq Scan on t2 (secret 7731) and 'secret-2'")
+		assert.Equal(t, "Hash Join  (cost=10.50..20.75 rows=100 width=8) (actual time=0.015..0.250 rows=98 loops=1)\n"+
+			"  Some_Label: ?\n"+
+			"  ->  Seq Scan on t  (cost=0.00..1.00 rows=1 width=4) (actual rows=1.00 loops=1)\n"+
+			"        Rows Removed by Filter: ?\n"+
+			"  InitPlan ? (returns $0)\n"+
+			"    ->  Result  (cost=0.00..0.01 rows=1 width=4)\n"+
+			"Seq Scan on t2 (secret ?) and ?", got)
+
+		// The apostrophe of a double-quoted identifier opens no constant.
+		got = maskPGPlan("Seq Scan on t\n  Filter: (\"o'neil\" = 'x')\n  ->  Index Scan on i  (cost=1.00..2.00 rows=3 width=4)")
+		assert.Equal(t, "Seq Scan on t\n  Filter: (\"o'neil\" = ?)\n  ->  Index Scan on i  (cost=1.00..2.00 rows=3 width=4)", got)
+	})
+
+	t.Run("JSON", func(t *testing.T) {
+		t.Parallel()
+
+		plan := `[{"Plan":{"Node Type":"Seq Scan","Total Cost":458.0,"Filter":"((email)::text = 'x@y'::text)",` +
+			`"Sort Key":["(CASE WHEN (status = 'vip'::text) THEN 1 ELSE 0 END)"]}}]`
+		got := maskPGPlan(plan)
+		assert.NotContains(t, got, "x@y")
+		assert.NotContains(t, got, "vip")
+		assert.Contains(t, got, `"Node Type":"Seq Scan"`)
+		assert.Contains(t, got, `"Filter":"((email)::text = ?::text)"`)
+		assert.Contains(t, got, `"Total Cost":458.0`)
+
+		got = maskPGPlan(`[{"Plan":{"Node Type":"Index Scan","Relation Name":"2fa_codes","Schema":"3rd","Alias":"2f",` +
+			`"Index Name":"1st_idx","Index Cond":"(id = 42)"}}]`)
+		for _, name := range []string{`"Relation Name":"2fa_codes"`, `"Schema":"3rd"`, `"Alias":"2f"`, `"Index Name":"1st_idx"`} {
+			assert.Contains(t, got, name, "names are kept, even those a digit starts")
+		}
+		assert.Contains(t, got, `"Index Cond":"(id = ?)"`)
+	})
+
+	t.Run("Booleans", func(t *testing.T) {
+		t.Parallel()
+
+		// PostgreSQL prints a boolean constant as a bare lowercase true or false, and a test such as IS TRUE in capitals.
+		got := maskPGPlan("Gather\n" +
+			"  Workers Planned: 1\n" +
+			"  Single Copy: true\n" +
+			"  ->  Index Scan using t_active_idx on t\n" +
+			"        Index Cond: (active = true)\n" +
+			"        Filter: (COALESCE(flag, false) AND (\"true\" IS TRUE) AND (x IS DISTINCT FROM false) AND (truex = falsey))\n" +
+			"  ->  Seq Scan on n\n" +
+			"        Disabled: true\n" +
+			"        Filter: (note = 'a\n  Disabled: true'::text)\n" +
+			"  ->  Result\n" +
+			"        One-Time Filter: false")
+		assert.Equal(t, "Gather\n"+
+			"  Workers Planned: ?\n"+
+			"  Single Copy: true\n"+
+			"  ->  Index Scan using t_active_idx on t\n"+
+			"        Index Cond: (active = ?)\n"+
+			"        Filter: (COALESCE(flag, ?) AND (\"true\" IS TRUE) AND (x IS DISTINCT FROM ?) AND (truex = falsey))\n"+
+			"  ->  Seq Scan on n\n"+
+			"        Disabled: true\n"+
+			"        Filter: (note = ?::text)\n"+
+			"  ->  Result\n"+
+			"        One-Time Filter: ?", got)
+
+		got = maskPGPlan(`[{"Plan":{"Node Type":"Seq Scan","Parallel Aware":false,"Filter":"(COALESCE(flag, true))"}}]`)
+		assert.JSONEq(t, `[{"Plan":{"Node Type":"Seq Scan","Parallel Aware":false,"Filter":"(COALESCE(flag, ?))"}}]`, got)
+	})
+
+	t.Run("UnparseableJSONIsWithheld", func(t *testing.T) {
+		t.Parallel()
+
+		assert.Equal(t, planWithheld, maskPGPlan(`{"Plan": "truncated`))
+	})
+}
+
+func TestMaskMongoPlan(t *testing.T) {
+	t.Parallel()
+
+	plan := `{"queryPlanner":{"namespace":"shop.customers","parsedQuery":{"email":{"$eq":"user42@example.com"}},` +
+		`"winningPlan":{"stage":"COLLSCAN","filter":{"age":{"$gt":{"$numberInt":"30"}}}}},` +
+		`"command":{"find":"customers","filter":{"email":"user42@example.com"},"$db":"shop"}}`
+	got := maskMongoPlan(plan)
+	assert.NotContains(t, got, "user42@example.com")
+	assert.NotContains(t, got, `"30"`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+	assert.Contains(t, got, `"namespace":"shop.customers"`)
+	assert.Contains(t, got, `"command":{"find":"?",`, "the echoed command is masked whole; the collection shows as namespace")
+	assert.Contains(t, got, `"email":{"$eq":"?"}`, "field names and operators survive; only values are masked")
+
+	assert.NotContains(t, got, `"$db":"shop"`, "strings outside plan structure are masked")
+
+	// The slot-based engine prints its constants into "slots" and "stages"
+	// strings, and an aggregation's stages can hold literals of their own.
+	sbe := `{"queryPlanner":{"winningPlan":{"queryPlan":{"stage":"COLLSCAN","filter":{"email":{"$eq":"u@x"}}},` +
+		`"slotBasedPlan":{"slots":"$$RESULT=s5 env: { s2 = \"u@x\" }","stages":"[1] filter {(s1 == \"u@x\")}"}}},` +
+		`"stages":[{"$cursor":{"queryPlanner":{"winningPlan":{"stage":"IXSCAN","indexName":"email_1",` +
+		`"keyPattern":{"email":{"$numberInt":"1"}}}}}},{"$group":{"_id":"$region","total":{"$sum":{"$numberInt":"977"}}}}]}`
+	got = maskMongoPlan(sbe)
+	assert.NotContains(t, got, "u@x")
+	assert.NotContains(t, got, "977")
+	assert.Contains(t, got, `"stage":"IXSCAN"`, "$cursor wraps the plan, not query values")
+	assert.Contains(t, got, `"indexName":"email_1"`)
+	assert.Contains(t, got, `"keyPattern":{"email":{"$numberInt":"1"}}`, "extended-JSON numbers outside query values are kept")
+
+	// Numbers are masked too, unless they are statistics or an index's key
+	// pattern: a find's min and max, and mapReduce's scope, hold query values.
+	stats := `{"executionStats":{"nReturned":{"$numberInt":"5"},"totalDocsExamined":200000,` +
+		`"executionStages":{"stage":"COLLSCAN","works":200002,"isEOF":true}},` +
+		`"command":{"find":"c","min":{"age":{"$numberInt":"30"}},"max":{"age":42}},"scope":{"threshold":12345}}`
+	got = maskMongoPlan(stats)
+	for _, literal := range []string{"30", "42", "12345"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `"nReturned":{"$numberInt":"5"}`)
+	assert.Contains(t, got, `"totalDocsExamined":200000`)
+	assert.Contains(t, got, `"works":200002,"isEOF":true`)
+
+	// A user field named like a plan key keeps no value: plan keys count only
+	// outside the query values.
+	echoed := `{"command":{"find":"c","min":{"version":{"$numberInt":"3"}},"max":{"count":"secret"},` +
+		`"comment":{"host":"secret-comment"},"projection":{"stage":"lit"}},` +
+		`"queryPlanner":{"winningPlan":{"stage":"PROJECTION_DEFAULT","transformBy":{"stage":"lit2"}}}}`
+	got = maskMongoPlan(echoed)
+	for _, literal := range []string{`"3"`, "secret", "lit"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `"stage":"PROJECTION_DEFAULT"`)
+
+	// A command's comment is free-form, so its keys are masked with its values; a filter field named comment is not.
+	for _, command := range []string{"command", "originatingCommand"} {
+		commented := `{"` + command + `":{"find":"c","filter":{"comment":{"$eq":"x"}},` +
+			`"comment":{"cust_SECRET_4711":{"note":"y"}}},"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}`
+		got = maskMongoPlan(commented)
+		assert.NotContains(t, got, "cust_SECRET_4711", command)
+		assert.Contains(t, got, `"comment":"?"`, command)
+		assert.Contains(t, got, `"filter":{"comment":{"$eq":"?"}}`, command)
+		assert.Contains(t, got, `"stage":"COLLSCAN"`, command)
+	}
+
+	// A $literal document, and the $const the parsed pipeline shows it as, is a value, keys included.
+	literal := `{"command":{"aggregate":"c","pipeline":[{"$match":{"email":{"$eq":"x"}}},` +
+		`{"$project":{"flag":{"$literal":{"cust_SECRET_4711":{"note":"y"}}}}}]},` +
+		`"stages":[{"$cursor":{"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}},` +
+		`{"$project":{"flag":{"$const":{"cust_SECRET_4712":"z"}}}}]}`
+	got = maskMongoPlan(literal)
+	assert.NotContains(t, got, "cust_SECRET")
+	assert.Contains(t, got, `"flag":{"$literal":"?"}`)
+	assert.Contains(t, got, `"flag":{"$const":"?"}`)
+	assert.Contains(t, got, `"email":{"$eq":"?"}`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+
+	// A $comment takes any value and a $documents stage's documents are its input, so both are values, keys included.
+	opaque := `{"command":{"find":"people","filter":{"name":"a","$comment":{"ticket-4711 cust_SECRET_4713@example.com":1}}},` +
+		`"originatingCommand":{"aggregate":"c","pipeline":[{"$match":{"$comment":{"cust_SECRET_4714":"y"}}},` +
+		`{"$unionWith":{"coll":"c","pipeline":[{"$documents":[{"cust_SECRET_4715":{"note":"z"}}]}]}}]},` +
+		`"queryPlanner":{"winningPlan":{"stage":"COLLSCAN"}}}`
+	got = maskMongoPlan(opaque)
+	assert.NotContains(t, got, "cust_SECRET")
+	assert.Contains(t, got, `"filter":{"name":"?","$comment":"?"}`)
+	assert.Contains(t, got, `{"$match":{"$comment":"?"}}`)
+	assert.Contains(t, got, `"pipeline":[{"$documents":"?"}]`)
+	assert.Contains(t, got, `"stage":"COLLSCAN"`)
+
+	// A compound text index's indexPrefix holds the query's equality values under their field names, which can be
+	// named like a plan key: plan keys count only on the plan's own structure.
+	prefix := `{"queryPlanner":{"winningPlan":{"stage":"TEXT_MATCH","indexPrefix":{"host":"db7.internal.example",` +
+		`"keyPattern":"secret-k"},"indexName":"host_1_message_text","inputStage":{"stage":"IXSCAN","keyPattern":{"host":1,"_fts":"text"},` +
+		`"keysExamined":3}}},"unknown":{"version":"secret-v","nReturned":4417}}`
+	got = maskMongoPlan(prefix)
+	for _, literal := range []string{"db7.internal.example", "secret", "4417"} {
+		assert.NotContains(t, got, literal)
+	}
+	assert.Contains(t, got, `"indexPrefix":{"host":"?","keyPattern":"?"}`)
+	assert.Contains(t, got, `"keyPattern":{"host":1,"_fts":"text"},"keysExamined":3`)
+	assert.Contains(t, got, `"stage":"TEXT_MATCH"`)
+
+	assert.Equal(t, planWithheld, maskMongoPlan("not json"))
+}
+
+func TestMaskMongoFingerprintOpaqueValues(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			// pmm-agent leaves stages other than $match unmasked, and keeps the keys of the ones it masks.
+			name: "LiteralAndConst",
+			in: `db.c.aggregate([{"$match":{"$expr":{"$eq":["$a",{"$literal":{"cust_SECRET_1":"?"}}]}}}, ` +
+				`{"$project":{"flag":{"$literal": {"cust_SECRET_2":{"n":[1,"}"]}}},"k":{"$const":"x"},"s":"$total"}}])`,
+			want: `db.c.aggregate([{"$match":{"$expr":{"$eq":[?,{"$literal":?}]}}}, ` +
+				`{"$project":{"flag":{"$literal": ?},"k":{"$const":?},"s":?}}])`,
+		},
+		{
+			name: "CommandComment",
+			in:   `db.runCommand({"find":"c","filter":{"comment":{"$eq":"?"}},"comment":{"cust_SECRET_3":"?"},"limit":5})`,
+			want: `db.runCommand({"find":?,"filter":{"comment":{"$eq":"?"}},"comment":?,"limit":?})`,
+		},
+		{
+			name: "FilterFieldNamedComment",
+			in:   `db.c.find({"comment":{"$eq":"?"}})`,
+			want: `db.c.find({"comment":{"$eq":"?"}})`,
+		},
+		{
+			// pmm-agent masks the leaf values of a $comment but keeps the keys of an object value.
+			name: "CommentOperator",
+			in:   `db.people.find({"$comment":{"ticket-4711 cust_SECRET_6@example.com":"?"},"name":"?"})`,
+			want: `db.people.find({"$comment":?,"name":"?"})`,
+		},
+		{
+			name: "CommentOperatorInStages",
+			in:   `db.c.aggregate([{"$match":{"a":"?","$comment":"?"}}, {"$project":{"x":{"$comment":{"cust_SECRET_7":1}}}}])`,
+			want: `db.c.aggregate([{"$match":{"a":"?","$comment":?}}, {"$project":{"x":{"$comment":?}}}])`,
+		},
+		{
+			name: "DocumentsStage",
+			in:   `db.c.aggregate([{"$unionWith":{"coll":"c","pipeline":[{"$documents":[{"cust_SECRET_8":1,"n":{"cust_SECRET_9":true}}]}]}}])`,
+			want: `db.c.aggregate([{"$unionWith":{"coll":?,"pipeline":[{"$documents":?}]}}])`,
+		},
+		{
+			// pmm-agent leaves a $match nested in another stage unmasked, booleans and nulls included.
+			name: "BareWords",
+			in: `db.null.aggregate([{"$match":{"a":"?"}}, {"$lookup":{"from":"o","pipeline":[` +
+				`{"$match":{"paid":true,"void":false,"note":null,"nullable":["truex",true]}}],"as":"x"}}])`,
+			want: `db.null.aggregate([{"$match":{"a":"?"}}, {"$lookup":{"from":?,"pipeline":[` +
+				`{"$match":{"paid":?,"void":?,"note":?,"nullable":[?,?]}}],"as":?}}])`,
+		},
+		{
+			name: "UnbalancedMasksToTheEnd",
+			in:   `db.c.aggregate([{"$project":{"x":{"$literal":{"cust_SECRET_4":[1,2}}])`,
+			want: `db.c.aggregate([{"$project":{"x":{"$literal":?`,
+		},
+		{
+			name: "UnclosedMasksToTheEnd",
+			in:   `db.runCommand({"find":"c","comment":{"cust_SECRET_5":[1`,
+			want: `db.runCommand({"find":?,"comment":?`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := maskMongoFingerprint(tc.in)
+			assert.Equal(t, tc.want, got)
+			assert.NotContains(t, got, "cust_SECRET")
+		})
+	}
+}
+
+// TestMongoFingerprintCollectionName pins that a fingerprint is withheld when a quote, brace or bracket can sit in its
+// collection name, which pmm-agent writes as it is, and that other names are kept.
+func TestMongoFingerprintCollectionName(t *testing.T) {
+	t.Parallel()
+
+	for _, fp := range []string{
+		// An odd number of escaped quotes in a value restores the parity that the quote in the name breaks.
+		`db.c".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		`db.a(b".find({"owner":"alice@example.com","size":"27\" monitor"})`,
+		`db.x.find(".aggregate([{"$addFields":{"owner":"alice@example.com","size":"27\" monitor"}}])`,
+		// A closing brace in the name leaves the stages at depth 0, where a bare true, false or null is a name.
+		`db.x}}}.aggregate([{"$addFields":{"is_vip":true}}])`,
+		`db.x]].find({"vip":true})`,
+		// A call pmm-agent doesn't write leaves the end of the name unknown.
+		`db.users.count({"email":"?"})`,
+	} {
+		assert.Equal(t, withheldFingerprint, fingerprintText(fp, engineMongoDB, false), fp)
+	}
+
+	for fp, want := range map[string]string{
+		`db.my.coll(v2).find({"email":"?","vip":true})`: `db.my.coll(v2).find({"email":"?","vip":?})`,
+		`db.x.find(.find({"email":"?"})`:                `db.x.find(.find({"email":"?"})`,
+		`db.runCommand({"find":"c","filter":{}})`:       `db.runCommand({"find":?,"filter":{}})`,
+		`db.c.insert(?)`: `db.c.insert(?)`,
+	} {
+		assert.Equal(t, want, fingerprintText(fp, engineMongoDB, false), fp)
+	}
+}
+
+func TestRedactPlan(t *testing.T) {
+	t.Parallel()
+
+	table := "id | select_type | table | type\n1  | SIMPLE      | orders | ALL"
+	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatJSON, `{"explain_result":"!!"}`, false),
+		"an envelope that was not unwrapped still carries the explained statement")
+	assert.Equal(t, table, redactPlan(engineMySQL, formatTraditional, table, true), "a traditional table prints no predicates")
+	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatJSON, table, true), "a JSON request that is not JSON is withheld")
+	jsonForTraditional := redactPlan(engineMySQL, formatTraditional, `{"attached_condition":"((a = 'secret') or ((b | 1) = 3))"}`, true)
+	assert.NotContains(t, jsonForTraditional, "'secret'", "JSON is masked as JSON whatever format was asked for")
+	assert.Contains(t, jsonForTraditional, "(a = ?)")
+	assert.Equal(t, planWithheld, redactPlan("valkey", formatJSON, "anything", true))
+
+	// MySQL NDB Cluster prints a pushed condition in the Extra column.
+	ndb := "id |select_type |table |type |rows |Extra\n" +
+		"1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = '123-45-6789') or (`t`.`tag` = 'a|b'))"
+	got := redactPlan(engineMySQL, formatTraditional, ndb, true)
+	assert.NotContains(t, got, "123-45-6789")
+	assert.NotContains(t, got, "a|b", "a | inside the condition stays in the masked cell")
+	assert.Contains(t, got, "1  |SIMPLE      |t     |ALL  |5000 |Using where with pushed condition: ((`t`.`ssn` = ?) or (`t`.`tag` = ?))")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`zq-vip 7731` = 1)", true)
+	assert.Contains(t, got, "(`t`.`?` = ?)", "a name that is not a plain name is masked")
+	got = redactPlan(engineMySQL, formatTraditional, "id |Extra\n1  |Using where with pushed condition: (`t`.`ssn = '123-45-6789')", true)
+	assert.NotContains(t, got, "123-45-6789", "a name that does not close is masked to the end")
+
+	// A cell with a line break moves the rest of its row onto a line with fewer cells, which can't be matched to columns.
+	broken := "id |select_type |table |type |Extra\n" +
+		"1  |SIMPLE      |t     |ALL  |Using pushed condition ((`t`.`a` = 1)\n and (`t`.`ssn` = '123-45-6789') | 2)|"
+	assert.Equal(t, planWithheld, redactPlan(engineMySQL, formatTraditional, broken, true))
+
+	// A one-column plan, such as EXPLAIN's tree format, is masked as one text, so a literal across lines stays masked.
+	tree := "EXPLAIN\n-> Filter: (t.note = 'first line\nsecret-x')  (cost=1 rows=1)"
+	got = redactPlan(engineMySQL, formatTraditional, tree, true)
+	assert.NotContains(t, got, "secret-x")
+	assert.Contains(t, got, "-> Filter: (t.note = ?)")
+}
+
+func TestMapActionErrorRedaction(t *testing.T) {
+	t.Parallel()
+
+	syntax := "Error 1064 (42000): You have an error in your SQL syntax; near 'emea' AND status = 'paid'' at line 1"
+	e := mapActionError(syntax, true)
+	assert.Equal(t, codeInvalidInput, e.code)
+	assert.NotContains(t, e.Error(), "emea")
+	assert.Contains(t, e.Error(), "Error 1064 (42000):", "the error code survives masking")
+
+	mongo := `query: {"ns":"shop.customers","op":"query","query":{"email":"user42@example.com"}}: cannot explain`
+	e = mapActionError(mongo, true)
+	assert.NotContains(t, e.Error(), "user42@example.com")
+
+	denied := "Error 1142 (42000): SELECT command denied to user 'pmm'@'localhost' for table 'orders'"
+	e = mapActionError(denied, true)
+	assert.Equal(t, codeInsufficientPrivileges, e.code)
+	assert.Contains(t, e.Error(), "'pmm'@'localhost'", "privilege errors keep the user remediation needs")
+
+	missing := "Error 1146 (42S02): Table 'shop.orders' doesn't exist"
+	e = mapActionError(missing, true)
+	assert.Equal(t, codeNotFound, e.code)
+	assert.Contains(t, e.Error(), "Table 'shop.orders' doesn't exist", "an error that names only identifiers is kept")
+
+	// A word inside a quoted statement must not pass for the error's own:
+	// classified as a privilege error, the message would go out unmasked.
+	perms := `query: {"ns":"app.user_permissions","query":{"email":"user42@example.com"}}: cannot explain`
+	e = mapActionError(perms, true)
+	assert.NotEqual(t, codeInsufficientPrivileges, e.code)
+	assert.NotContains(t, e.Error(), "user42@example.com")
+
+	nearDenied := "Error 1064 (42000): You have an error in your SQL syntax; near 'denied' AND ssn = '123-45-6789'' at line 1"
+	e = mapActionError(nearDenied, true)
+	assert.Equal(t, codeInvalidInput, e.code)
+	assert.NotContains(t, e.Error(), "123-45-6789")
+
+	// "near '...'" quotes the statement with its own quotes unescaped, so the
+	// quote pairing flips wherever the fragment does not start on a literal.
+	for _, near := range []string{
+		"Error 1064 (42000): You have an error in your SQL syntax; near 'WHERE region = 'emea' AND status = 'paid'' at line 1",
+		"Error 1064 (42000): You have an error in your SQL syntax; near ''user42@exa' at line 1",
+	} {
+		e = mapActionError(near, true)
+		assert.Equal(t, codeInvalidInput, e.code, near)
+		for _, literal := range []string{"emea", "paid", "user42"} {
+			assert.NotContains(t, e.Error(), literal, near)
+		}
+	}
+
+	// An apostrophe must neither swallow the classifying words nor pair with
+	// a real quote.
+	key := "Error 1176 (42000): Key 'idx' doesn't exist in table 'orders'"
+	e = mapActionError(key, true)
+	assert.Equal(t, codeNotFound, e.code)
+	assert.Contains(t, e.Error(), key)
+	// An error of a shape not known to be safe is withheld whole.
+	e = mapActionError("can't parse value 'hunter2' here", true)
+	assert.NotContains(t, e.Error(), "hunter2")
+	assert.Contains(t, e.Error(), withheldMessage)
+
+	// ANSI_QUOTES turns a double-quoted string into a column name, so 1054
+	// can quote a value: classified, but withheld.
+	e = mapActionError("Error 1054 (42S22): Unknown column 'x@y.com' in 'where clause'", true)
+	assert.Equal(t, codeNotFound, e.code)
+	assert.NotContains(t, e.Error(), "x@y.com")
+
+	// MongoDB echoes the failed command; the classifying words are outside it.
+	unauthorized := "cannot explain this type of query\n" +
+		`(Unauthorized) not authorized on shop to execute command { explain: { find: "customers", filter: { email: "x@y" } } }`
+	e = mapActionError(unauthorized, true)
+	assert.Equal(t, codeInsufficientPrivileges, e.code)
+	assert.NotContains(t, e.Error(), "x@y")
+	e = mapActionError(`server selection error: context deadline exceeded, current topology: { Type: Unknown, Servers: [{ Addr: db:27017 }] }`, true)
+	assert.Equal(t, codeAgentUnreachable, e.code)
+
+	// MongoDB's planner prints the query's values bare.
+	planner := "cannot explain this type of query\n(BadValue) error processing query: ns=shop.c Tree: age $eq 42\nplanner returned error"
+	e = mapActionError(planner, true)
+	assert.NotContains(t, e.Error(), "42")
+	assert.Contains(t, e.Error(), "cannot explain this type of query\n(BadValue) (message withheld")
+
+	root := "Error 1698 (28000): Access denied for user 'root'@'localhost'"
+	assert.Equal(t, root, mapActionError(root, true).message, "1698 names only a user and a host")
+
+	// A MySQL number outside the table is classified on its text; the
+	// message is withheld all the same.
+	e = mapActionError("Error 1630 (42000): FUNCTION shop.f does not exist. Check the 'Function Name Parsing' section", true)
+	assert.Equal(t, codeNotFound, e.code)
+	assert.Contains(t, e.Error(), "Error 1630 (42000): (message withheld")
+
+	// MongoDB code names can hold digits.
+	location := "cannot explain this type of query\n(Location17276) Use of undefined variable: secretvar and value 424242"
+	e = mapActionError(location, true)
+	assert.NotContains(t, e.Error(), "secretvar")
+	assert.NotContains(t, e.Error(), "424242")
+	assert.Contains(t, e.Error(), "cannot explain this type of query\n(Location17276) "+withheldMessage)
+
+	// A login failure arrives inside a connection error: it names hosts, not
+	// statements, so it is kept, and it is a credentials problem.
+	login := "cannot explain this type of query\nconnection(db:27017[-1]) error occurred during connection handshake: auth error: " +
+		`sasl conversation error: unable to authenticate using mechanism "SCRAM-SHA-256": (AuthenticationFailed) Authentication failed.`
+	e = mapActionError(login, true)
+	assert.Equal(t, codeInsufficientPrivileges, e.code)
+	assert.Equal(t, login, e.message)
+
+	// A value cannot choose the class of an unknown number.
+	e = mapActionError("Error 1292 (22007): Truncated incorrect DOUBLE value: 'connection'", true)
+	assert.Equal(t, codePMMUnavailable, e.code)
+	assert.NotContains(t, e.Error(), "'connection'")
+
+	// pmm-agent's own texts and network errors quote no statement.
+	for _, kept := range []string{
+		"query to EXPLAIN is empty",
+		"context deadline exceeded",
+		"dial tcp 10.0.0.5:3306: connect: connection refused",
+		"database name is not included in this query. Explain could not be triggered without this info: Error 1046 (3D000): No database selected",
+	} {
+		assert.Equal(t, kept, mapActionError(kept, true).message)
+	}
+
+	// A query example that does not parse leaves its brace open.
+	broken := `query: {"ns":"shop.customers","query":{"email":"SECRET-9911@example.com": error decoding key query: invalid JSON input`
+	assert.NotContains(t, mapActionError(broken, true).Error(), "SECRET-9911")
+
+	assert.Contains(t, mapActionError(syntax, false).Error(), "emea", "raw SQL on leaves the message verbatim")
+}

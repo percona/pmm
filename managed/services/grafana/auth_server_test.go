@@ -20,6 +20,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"maps"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/genproto/googleapis/api/annotations"
@@ -207,6 +209,23 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/alerting/thresholds", admin},             // SetThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:clear", admin},       // ClearThreshold
 		{http.MethodPost, "/v1/alerting/thresholds:batchUpdate", admin}, // BatchUpdateThresholds
+		// Inventory reads are admin, except services:getTypes.
+		{http.MethodGet, "/v1/inventory/services", admin},
+		{http.MethodGet, "/v1/inventory/services/svc-1", admin},
+		{http.MethodGet, "/v1/inventory/services:getTypes", viewer},
+		{http.MethodPost, "/v1/inventory/services", admin},
+		{http.MethodPut, "/v1/inventory/services/svc-1", admin},
+		{http.MethodDelete, "/v1/inventory/services/svc-1", admin},
+		{http.MethodGet, "/v1/inventory/nodes", admin},
+		{http.MethodGet, "/v1/inventory/nodes/node-1", admin},
+		{http.MethodPost, "/v1/inventory/nodes", admin},
+		{http.MethodDelete, "/v1/inventory/nodes/node-1", admin},
+		{http.MethodGet, "/v1/inventory/agents", admin},
+		{http.MethodGet, "/v1/inventory/servicesX", admin},
+		// MCP endpoint is Viewer for any method; the prefix must not leak to /mcpX.
+		{http.MethodPost, "/mcp", viewer},
+		{http.MethodPost, "/mcp/", viewer},
+		{http.MethodGet, "/mcpx", grafanaAdmin},
 		// Advisors: editors run checks and schedules, and send test emails to schedule recipients.
 		{http.MethodPost, "/v1/advisors/checks:start", editor},
 		{http.MethodPost, "/v1/advisors/checks:batchChange", editor},
@@ -500,6 +519,109 @@ func TestAuthServerGrafanaErrors(t *testing.T) {
 	}
 }
 
+func TestUnauthenticatedCallerOnMCP(t *testing.T) {
+	t.Parallel()
+
+	newServer := func(t *testing.T, userStatus int) *AuthServer {
+		t.Helper()
+
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.URL.Path {
+			case "/api/user":
+				w.WriteHeader(userStatus)
+				if userStatus == http.StatusOK {
+					_, _ = fmt.Fprint(w, `{"id":5}`)
+				} else {
+					_, _ = fmt.Fprint(w, `{"message":"Unauthorized"}`)
+				}
+			case "/api/user/orgs":
+				_, _ = fmt.Fprint(w, `[{"orgId":1,"role":"Viewer"}]`)
+			default:
+				w.WriteHeader(http.StatusNotFound)
+			}
+		}))
+		t.Cleanup(ts.Close)
+
+		return NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+	}
+
+	authenticate := func(t *testing.T, s *AuthServer, path string, headers map[string]string) *authError {
+		t.Helper()
+
+		req := httptest.NewRequestWithContext(t.Context(), http.MethodPost, "/auth_request", nil)
+		for k, v := range headers {
+			req.Header.Set(k, v)
+		}
+		_, _, authErr := s.authenticate(t.Context(), req, path, logrus.WithField("test", t.Name()))
+		return authErr
+	}
+
+	t.Run("unauthenticated", func(t *testing.T) {
+		t.Parallel()
+
+		for name, headers := range map[string]map[string]string{
+			"no credentials": nil,
+			"junk cookie":    {"Cookie": "junk=1"},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				s := newServer(t, http.StatusUnauthorized)
+				for _, path := range []string{"/mcp", "/mcp/"} {
+					authErr := authenticate(t, s, path, headers)
+					require.NotNil(t, authErr, path)
+					assert.Equal(t, codes.Unauthenticated, authErr.code, path)
+				}
+			})
+		}
+	})
+
+	t.Run("viewer with a session", func(t *testing.T) {
+		t.Parallel()
+
+		s := newServer(t, http.StatusOK)
+		headers := map[string]string{"Cookie": "grafana_session=ok"}
+		assert.Nil(t, authenticate(t, s, "/mcp", headers))
+		assert.Nil(t, authenticate(t, s, "/mcp/", headers))
+	})
+}
+
+func TestAuthServerDebugMasksCredentials(t *testing.T) {
+	t.Parallel()
+
+	const (
+		proxyPassword = "pw_SECRET_proxy_31c7"
+		deviceID      = "dev_SECRET_device_8e2f"
+	)
+	headers, secrets := credentialHeaders()
+	secrets = append(secrets, proxyPassword, deviceID)
+	ts := newFakeGrafana(t, "rotated")
+
+	for name, h := range headers {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			s := NewAuthServer(NewClient(strings.TrimPrefix(ts.URL, "http://")), nil)
+			s.accessControl = &accessControl{lastUpdated: time.Now().Add(time.Hour)}
+			logger, hook := test.NewNullLogger()
+			logger.SetLevel(logrus.DebugLevel)
+			s.l = logrus.NewEntry(logger).WithField("component", "grafana/auth")
+
+			req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/auth_request", nil)
+			req.Header.Set("X-Original-Uri", "/mcp")
+			req.Header.Set("X-Original-Method", http.MethodPost)
+			req.Header.Set("Proxy-Authorization", "Basic "+proxyPassword)
+			req.Header.Set("X-Grafana-Device-Id", deviceID)
+			maps.Copy(req.Header, h)
+			rw := httptest.NewRecorder()
+
+			s.ServeHTTP(rw, req)
+			assert.Equal(t, http.StatusOK, rw.Code)
+			assertNoSecretsLogged(t, hook, secrets)
+		})
+	}
+}
+
 func TestAuthServerAddVMGatewayToken(t *testing.T) {
 	ctx := logger.Set(t.Context(), t.Name())
 	uuid.SetRand(&tests.IDReader{})
@@ -705,7 +827,8 @@ func TestAuthServerFilteredRouteWithoutUser(t *testing.T) {
 	t.Cleanup(grafana.Close)
 
 	s := NewAuthServer(NewClient(strings.TrimPrefix(grafana.URL, "http://")), nil)
-	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now()}
+	// The cached state must not expire while the parallel subtests run, since the test server has no database to reload from.
+	s.accessControl = &accessControl{enabled: true, lastUpdated: time.Now().Add(time.Hour)}
 
 	for name, tc := range map[string]struct {
 		authorization string

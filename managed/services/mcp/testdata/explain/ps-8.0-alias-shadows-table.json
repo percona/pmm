@@ -1,0 +1,66 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1.60"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "a",
+          "access_type": "ALL",
+          "rows_examined_per_scan": 3,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "0.25",
+            "eval_cost": "0.30",
+            "prefix_cost": "0.55",
+            "data_read_per_join": "48"
+          },
+          "used_columns": [
+            "id",
+            "a_id"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "b",
+          "access_type": "eq_ref",
+          "possible_keys": [
+            "PRIMARY"
+          ],
+          "key": "PRIMARY",
+          "used_key_parts": [
+            "id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.a.a_id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 3,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "0.75",
+            "eval_cost": "0.30",
+            "prefix_cost": "1.60",
+            "data_read_per_join": "48"
+          },
+          "used_columns": [
+            "id"
+          ]
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`b`.`id` AS `id`,`shop`.`a`.`id` AS `id` from `shop`.`a` `b` join `shop`.`b` `a` where (`shop`.`b`.`id` = `shop`.`a`.`a_id`)"
+    }
+  ]
+}

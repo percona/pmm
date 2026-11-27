@@ -1,0 +1,5 @@
+{
+  "code": 3,
+  "error": "invalid field Placeholders: value must contain at most 10 item(s)",
+  "message": "invalid field Placeholders: value must contain at most 10 item(s)"
+}

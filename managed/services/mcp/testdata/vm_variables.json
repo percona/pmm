@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": {
+    "resultType": "vector",
+    "result": [
+      {"metric": {"__name__": "mysql_global_variables_innodb_buffer_pool_size", "service_name": "shop-mysql"}, "value": [1782379897, "134217728"]},
+      {"metric": {"__name__": "mysql_global_variables_max_connections", "service_name": "shop-mysql"}, "value": [1782379897, "151"]},
+      {"metric": {"__name__": "mysql_global_variables_innodb_io_capacity", "service_name": "shop-mysql"}, "value": [1782379897, "2e+02"]},
+      {"metric": {"__name__": "mysql_global_variables_long_query_time", "service_name": "shop-mysql"}, "value": [1782379897, "0.5"]}
+    ]
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "4.93"
+    },
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "c",
+          "access_type": "ref",
+          "possible_keys": [
+            "PRIMARY",
+            "idx_region"
+          ],
+          "key": "idx_region",
+          "used_key_parts": [
+            "region"
+          ],
+          "key_length": "18",
+          "ref": [
+            "const"
+          ],
+          "rows_examined_per_scan": 2,
+          "rows_produced_per_join": 2,
+          "filtered": "100.00",
+          "cost_info": {
+            "read_cost": "2.00",
+            "eval_cost": "0.40",
+            "prefix_cost": "2.40",
+            "data_read_per_join": "176"
+          },
+          "used_columns": [
+            "id",
+            "name",
+            "region"
+          ]
+        }
+      },
+      {
+        "table": {
+          "table_name": "o",
+          "access_type": "ref",
+          "possible_keys": [
+            "idx_customer"
+          ],
+          "key": "idx_customer",
+          "used_key_parts": [
+            "customer_id"
+          ],
+          "key_length": "4",
+          "ref": [
+            "shop.c.id"
+          ],
+          "rows_examined_per_scan": 1,
+          "rows_produced_per_join": 2,
+          "filtered": "100.00",
+          "using_index": true,
+          "cost_info": {
+            "read_cost": "2.00",
+            "eval_cost": "0.53",
+            "prefix_cost": "4.93",
+            "data_read_per_join": "85"
+          },
+          "used_columns": [
+            "id",
+            "customer_id"
+          ]
+        }
+      }
+    ]
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`o`.`id` AS `id`,`shop`.`c`.`name` AS `name` from `shop`.`orders` `o` join `shop`.`customers` `c` where ((`shop`.`o`.`customer_id` = `shop`.`c`.`id`) and (`shop`.`c`.`region` = 'eu'))"
+    }
+  ]
+}

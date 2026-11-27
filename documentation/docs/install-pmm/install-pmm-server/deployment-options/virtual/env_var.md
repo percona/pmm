@@ -56,6 +56,9 @@ These variables are particularly useful for AWS AMI deployments:
 | `PMM_PUBLIC_ADDRESS` | Auto-detected | External DNS/IP for PMM Server |
 | `PMM_DEBUG` | `false` | Enable verbose logging |
 | `PMM_METRICS_RESOLUTION_HR` | `5s` | High-resolution metrics interval |
+| `PMM_ENABLE_MCP` | `false` | Enable the [MCP endpoint](../../../../api/mcp.md) for AI assistants |
+| `PMM_MCP_RAW_SQL` | `false` | Allow MCP tool output to include literal values from your data, such as query examples |
+| `PMM_MCP_ACTION_TIMEOUT` | `15s` | How long the pmm-agent actions of one MCP `pmm_get_explain` or `pmm_get_schema` call can run, all together |
 
 Set `PMM_DATA_RETENTION` in hours, as a multiple of `24h`, such as `720h` for 30 days. The minimum is `24h`. If you use days, such as `30d`, PMM Server won't start.
 

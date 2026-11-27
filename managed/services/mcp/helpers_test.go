@@ -1,0 +1,394 @@
+// Copyright (C) 2023 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package mcp
+
+import (
+	"encoding/json"
+	"io"
+	"maps"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+
+	"github.com/modelcontextprotocol/go-sdk/mcp"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+// testToken is the caller credential every fixture test forwards.
+const testToken = "Bearer glsa_test_token"
+
+// serviceListKey routes the service-list query of every call.
+const serviceListKey = vmQuery + " ?tlast_over_time(up["
+
+// queriesWith returns the instant queries the fake PMM received whose text contains text.
+func queriesWith(f *fakePMM, text string) []recordedRequest {
+	var out []recordedRequest
+	for _, r := range f.requestsTo(vmAPI + "query") {
+		if strings.Contains(queryOf(f.t, r).Get("query"), text) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// listQueries returns how many service-list queries the fake PMM received.
+func listQueries(f *fakePMM) int {
+	return len(queriesWith(f, "tlast_over_time(up["))
+}
+
+// keyOf is the caller key of a request that sends a's credentials as its Authorization and Cookie headers.
+func keyOf(a callerAuth) string {
+	h := http.Header{}
+	if a.authorization != "" {
+		h.Set("Authorization", a.authorization)
+	}
+	if a.cookie != "" {
+		h.Set("Cookie", a.cookie)
+	}
+	return callerAuthFromHeader(h).key
+}
+
+// fixture is one canned PMM API response, keyed by "METHOD /path", or by "METHOD /path ?TEXT" to answer only a request
+// whose query contains TEXT, ahead of the plain key and of any shorter TEXT.
+type fixture struct {
+	file string
+	// body is served instead of file when set.
+	body   []byte
+	status int
+	// block makes the fixture never answer: the request waits until its caller gives up.
+	block bool
+}
+
+// recordedRequest is what the fake PMM received for one call.
+type recordedRequest struct {
+	method string
+	path   string
+	query  string
+	header http.Header
+	body   []byte
+}
+
+// handler answers a request, whose body it is given, ahead of the fake PMM's routes, or returns false to leave it to them.
+type handler func(rw http.ResponseWriter, req *http.Request, body []byte) bool
+
+// fakePMM replays testdata fixtures and records every request so tests can
+// assert the forwarded credentials and request bodies.
+type fakePMM struct {
+	t      *testing.T
+	server *httptest.Server
+
+	mu       sync.Mutex
+	routes   map[string]fixture
+	handlers []handler
+	requests []recordedRequest
+}
+
+func newFakePMM(t *testing.T, routes map[string]fixture) *fakePMM {
+	t.Helper()
+
+	f := &fakePMM{t: t, routes: routes}
+	f.server = httptest.NewServer(http.HandlerFunc(f.serve))
+	t.Cleanup(f.server.Close)
+	return f
+}
+
+func (f *fakePMM) serve(rw http.ResponseWriter, req *http.Request) {
+	body, _ := io.ReadAll(req.Body)
+
+	if strings.HasPrefix(req.URL.Path, "/v1/inventory/") {
+		f.t.Errorf("a tool called the inventory API: %s %s", req.Method, req.URL.Path)
+	}
+
+	f.mu.Lock()
+	f.requests = append(f.requests, recordedRequest{
+		method: req.Method,
+		path:   req.URL.Path,
+		query:  req.URL.RawQuery,
+		header: req.Header.Clone(),
+		body:   body,
+	})
+	handlers := f.handlers
+	fx, ok := f.route(req)
+	f.mu.Unlock()
+
+	for _, h := range handlers {
+		if h(rw, req, body) {
+			return
+		}
+	}
+	if !ok {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
+		_, _ = rw.Write([]byte(`{"code":5,"error":"no fixture for ` + req.Method + " " + req.URL.Path + `","message":"not found"}`))
+		return
+	}
+	f.reply(rw, req, fx)
+}
+
+// handle makes h answer requests ahead of the routes and of the handlers added before it.
+func (f *fakePMM) handle(h handler) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.handlers = append([]handler{h}, f.handlers...)
+}
+
+// reply answers req with fx.
+func (f *fakePMM) reply(rw http.ResponseWriter, req *http.Request, fx fixture) {
+	if fx.block {
+		<-req.Context().Done()
+		return
+	}
+
+	status := fx.status
+	if status == 0 {
+		status = http.StatusOK
+	}
+	rw.Header().Set("Content-Type", "application/json")
+	rw.WriteHeader(status)
+	if fx.body != nil {
+		_, _ = rw.Write(fx.body)
+		return
+	}
+	_, _ = rw.Write(readFixture(f.t, fx.file))
+}
+
+// route finds the fixture for a request: the longest matching "?<text>" key, else the plain key.
+func (f *fakePMM) route(req *http.Request) (fixture, bool) {
+	prefix := req.Method + " " + req.URL.Path + " ?"
+	query := req.URL.Query().Get("query")
+
+	best := ""
+	var found fixture
+	matched := false
+	for key, fx := range f.routes {
+		text, ok := strings.CutPrefix(key, prefix)
+		if !ok || !strings.Contains(query, text) {
+			continue
+		}
+		if !matched || len(text) > len(best) {
+			best, found, matched = text, fx, true
+		}
+	}
+	if matched {
+		return found, true
+	}
+
+	fx, ok := f.routes[req.Method+" "+req.URL.Path]
+	return fx, ok
+}
+
+// requestsTo returns the recorded requests for a path, in order.
+func (f *fakePMM) requestsTo(path string) []recordedRequest {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+
+	var out []recordedRequest
+	for _, r := range f.requests {
+		if r.path == path {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// requestCount returns how many requests the fake PMM received.
+func (f *fakePMM) requestCount() int {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	return len(f.requests)
+}
+
+// assertForwardedAuth checks that every recorded request carried the caller's token.
+func (f *fakePMM) assertForwardedAuth(t *testing.T) {
+	t.Helper()
+
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	require.NotEmpty(t, f.requests)
+	for _, r := range f.requests {
+		require.Equal(t, testToken, r.header.Get("Authorization"), "%s %s", r.method, r.path)
+	}
+}
+
+func readFixture(t *testing.T, name string) []byte {
+	t.Helper()
+
+	b, err := os.ReadFile(filepath.Join("testdata", name))
+	require.NoError(t, err)
+	return b
+}
+
+func unmarshalBody[T any](t *testing.T, r recordedRequest) T {
+	t.Helper()
+
+	var v T
+	require.NoError(t, json.Unmarshal(r.body, &v), "body: %s", r.body)
+	return v
+}
+
+// newTestService builds a Service whose API client points at the fake PMM.
+func newTestService(t *testing.T, fake *fakePMM) *Service {
+	t.Helper()
+
+	c, err := newClient(fake.server.URL + "/")
+	require.NoError(t, err)
+
+	// Enabled and RawSQL are explicit: both default to off, so a test that
+	// wants the endpoint reachable has to say so. Tests covering the disabled
+	// endpoint build their own Service.
+	s, err := New(Params{
+		API:     c,
+		Enabled: func() bool { return true },
+		RawSQL:  true,
+	})
+	require.NoError(t, err)
+	t.Cleanup(func() { assertLimitersEmpty(t, s) })
+	return s
+}
+
+// assertLimitersEmpty checks that no call left a slot of s's limiters, or of its client's VictoriaMetrics slots, taken.
+func assertLimitersEmpty(t *testing.T, s *Service) {
+	t.Helper()
+
+	for name, l := range map[string]*limiter{"live": s.live, "liveByService": s.liveByService, "metrics": s.metrics} {
+		l.mu.Lock()
+		total, byKey := l.total, maps.Clone(l.byKey)
+		l.mu.Unlock()
+		assert.Zero(t, total, "%s limiter: slots still taken", name)
+		assert.Empty(t, byKey, "%s limiter: slots still taken", name)
+	}
+	c, ok := s.api.(*client)
+	if ok {
+		assert.Empty(t, c.vmSlots, "VictoriaMetrics slots still taken")
+	}
+}
+
+// connect starts an httptest server around the MCP handler and opens a client
+// session that sends the test token with every request.
+func connect(t *testing.T, s *Service) *mcp.ClientSession {
+	t.Helper()
+
+	return connectWithHeaders(t, s, nil)
+}
+
+// connectWithHeaders is connect with header sent in place of the test token.
+func connectWithHeaders(t *testing.T, s *Service, header http.Header) *mcp.ClientSession {
+	t.Helper()
+
+	srv := httptest.NewServer(s.Handler())
+	t.Cleanup(srv.Close)
+
+	client := mcp.NewClient(&mcp.Implementation{Name: "test", Version: "0"}, nil)
+	session, err := client.Connect(t.Context(), &mcp.StreamableClientTransport{
+		Endpoint:   srv.URL + "/mcp",
+		HTTPClient: &http.Client{Transport: &headerTransport{next: http.DefaultTransport, header: header}},
+	}, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = session.Close() })
+
+	return session
+}
+
+// headerTransport adds header, or the test token when it is nil, to every MCP request.
+type headerTransport struct {
+	next   http.RoundTripper
+	header http.Header
+}
+
+func (h *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req = req.Clone(req.Context())
+	if h.header == nil {
+		req.Header.Set("Authorization", testToken)
+	}
+	maps.Copy(req.Header, h.header)
+	return h.next.RoundTrip(req)
+}
+
+// callText calls a tool through the session and returns its text and error flag.
+func callText(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) (string, bool) {
+	t.Helper()
+
+	res, err := session.CallTool(t.Context(), &mcp.CallToolParams{Name: name, Arguments: args})
+	require.NoError(t, err)
+	require.NotEmpty(t, res.Content)
+	text, ok := res.Content[0].(*mcp.TextContent)
+	require.True(t, ok, "unexpected content %T", res.Content[0])
+	return text.Text, res.IsError
+}
+
+// assertToolError checks that text is the error text of code, whose message starts with prefix.
+func assertToolError(t *testing.T, text string, code errorCode, prefix string) {
+	t.Helper()
+
+	assert.True(t, strings.HasPrefix(text, "error: "+string(code)+"\n"+prefix), text)
+}
+
+// callTool calls a tool through the session and returns the whole result.
+func callTool(t *testing.T, session *mcp.ClientSession, name string, args map[string]any) *mcp.CallToolResult {
+	t.Helper()
+
+	res, err := session.CallTool(t.Context(), &mcp.CallToolParams{Name: name, Arguments: args})
+	require.NoError(t, err)
+	require.NotEmpty(t, res.Content)
+	return res
+}
+
+// callAs calls a tool on a new session to s, and returns its structured result as T unless it is an error, its text and
+// its error flag.
+func callAs[T any](t *testing.T, s *Service, name string, args map[string]any) (T, string, bool) {
+	t.Helper()
+
+	res := callTool(t, connect(t, s), name, args)
+	text := textOf(t, res)
+	if res.IsError {
+		var zero T
+		return zero, text, true
+	}
+	return structured[T](t, res), text, false
+}
+
+// mustJSON marshals v or fails the test.
+func mustJSON(t *testing.T, v any) []byte {
+	t.Helper()
+
+	b, err := json.Marshal(v)
+	require.NoError(t, err)
+	return b
+}
+
+// listTools returns the server's tools by name.
+func listTools(t *testing.T, session *mcp.ClientSession) map[string]*mcp.Tool {
+	t.Helper()
+
+	res, err := session.ListTools(t.Context(), nil)
+	require.NoError(t, err)
+	out := make(map[string]*mcp.Tool, len(res.Tools))
+	for _, tool := range res.Tools {
+		out[tool.Name] = tool
+	}
+	return out
+}
+
+// first returns the first of two results, for asserting on a function that
+// also reports a flag.
+func first[T, U any](v T, _ U) T {
+	return v
+}

@@ -1,0 +1,1 @@
+{"queryPlanner":{"namespace":"shop.customers","parsedQuery":{"email":{"$eq":"user42@example.com"}},"winningPlan":{"stage":"COLLSCAN","filter":{"age":{"$gt":{"$numberInt":"4417"}}}}},"executionStats":{"nReturned":{"$numberInt":"1"},"totalDocsExamined":20000},"command":{"find":"customers","filter":{"email":"user42@example.com","age":{"$gt":4417}},"$db":"shop"}}

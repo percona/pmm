@@ -713,6 +713,9 @@ type GetReadOnlySettingsOKBodySettings struct {
 
 	// True if Operations for MongoDB is enabled.
 	OMEnabled bool `json:"om_enabled,omitempty"`
+
+	// True if the Model Context Protocol endpoint (/mcp) is enabled.
+	McpEnabled bool `json:"mcp_enabled,omitempty"`
 }
 
 // Validate validates this get read only settings OK body settings

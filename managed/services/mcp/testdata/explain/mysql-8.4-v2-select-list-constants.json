@@ -1,0 +1,20 @@
+{
+  "query": "/* select#1 */ select 'zq-vip-7731' AS `zq-vip-7731`,(`shop`.`orders`.`total` * 1.0773) AS `total * 1.0773`,`shop`.`orders`.`id` AS `id` from `shop`.`orders` where (`shop`.`orders`.`customer_id` = 90817)",
+  "covering": false,
+  "operation": "Index lookup on orders using idx_customer (customer_id=90817)",
+  "index_name": "idx_customer",
+  "query_type": "select",
+  "table_name": "orders",
+  "access_type": "index",
+  "schema_name": "shop",
+  "used_columns": [
+    "id",
+    "customer_id",
+    "total"
+  ],
+  "estimated_rows": 1.0,
+  "lookup_condition": "customer_id=90817",
+  "index_access_type": "index_lookup",
+  "estimated_total_cost": 0.35,
+  "warnings": []
+}

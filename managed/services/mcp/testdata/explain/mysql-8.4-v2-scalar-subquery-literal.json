@@ -1,0 +1,31 @@
+{
+  "query": "/* select#1 */ select (/* select#2 */ select max(`shop`.`customers`.`id`) from `shop`.`customers` where multiple equal('zq-emea-6630', `shop`.`customers`.`region`)) AS `(SELECT MAX(id) FROM customers WHERE region = 'zq-emea-6630')`,`shop`.`orders`.`id` AS `id` from `shop`.`orders`",
+  "covering": true,
+  "operation": "Covering index scan on orders using idx_customer",
+  "index_name": "idx_customer",
+  "query_type": "select",
+  "table_name": "orders",
+  "access_type": "index",
+  "schema_name": "shop",
+  "used_columns": [
+    "id"
+  ],
+  "estimated_rows": 4.0,
+  "index_access_type": "index_scan",
+  "estimated_total_cost": 0.65,
+  "inputs_from_select_list": [
+    {
+      "heading": "Select #2 (subquery in projection; run only once)",
+      "subquery": true,
+      "cacheable": true,
+      "operation": "Zero input rows (No matching min/max row), aggregated into one output row",
+      "access_type": "zero_rows_aggregated",
+      "estimated_rows": 1.0,
+      "zero_rows_cause": "No matching min/max row",
+      "subquery_location": "projection",
+      "estimated_total_cost": 0.0,
+      "estimated_first_row_cost": 0.0
+    }
+  ],
+  "warnings": []
+}

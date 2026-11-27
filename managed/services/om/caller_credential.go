@@ -29,9 +29,6 @@ import (
 	"github.com/percona/pmm/managed/utils/auth"
 )
 
-// sessionCookie is login_cookie_name in PMM's grafana.ini.
-const sessionCookie = "pmm_session"
-
 // exchangeRenewAfter is the share of an exchanged bearer's lifetime after which it is renewed, so it never expires in flight.
 const exchangeRenewAfter = 0.8
 
@@ -78,7 +75,7 @@ func (c *extensionsClient) credential(ctx context.Context) (credential, error) {
 		}
 	}
 
-	cookie, err := (&http.Request{Header: headers}).Cookie(sessionCookie)
+	cookie, err := (&http.Request{Header: headers}).Cookie(auth.SessionCookieName)
 	if err != nil || cookie.Value == "" {
 		return credential{}, status.Error(codes.Unauthenticated, "the request carries no PMM session for PMM Extensions")
 	}
@@ -120,7 +117,7 @@ func (c *extensionsClient) mintBearer(ctx context.Context, key [sha256.Size]byte
 	if err != nil {
 		return "", status.Errorf(codes.Internal, "failed to build the session exchange: %s", err)
 	}
-	req.Header.Set("Cookie", sessionCookie+"="+session)
+	req.Header.Set("Cookie", auth.SessionCookieName+"="+session)
 
 	resp, err := c.http.Do(req)
 	if err != nil {

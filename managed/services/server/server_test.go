@@ -272,6 +272,15 @@ func TestServer(t *testing.T) {
 			EnableInternalPgQan: new(true),
 		}))
 
+		s.envSettings.EnableMCP = new(false)
+		expected = status.New(codes.FailedPrecondition, "MCP is configured via PMM_ENABLE_MCP environment variable.")
+		tests.AssertGRPCError(t, expected, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableMcp: new(true),
+		}))
+		require.NoError(t, s.validateChangeSettingsRequest(ctx, &serverv1.ChangeSettingsRequest{
+			EnableMcp: new(false),
+		}))
+
 		s.envSettings.EnableOM = new(false)
 		expected = status.New(codes.FailedPrecondition,
 			"Operations for MongoDB is set by the PMM_ENABLE_OM environment variable and can't be changed here.")

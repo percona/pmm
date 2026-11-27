@@ -1,0 +1,85 @@
+{
+  "query_block": {
+    "union_result": {
+      "using_temporary_table": true,
+      "table_name": "<union1,2>",
+      "access_type": "ALL",
+      "query_specifications": [
+        {
+          "dependent": false,
+          "cacheable": true,
+          "query_block": {
+            "select_id": 1,
+            "cost_info": {
+              "query_cost": "1.80"
+            },
+            "table": {
+              "table_name": "orders",
+              "access_type": "ALL",
+              "rows_examined_per_scan": 4,
+              "rows_produced_per_join": 1,
+              "filtered": "25.00",
+              "cost_info": {
+                "read_cost": "1.60",
+                "eval_cost": "0.20",
+                "prefix_cost": "1.80",
+                "data_read_per_join": "32"
+              },
+              "used_columns": [
+                "id",
+                "status"
+              ],
+              "attached_condition": "(`shop`.`orders`.`status` = 'new')"
+            }
+          }
+        },
+        {
+          "dependent": false,
+          "cacheable": true,
+          "query_block": {
+            "select_id": 2,
+            "cost_info": {
+              "query_cost": "1.40"
+            },
+            "table": {
+              "table_name": "customers",
+              "access_type": "ref",
+              "possible_keys": [
+                "idx_region"
+              ],
+              "key": "idx_region",
+              "used_key_parts": [
+                "region"
+              ],
+              "key_length": "18",
+              "ref": [
+                "const"
+              ],
+              "rows_examined_per_scan": 2,
+              "rows_produced_per_join": 2,
+              "filtered": "100.00",
+              "using_index": true,
+              "cost_info": {
+                "read_cost": "1.00",
+                "eval_cost": "0.40",
+                "prefix_cost": "1.40",
+                "data_read_per_join": "176"
+              },
+              "used_columns": [
+                "id",
+                "region"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`orders`.`id` AS `id` from `shop`.`orders` where (`shop`.`orders`.`status` = 'new') union /* select#2 */ select `shop`.`customers`.`id` AS `id` from `shop`.`customers` where (`shop`.`customers`.`region` = 'eu')"
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+WITH orders AS (SELECT customer_id, SUM(total) AS s FROM shop.orders GROUP BY customer_id) SELECT c.name, orders.s FROM orders JOIN shop.customers c ON c.id = orders.customer_id JOIN shop.orders r ON r.customer_id = c.id

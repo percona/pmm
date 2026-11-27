@@ -34,6 +34,7 @@ const (
 	VictoriaMetricsCacheEnabledDefault = false
 	AzureDiscoverEnabledDefault        = false
 	AccessControlEnabledDefault        = false
+	MCPEnabledDefault                  = false
 	InternalPgQANEnabledDefault        = false
 	AdvisorNotificationsEnabledDefault = false
 	OMEnabledDefault                   = false
@@ -132,6 +133,12 @@ type Settings struct {
 		Enabled *bool `json:"enabled"`
 	} `json:"access_control"`
 
+	// MCP holds the Model Context Protocol endpoint (/mcp) settings.
+	MCP struct {
+		// Enabled is true if the MCP endpoint is enabled.
+		Enabled *bool `json:"enabled"`
+	} `json:"mcp"`
+
 	// Contains all encrypted tables in format 'db.table.column'.
 	EncryptedItems []string `json:"encrypted_items"`
 
@@ -215,6 +222,14 @@ func (s *Settings) IsAccessControlEnabled() bool {
 		return *s.AccessControl.Enabled
 	}
 	return AccessControlEnabledDefault
+}
+
+// IsMCPEnabled returns true if the MCP endpoint is enabled.
+func (s *Settings) IsMCPEnabled() bool {
+	if s.MCP.Enabled != nil {
+		return *s.MCP.Enabled
+	}
+	return MCPEnabledDefault
 }
 
 // IsOMEnabled returns true if OpenManager is enabled.

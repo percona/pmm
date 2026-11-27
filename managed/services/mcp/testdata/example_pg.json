@@ -1,0 +1,17 @@
+{
+  "query_examples": [
+    {
+      "example": "SELECT * FROM orders",
+      "example_type": "EXAMPLE_TYPE_RANDOM",
+      "explain_fingerprint": "SELECT * FROM orders",
+      "query_id": "QID-AAA",
+      "service_id": "svc-2",
+      "service_type": "postgresql",
+      "schema": "public",
+      "tables": [
+        "orders",
+        "customers"
+      ]
+    }
+  ]
+}

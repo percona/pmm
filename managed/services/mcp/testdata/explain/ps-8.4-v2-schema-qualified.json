@@ -1,0 +1,25 @@
+{
+  "query": "/* select#1 */ select `o`.`id` AS `id` from `shop`.`orders` `o` where (`o`.`status` = 'new')",
+  "inputs": [
+    {
+      "alias": "o",
+      "operation": "Table scan on o",
+      "table_name": "orders",
+      "access_type": "table",
+      "schema_name": "shop",
+      "used_columns": [
+        "id",
+        "status"
+      ],
+      "estimated_rows": 4.0,
+      "estimated_total_cost": 0.65
+    }
+  ],
+  "condition": "(o.`status` = 'new')",
+  "operation": "Filter: (o.`status` = 'new')",
+  "query_type": "select",
+  "access_type": "filter",
+  "estimated_rows": 1.0,
+  "estimated_total_cost": 0.65,
+  "warnings": []
+}

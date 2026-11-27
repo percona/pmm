@@ -1,0 +1,421 @@
+{
+  "explainVersion": "1",
+  "queryPlanner": {
+    "namespace": "shop.logs",
+    "parsedQuery": {
+      "$and": [
+        {
+          "host": {
+            "$eq": "db7.internal.example"
+          }
+        },
+        {
+          "$text": {
+            "$search": "zqdiskfail7781 checkpoint",
+            "$language": "english",
+            "$caseSensitive": false,
+            "$diacriticSensitive": false
+          }
+        }
+      ]
+    },
+    "indexFilterSet": false,
+    "queryHash": "D6756FF3",
+    "planCacheShapeHash": "D6756FF3",
+    "planCacheKey": "98271E5B",
+    "optimizationTimeMillis": {
+      "$numberInt": "0"
+    },
+    "maxIndexedOrSolutionsReached": false,
+    "maxIndexedAndSolutionsReached": false,
+    "maxScansToExplodeReached": false,
+    "prunedSimilarIndexes": false,
+    "winningPlan": {
+      "isCached": false,
+      "stage": "TEXT_MATCH",
+      "indexPrefix": {
+        "host": "db7.internal.example"
+      },
+      "indexName": "host_1_message_text",
+      "parsedTextQuery": {
+        "terms": [
+          "checkpoint",
+          "zqdiskfail7781"
+        ],
+        "negatedTerms": [],
+        "phrases": [],
+        "negatedPhrases": []
+      },
+      "textIndexVersion": {
+        "$numberInt": "3"
+      },
+      "inputStage": {
+        "stage": "FETCH",
+        "inputStage": {
+          "stage": "OR",
+          "inputStages": [
+            {
+              "stage": "IXSCAN",
+              "keyPattern": {
+                "host": {
+                  "$numberInt": "1"
+                },
+                "_fts": "text",
+                "_ftsx": {
+                  "$numberInt": "1"
+                }
+              },
+              "indexName": "host_1_message_text",
+              "isMultiKey": true,
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": {
+                "$numberInt": "2"
+              },
+              "direction": "backward",
+              "indexBounds": {}
+            },
+            {
+              "stage": "IXSCAN",
+              "keyPattern": {
+                "host": {
+                  "$numberInt": "1"
+                },
+                "_fts": "text",
+                "_ftsx": {
+                  "$numberInt": "1"
+                }
+              },
+              "indexName": "host_1_message_text",
+              "isMultiKey": true,
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": {
+                "$numberInt": "2"
+              },
+              "direction": "backward",
+              "indexBounds": {}
+            }
+          ]
+        }
+      }
+    },
+    "rejectedPlans": []
+  },
+  "executionStats": {
+    "executionSuccess": true,
+    "nReturned": {
+      "$numberInt": "3"
+    },
+    "executionTimeMillis": {
+      "$numberInt": "0"
+    },
+    "totalKeysExamined": {
+      "$numberInt": "3"
+    },
+    "totalDocsExamined": {
+      "$numberInt": "3"
+    },
+    "executionStages": {
+      "isCached": false,
+      "stage": "TEXT_MATCH",
+      "nReturned": {
+        "$numberInt": "3"
+      },
+      "executionTimeMillisEstimate": {
+        "$numberInt": "0"
+      },
+      "works": {
+        "$numberInt": "5"
+      },
+      "advanced": {
+        "$numberInt": "3"
+      },
+      "needTime": {
+        "$numberInt": "1"
+      },
+      "needYield": {
+        "$numberInt": "0"
+      },
+      "saveState": {
+        "$numberInt": "0"
+      },
+      "restoreState": {
+        "$numberInt": "0"
+      },
+      "isEOF": {
+        "$numberInt": "1"
+      },
+      "indexPrefix": {
+        "host": "db7.internal.example"
+      },
+      "indexName": "host_1_message_text",
+      "parsedTextQuery": {
+        "terms": [
+          "checkpoint",
+          "zqdiskfail7781"
+        ],
+        "negatedTerms": [],
+        "phrases": [],
+        "negatedPhrases": []
+      },
+      "textIndexVersion": {
+        "$numberInt": "3"
+      },
+      "docsRejected": {
+        "$numberInt": "0"
+      },
+      "inputStage": {
+        "stage": "FETCH",
+        "nReturned": {
+          "$numberInt": "3"
+        },
+        "executionTimeMillisEstimate": {
+          "$numberInt": "0"
+        },
+        "works": {
+          "$numberInt": "5"
+        },
+        "advanced": {
+          "$numberInt": "3"
+        },
+        "needTime": {
+          "$numberInt": "1"
+        },
+        "needYield": {
+          "$numberInt": "0"
+        },
+        "saveState": {
+          "$numberInt": "0"
+        },
+        "restoreState": {
+          "$numberInt": "0"
+        },
+        "isEOF": {
+          "$numberInt": "1"
+        },
+        "docsExamined": {
+          "$numberInt": "3"
+        },
+        "alreadyHasObj": {
+          "$numberInt": "0"
+        },
+        "inputStage": {
+          "stage": "OR",
+          "nReturned": {
+            "$numberInt": "3"
+          },
+          "executionTimeMillisEstimate": {
+            "$numberInt": "0"
+          },
+          "works": {
+            "$numberInt": "5"
+          },
+          "advanced": {
+            "$numberInt": "3"
+          },
+          "needTime": {
+            "$numberInt": "1"
+          },
+          "needYield": {
+            "$numberInt": "0"
+          },
+          "saveState": {
+            "$numberInt": "0"
+          },
+          "restoreState": {
+            "$numberInt": "0"
+          },
+          "isEOF": {
+            "$numberInt": "1"
+          },
+          "dupsTested": {
+            "$numberInt": "3"
+          },
+          "dupsDropped": {
+            "$numberInt": "0"
+          },
+          "inputStages": [
+            {
+              "stage": "IXSCAN",
+              "nReturned": {
+                "$numberInt": "3"
+              },
+              "executionTimeMillisEstimate": {
+                "$numberInt": "0"
+              },
+              "works": {
+                "$numberInt": "4"
+              },
+              "advanced": {
+                "$numberInt": "3"
+              },
+              "needTime": {
+                "$numberInt": "0"
+              },
+              "needYield": {
+                "$numberInt": "0"
+              },
+              "saveState": {
+                "$numberInt": "0"
+              },
+              "restoreState": {
+                "$numberInt": "0"
+              },
+              "isEOF": {
+                "$numberInt": "1"
+              },
+              "keyPattern": {
+                "host": {
+                  "$numberInt": "1"
+                },
+                "_fts": "text",
+                "_ftsx": {
+                  "$numberInt": "1"
+                }
+              },
+              "indexName": "host_1_message_text",
+              "isMultiKey": true,
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": {
+                "$numberInt": "2"
+              },
+              "direction": "backward",
+              "indexBounds": {},
+              "keysExamined": {
+                "$numberInt": "3"
+              },
+              "seeks": {
+                "$numberInt": "1"
+              },
+              "dupsTested": {
+                "$numberInt": "3"
+              },
+              "dupsDropped": {
+                "$numberInt": "0"
+              }
+            },
+            {
+              "stage": "IXSCAN",
+              "nReturned": {
+                "$numberInt": "0"
+              },
+              "executionTimeMillisEstimate": {
+                "$numberInt": "0"
+              },
+              "works": {
+                "$numberInt": "1"
+              },
+              "advanced": {
+                "$numberInt": "0"
+              },
+              "needTime": {
+                "$numberInt": "0"
+              },
+              "needYield": {
+                "$numberInt": "0"
+              },
+              "saveState": {
+                "$numberInt": "0"
+              },
+              "restoreState": {
+                "$numberInt": "0"
+              },
+              "isEOF": {
+                "$numberInt": "1"
+              },
+              "keyPattern": {
+                "host": {
+                  "$numberInt": "1"
+                },
+                "_fts": "text",
+                "_ftsx": {
+                  "$numberInt": "1"
+                }
+              },
+              "indexName": "host_1_message_text",
+              "isMultiKey": true,
+              "isUnique": false,
+              "isSparse": false,
+              "isPartial": false,
+              "indexVersion": {
+                "$numberInt": "2"
+              },
+              "direction": "backward",
+              "indexBounds": {},
+              "keysExamined": {
+                "$numberInt": "0"
+              },
+              "seeks": {
+                "$numberInt": "1"
+              },
+              "dupsTested": {
+                "$numberInt": "0"
+              },
+              "dupsDropped": {
+                "$numberInt": "0"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "allPlansExecution": []
+  },
+  "queryShapeHash": "59D9A06C2D68A0A5BDFFD3C437B0198BCB050D288F4B04045C0360188824470D",
+  "command": {
+    "find": "logs",
+    "filter": {
+      "host": "db7.internal.example",
+      "$text": {
+        "$search": "zqdiskfail7781 checkpoint"
+      }
+    },
+    "$db": "shop"
+  },
+  "serverInfo": {
+    "host": "84eb35d83431",
+    "port": {
+      "$numberInt": "27017"
+    },
+    "version": "8.0.38-16",
+    "gitVersion": "698ce1e560ca22dc7a65bb189cae1964b9220661"
+  },
+  "serverParameters": {
+    "internalQueryFacetBufferSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryFacetMaxOutputDocSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalLookupStageIntermediateDocumentMaxSizeBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalDocumentSourceGroupMaxMemoryBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryMaxBlockingSortMemoryUsageBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryProhibitBlockingMergeOnMongoS": {
+      "$numberInt": "0"
+    },
+    "internalQueryMaxAddToSetBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalDocumentSourceSetWindowFieldsMaxMemoryBytes": {
+      "$numberInt": "104857600"
+    },
+    "internalQueryFrameworkControl": "trySbeRestricted",
+    "internalQueryPlannerIgnoreIndexWithCollationForRegex": {
+      "$numberInt": "1"
+    }
+  },
+  "ok": {
+    "$numberDouble": "1.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "cost_info": {
+      "query_cost": "1.80"
+    },
+    "table": {
+      "table_name": "o",
+      "access_type": "ALL",
+      "rows_examined_per_scan": 4,
+      "rows_produced_per_join": 1,
+      "filtered": "25.00",
+      "cost_info": {
+        "read_cost": "1.60",
+        "eval_cost": "0.20",
+        "prefix_cost": "1.80",
+        "data_read_per_join": "32"
+      },
+      "used_columns": [
+        "id",
+        "status"
+      ],
+      "attached_condition": "(`shop`.`o`.`status` = 'new')"
+    }
+  },
+  "warnings": [
+    {
+      "Level": "Note",
+      "Code": 1003,
+      "Message": "/* select#1 */ select `shop`.`o`.`id` AS `id` from `shop`.`orders` `o` where (`shop`.`o`.`status` = 'new')"
+    }
+  ]
+}

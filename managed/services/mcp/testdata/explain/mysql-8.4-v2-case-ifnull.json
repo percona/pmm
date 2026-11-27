@@ -1,0 +1,43 @@
+{
+  "query": "/* select#1 */ select (case when (`o`.`status` = 'zq-paid-8842') then 'zq-done-1193' else 'zq-open-2284' end) AS `CASE WHEN o.status = 'zq-paid-8842' THEN 'zq-done-1193' ELSE 'zq-open-2284' END`,ifnull(`c`.`name`,'zq-anon-3375') AS `IFNULL(c.name, 'zq-anon-3375')` from `shop`.`orders` `o` join `shop`.`customers` `c` where (`o`.`customer_id` = `c`.`id`)",
+  "inputs": [
+    {
+      "alias": "c",
+      "operation": "Table scan on c",
+      "table_name": "customers",
+      "access_type": "table",
+      "schema_name": "shop",
+      "used_columns": [
+        "id",
+        "name"
+      ],
+      "estimated_rows": 3.0,
+      "estimated_total_cost": 0.55
+    },
+    {
+      "alias": "o",
+      "covering": false,
+      "operation": "Index lookup on o using idx_customer (customer_id=c.id)",
+      "index_name": "idx_customer",
+      "table_name": "orders",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "customer_id",
+        "status"
+      ],
+      "estimated_rows": 1.3333333730697632,
+      "lookup_condition": "customer_id=c.id",
+      "index_access_type": "index_lookup",
+      "estimated_total_cost": 0.3777777890364329
+    }
+  ],
+  "join_type": "inner join",
+  "operation": "Nested loop inner join",
+  "query_type": "select",
+  "access_type": "join",
+  "estimated_rows": 4.0000001192092896,
+  "join_algorithm": "nested_loop",
+  "estimated_total_cost": 1.9500000417232515,
+  "warnings": []
+}

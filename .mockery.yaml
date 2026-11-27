@@ -34,6 +34,9 @@ packages:
       prometheusService:
       serviceInfoBroker:
       versionCache:
+  github.com/percona/pmm/managed/services/mcp:
+    interfaces:
+      pmmAPI:
   github.com/percona/pmm/managed/services/management:
     interfaces:
       agentsRegistry:

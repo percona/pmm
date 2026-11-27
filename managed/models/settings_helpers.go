@@ -90,6 +90,9 @@ type ChangeSettingsParams struct {
 	// Enable Access Control features.
 	EnableAccessControl *bool
 
+	// Enable the MCP endpoint.
+	EnableMCP *bool
+
 	// EnableVMCache enables caching for vmdb search queries
 	EnableVMCache *bool
 
@@ -230,6 +233,10 @@ func UpdateSettings(q reform.DBTX, params *ChangeSettingsParams) (*Settings, err
 
 	if params.EnableAccessControl != nil {
 		settings.AccessControl.Enabled = params.EnableAccessControl
+	}
+
+	if params.EnableMCP != nil {
+		settings.MCP.Enabled = params.EnableMCP
 	}
 
 	if params.EnableBackupManagement != nil {

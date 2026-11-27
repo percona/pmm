@@ -1,0 +1,23 @@
+{
+  "total_rows": 2,
+  "offset": 0,
+  "limit": 10,
+  "rows": [
+    {
+      "rank": 1,
+      "dimension": "QID-PG",
+      "metrics": {"load": {"stats": {"sum_per_sec": 0.2}}},
+      "fingerprint": "SELECT \"id\" FROM t",
+      "num_queries": 2,
+      "load": 0.2
+    },
+    {
+      "rank": 2,
+      "dimension": "QID-PG-ODD",
+      "metrics": {"load": {"stats": {"sum_per_sec": 0.1}}},
+      "fingerprint": "db.t.find(1) /* alice@example.com */",
+      "num_queries": 1,
+      "load": 0.1
+    }
+  ]
+}

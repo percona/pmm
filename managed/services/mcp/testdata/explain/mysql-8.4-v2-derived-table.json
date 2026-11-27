@@ -1,0 +1,83 @@
+{
+  "query": "/* select#1 */ select `d`.`customer_id` AS `customer_id`,`d`.`s` AS `s` from (/* select#2 */ select `shop`.`orders`.`customer_id` AS `customer_id`,sum(`shop`.`orders`.`total`) AS `s` from `shop`.`orders` group by `shop`.`orders`.`customer_id`) `d` join `shop`.`customers` `c` where (`d`.`customer_id` = `c`.`id`)",
+  "inputs": [
+    {
+      "alias": "c",
+      "covering": true,
+      "operation": "Covering index scan on c using idx_region",
+      "index_name": "idx_region",
+      "table_name": "customers",
+      "access_type": "index",
+      "schema_name": "shop",
+      "used_columns": [
+        "id"
+      ],
+      "estimated_rows": 3.0,
+      "index_access_type": "index_scan",
+      "estimated_total_cost": 0.55
+    },
+    {
+      "inputs": [
+        {
+          "inputs": [
+            {
+              "inputs": [
+                {
+                  "covering": false,
+                  "operation": "Index scan on orders using idx_customer",
+                  "index_name": "idx_customer",
+                  "table_name": "orders",
+                  "access_type": "index",
+                  "schema_name": "shop",
+                  "used_columns": [
+                    "id",
+                    "customer_id",
+                    "total"
+                  ],
+                  "estimated_rows": 4.0,
+                  "index_access_type": "index_scan",
+                  "estimated_total_cost": 0.65
+                }
+              ],
+              "group_by": true,
+              "functions": [
+                "sum(orders.total)"
+              ],
+              "operation": "Group aggregate: sum(orders.total)",
+              "access_type": "aggregate",
+              "estimated_rows": 2.0,
+              "estimated_total_cost": 1.05
+            }
+          ],
+          "operation": "Materialize",
+          "access_type": "materialize",
+          "estimated_rows": 2.0,
+          "estimated_total_cost": 1.25,
+          "estimated_first_row_cost": 1.25
+        }
+      ],
+      "covering": false,
+      "operation": "Index lookup on d using <auto_key0> (customer_id=c.id)",
+      "index_name": "<auto_key0>",
+      "table_name": "d",
+      "access_type": "index",
+      "used_columns": [
+        "customer_id",
+        "s"
+      ],
+      "estimated_rows": 2.0,
+      "lookup_condition": "customer_id=c.id",
+      "index_access_type": "index_lookup",
+      "estimated_total_cost": 1.8166666666666667,
+      "estimated_first_row_cost": 1.5333333333333332
+    }
+  ],
+  "join_type": "inner join",
+  "operation": "Nested loop inner join",
+  "query_type": "select",
+  "access_type": "join",
+  "estimated_rows": 6.0,
+  "join_algorithm": "nested_loop",
+  "estimated_total_cost": 2.65,
+  "warnings": []
+}

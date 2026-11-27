@@ -38,6 +38,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/auth"
 )
 
 const (
@@ -129,6 +130,11 @@ var rules = map[string]role{
 	"/swagger":         viewer,
 
 	"/v1/server/logs.zip": admin,
+
+	// Model Context Protocol endpoint (managed/services/mcp). Every tool call
+	// re-enters nginx with the caller's credentials, so each backing API path
+	// is authorized by its own rule; Viewer is the floor for the endpoint itself.
+	"/mcp": viewer,
 
 	// kept for backwards compatibility with PMM v2
 	"/v1/readyz":  none,   // redirects to /v1/server/readyz
@@ -311,7 +317,7 @@ func (s *AuthServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			s.l.Errorf("Failed to dump request: %v.", err)
 		}
-		s.l.Debugf("Request:\n%s", b)
+		s.l.Debugf("Request:\n%s", maskDump(b))
 	}
 
 	err := extractOriginalRequest(req)
@@ -858,10 +864,6 @@ func (s *AuthServer) retryWithRotatedSession(ctx context.Context, authHeaders ht
 	return sessionCookieForClient(setCookies), u, nil
 }
 
-// sessionCookieName is the name of the Grafana session cookie
-// (login_cookie_name in grafana.ini).
-const sessionCookieName = "pmm_session"
-
 // sessionCookieForClient extracts the rotated session cookie from setCookies and
 // rewrites its path for the top level: Grafana scopes its cookies to the /graph
 // sub-path, but API clients need the session cookie on /v1 paths too (nginx does
@@ -872,7 +874,7 @@ const sessionCookieName = "pmm_session"
 // Grafana page load.
 func sessionCookieForClient(setCookies []string) []string {
 	for _, c := range (&http.Response{Header: http.Header{"Set-Cookie": setCookies}}).Cookies() {
-		if c.Name != sessionCookieName {
+		if c.Name != auth.SessionCookieName {
 			continue
 		}
 		c.Path = "/"
