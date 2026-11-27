@@ -73,11 +73,11 @@ func (e *AdvisorRunInProgressError) Error() string {
 		by = "the scheduler"
 	}
 	return fmt.Sprintf("Advisor checks are already running (started %s ago by %s). %s",
-		formatAge(e.Now.Sub(e.Run.StartedAt)), by, retry)
+		FormatAge(e.Now.Sub(e.Run.StartedAt)), by, retry)
 }
 
-// formatAge spells out a duration in its largest whole unit, e.g. "3 minutes".
-func formatAge(d time.Duration) string {
+// FormatAge spells out a duration in its largest whole unit, e.g. "3 minutes".
+func FormatAge(d time.Duration) string {
 	const day = 24 * time.Hour
 
 	n, unit := int(d/time.Second), "second"

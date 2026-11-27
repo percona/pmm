@@ -53,6 +53,8 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error)
 
+	CheckReplicaSetName(params *CheckReplicaSetNameParams, opts ...ClientOption) (*CheckReplicaSetNameOK, error)
+
 	DeleteInventoryConfigOverride(params *DeleteInventoryConfigOverrideParams, opts ...ClientOption) (*DeleteInventoryConfigOverrideOK, error)
 
 	DeleteInventoryHost(params *DeleteInventoryHostParams, opts ...ClientOption) (*DeleteInventoryHostOK, error)
@@ -134,6 +136,50 @@ func (a *Client) CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CancelBootstrapRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+CheckReplicaSetName checks a replica set name
+
+Says why an install could not use a replica set name in an environment and cluster: a registered MongoDB service, or an install that is running or finished but not registered yet, already uses it there. An empty cluster stands for the replica set name.
+*/
+func (a *Client) CheckReplicaSetName(params *CheckReplicaSetNameParams, opts ...ClientOption) (*CheckReplicaSetNameOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCheckReplicaSetNameParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CheckReplicaSetName",
+		Method:             "GET",
+		PathPattern:        "/v1/om/inventory/replicaSetNames:check",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CheckReplicaSetNameReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CheckReplicaSetNameOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CheckReplicaSetNameDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

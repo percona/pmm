@@ -162,19 +162,21 @@ PMM checks some requirements only when the install starts, and some not at all. 
     - runs an OS release that PMM doesn't [support for MongoDB](#supported-os-releases), such as Ubuntu 20.04
     - already has `mongod` installed or running, or a MongoDB service registered in PMM
     - runs PMM Server
+    - fails its scans, and PMM shows the scan error and how long the scans have been failing
+    - can't reach Percona's repository at `repo.percona.com`, directly or through a proxy, according to its last scan
+    - has no package manager, `apt-get` on Ubuntu or `dnf` on Rocky Linux, according to its last scan
 
     If the **Nodes** page shows **Unregistered mongod**, the node runs a mongod that isn't in PMM, most often an arbiter. [Add it to PMM](../install-pmm/install-pmm-client/connect-database/mongodb.md#step-3-add-mongodb-service-to-pmm), an arbiter without a username and password and any other mongod with the credentials it needs. You still can't install on that node.
 
-2. Log in to each node and check what the **Nodes** page doesn't show. If one of these isn't true, the install fails at its pre-check:
+2. Log in to each node and check what the **Nodes** page doesn't show. If one of these isn't true, the install fails at its pre-check, before anything on the nodes changes:
 
     - `/etc/mongod.conf` doesn't exist.
-    - The data directory, `/var/lib/mongo` by default, is missing or empty, with at least 5 GiB free.
+    - The data directory, `/var/lib/mongo` by default, is missing or empty, with at least 5 GiB free. For the default data directory, the install form already blocks a node whose last scan found less than 5 GiB free.
     - Nothing else listens on the MongoDB port, `27017` by default.
-
-3. Check that the members can reach each other. PMM doesn't check this. If they can't, the install fails when PMM forms the replica set, and PMM rolls it back:
-
     - Each member resolves the PMM node names of all members, including its own, through DNS or `/etc/hosts`. Members address each other by these names.
-    - Each member can reach the other members on the MongoDB port.
+    - On Ubuntu, `curl` is installed. PMM downloads the Percona repository package with it.
+
+3. Check that each member can reach the other members on the MongoDB port. PMM can't check this before the install, because it can only test it once `mongod` is running. If a member can't reach the others, the install fails when PMM forms the replica set, and PMM rolls it back.
 
 #### Supported OS releases
 
@@ -203,14 +205,14 @@ To reduce this risk:
 Once your nodes pass the checks and you've reduced the security exposure, you're ready to install. To install a MongoDB replica set:
 {.power-number}
 
-1. Go to **MongoDB > Operations > Nodes**. To show only nodes without a database, select the **Not monitored** filter.
+1. Go to **MongoDB > Operations > Nodes**. To show only the nodes that you can install onto, select the **Ready to install** filter. The **Install MongoDB** button on the **Automations** page opens the same view.
 
 2. Select one node for a single-member replica set, or three nodes for a three-member replica set, and click **Install MongoDB**. To install on a single node, you can also click **Install MongoDB** in its row.
 
 3. Fill in the form:
 
     - **MongoDB version**: 7.0 (default) or 8.0, installed as Percona Server for MongoDB. If a selected node runs Rocky Linux 10, the form offers only 8.0.
-    - **Replica set name**.
+    - **Replica set name**: the name must not be in use in the same environment and cluster: by a replica set that PMM monitors, by an install that's running, or by a successful install whose members PMM hasn't registered yet. If you leave **Cluster** empty, PMM uses the replica set name as the cluster.
     - **Data path** (default `/var/lib/mongo`), **Log path** (default `/var/log/mongodb/mongod.log`), and **Port** (default `27017`).
     - **Listen on**: by default, each member listens on its own address. PMM always adds `127.0.0.1`.
     - Optional, for three-node installs only: per-member **priority**, **votes**, **hidden**, and **delay** settings for replica set elections.

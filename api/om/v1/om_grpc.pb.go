@@ -34,6 +34,7 @@ const (
 	OmService_GetInventoryRun_FullMethodName               = "/om.v1.OmService/GetInventoryRun"
 	OmService_TriggerInventoryRefresh_FullMethodName       = "/om.v1.OmService/TriggerInventoryRefresh"
 	OmService_TriggerHostBootstrap_FullMethodName          = "/om.v1.OmService/TriggerHostBootstrap"
+	OmService_CheckReplicaSetName_FullMethodName           = "/om.v1.OmService/CheckReplicaSetName"
 	OmService_GetBootstrapRun_FullMethodName               = "/om.v1.OmService/GetBootstrapRun"
 	OmService_ListBootstrapRuns_FullMethodName             = "/om.v1.OmService/ListBootstrapRuns"
 	OmService_CancelBootstrapRun_FullMethodName            = "/om.v1.OmService/CancelBootstrapRun"
@@ -85,6 +86,10 @@ type OmServiceClient interface {
 	// with PMM's inventory once it succeeds. See PMM-15347/plan.md §4 item 9
 	// for that split, and PMM-15347/questions.md for what is and is not built.
 	TriggerHostBootstrap(ctx context.Context, in *TriggerHostBootstrapRequest, opts ...grpc.CallOption) (*TriggerHostBootstrapResponse, error)
+	// CheckReplicaSetName says whether TriggerHostBootstrap would refuse a
+	// replica set name because a registered MongoDB service, or an install PMM
+	// has not registered yet, already uses it in the same environment and cluster.
+	CheckReplicaSetName(ctx context.Context, in *CheckReplicaSetNameRequest, opts ...grpc.CallOption) (*CheckReplicaSetNameResponse, error)
 	// GetBootstrapRun returns one bootstrap run's current progress.
 	//
 	// A thin proxy onto PMM Extensions' om_bootstrap GET /runs/{id}, like every other read
@@ -275,6 +280,16 @@ func (c *omServiceClient) TriggerHostBootstrap(ctx context.Context, in *TriggerH
 	return out, nil
 }
 
+func (c *omServiceClient) CheckReplicaSetName(ctx context.Context, in *CheckReplicaSetNameRequest, opts ...grpc.CallOption) (*CheckReplicaSetNameResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CheckReplicaSetNameResponse)
+	err := c.cc.Invoke(ctx, OmService_CheckReplicaSetName_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *omServiceClient) GetBootstrapRun(ctx context.Context, in *GetBootstrapRunRequest, opts ...grpc.CallOption) (*GetBootstrapRunResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetBootstrapRunResponse)
@@ -378,6 +393,10 @@ type OmServiceServer interface {
 	// with PMM's inventory once it succeeds. See PMM-15347/plan.md §4 item 9
 	// for that split, and PMM-15347/questions.md for what is and is not built.
 	TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error)
+	// CheckReplicaSetName says whether TriggerHostBootstrap would refuse a
+	// replica set name because a registered MongoDB service, or an install PMM
+	// has not registered yet, already uses it in the same environment and cluster.
+	CheckReplicaSetName(context.Context, *CheckReplicaSetNameRequest) (*CheckReplicaSetNameResponse, error)
 	// GetBootstrapRun returns one bootstrap run's current progress.
 	//
 	// A thin proxy onto PMM Extensions' om_bootstrap GET /runs/{id}, like every other read
@@ -482,6 +501,10 @@ func (UnimplementedOmServiceServer) TriggerInventoryRefresh(context.Context, *Tr
 
 func (UnimplementedOmServiceServer) TriggerHostBootstrap(context.Context, *TriggerHostBootstrapRequest) (*TriggerHostBootstrapResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method TriggerHostBootstrap not implemented")
+}
+
+func (UnimplementedOmServiceServer) CheckReplicaSetName(context.Context, *CheckReplicaSetNameRequest) (*CheckReplicaSetNameResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CheckReplicaSetName not implemented")
 }
 
 func (UnimplementedOmServiceServer) GetBootstrapRun(context.Context, *GetBootstrapRunRequest) (*GetBootstrapRunResponse, error) {
@@ -780,6 +803,24 @@ func _OmService_TriggerHostBootstrap_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_CheckReplicaSetName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckReplicaSetNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).CheckReplicaSetName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_CheckReplicaSetName_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).CheckReplicaSetName(ctx, req.(*CheckReplicaSetNameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _OmService_GetBootstrapRun_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetBootstrapRunRequest)
 	if err := dec(in); err != nil {
@@ -950,6 +991,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "TriggerHostBootstrap",
 			Handler:    _OmService_TriggerHostBootstrap_Handler,
+		},
+		{
+			MethodName: "CheckReplicaSetName",
+			Handler:    _OmService_CheckReplicaSetName_Handler,
 		},
 		{
 			MethodName: "GetBootstrapRun",

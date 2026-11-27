@@ -38,6 +38,8 @@ const validForm = (): ConfigureFormState => ({
   electionErrorCount: 0,
   adminUsername: 'admin',
   adminPassword: null,
+  replicaSetNameProblem: null,
+  lowDiskHosts: [],
 });
 
 describe('commonMongodbVersions', () => {
@@ -95,6 +97,26 @@ describe('replicaSetNameError', () => {
 });
 
 describe('configureBlockers', () => {
+  it('refuses a replica set name PMM says is in use, in its words', () => {
+    expect(
+      configureBlockers({
+        ...validForm(),
+        replicaSetNameProblem:
+          'Replica set name rs0 is already used in this environment and cluster by an install that is still running. Choose another name.',
+      })
+    ).toEqual([
+      'Replica set name rs0 is already used in this environment and cluster by an install that is still running. Choose another name.',
+    ]);
+  });
+
+  it('blocks on nodes short of space at the data path', () => {
+    expect(
+      configureBlockers({ ...validForm(), lowDiskHosts: ['db01 (1.0 GiB)'] })
+    ).toEqual([
+      'Free space at the data path on db01 (1.0 GiB), or choose a data path on a larger disk.',
+    ]);
+  });
+
   it('has nothing to say about a valid form', () => {
     expect(configureBlockers(validForm())).toEqual([]);
   });
