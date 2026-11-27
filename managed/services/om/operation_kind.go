@@ -53,7 +53,7 @@ type OperationKind struct {
 	NonInterruptibleSteps   map[string]bool
 	LockSet                 func(op *models.OmOperation) []LockResource
 	Steps                   func(op *models.OmOperation) []StepPlan
-	CheckSet                CheckSet
+	CheckSet                func(op *models.OmOperation) CheckSet
 	Subjects                func(op *models.OmOperation) []CheckSubject
 	Deadline                time.Duration
 	Attention               AttentionPolicy

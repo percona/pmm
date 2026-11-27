@@ -67,6 +67,32 @@ func TestCheckInputsAggregatesAndPasses(t *testing.T) {
 	assert.False(t, runBlockingRules(set, CheckContext{Facts: facts}).Blocked)
 }
 
+func TestCheckInputsBuildsCheckSetWithTheOperation(t *testing.T) {
+	reader := &fakeFactReader{
+		facts: map[string]map[string]any{"node-a": nodeFacts()},
+		at:    map[string]time.Time{"node-a": time.Now()},
+	}
+	provider := &factCheckProvider{reader: reader, now: time.Now}
+	op := installOp(t, "node-a")
+
+	var got *models.OmOperation
+	kind := OperationKind{
+		Kind: installKind,
+		Subjects: func(*models.OmOperation) []CheckSubject {
+			return []CheckSubject{{Kind: subjectKindInstallNode, Key: "node-a"}}
+		},
+		CheckSet: func(o *models.OmOperation) CheckSet {
+			got = o
+			return CheckSet{}
+		},
+	}
+
+	set, _, _, err := provider.CheckInputs(t.Context(), op, kind)
+	require.NoError(t, err)
+	assert.Same(t, op, got, "the kind builds its check set with the operation in hand")
+	assert.Empty(t, set.Facts, "the returned set is the one the per-op func produced")
+}
+
 func TestCheckInputsBlocksWhenOneNodeFails(t *testing.T) {
 	now := time.Now()
 	a := nodeFacts()

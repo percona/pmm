@@ -61,9 +61,10 @@ func (p *factCheckProvider) CheckInputs(ctx context.Context, op *models.OmOperat
 		perSubject = append(perSubject, facts)
 		subjectAges = append(subjectAges, now.Sub(collectedAt))
 	}
-	facts := make(map[string]any, len(kind.CheckSet.Facts))
-	ages := make(map[string]time.Duration, len(kind.CheckSet.Facts))
-	for _, declared := range kind.CheckSet.Facts {
+	set := kind.CheckSet(op)
+	facts := make(map[string]any, len(set.Facts))
+	ages := make(map[string]time.Duration, len(set.Facts))
+	for _, declared := range set.Facts {
 		value, age, ok := aggregateFact(declared.Name, perSubject, subjectAges)
 		if !ok {
 			continue
@@ -71,7 +72,7 @@ func (p *factCheckProvider) CheckInputs(ctx context.Context, op *models.OmOperat
 		facts[declared.Name] = value
 		ages[declared.Name] = age
 	}
-	return kind.CheckSet, facts, ages, nil
+	return set, facts, ages, nil
 }
 
 // aggregateFact folds one fact across the subjects (booleans by AND, numbers by the least, age by the
