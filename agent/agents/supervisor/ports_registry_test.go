@@ -43,27 +43,29 @@ func TestRegistry(t *testing.T) {
 		_ = l2.Close()
 	})
 
-	err = r.Release(65000)
+	r.Release(65000)
+	r.Release(65002)
+
+	// 65002 is no longer reserved, but Reserve does not hand it out while it is busy.
+	p, err = r.Reserve()
 	require.NoError(t, err)
-	err = r.Release(65001)
-	assert.Equal(t, errPortNotReserved, err)
-	err = r.Release(65002)
-	assert.Equal(t, errPortBusy, err)
+	assert.EqualValues(t, 65000, p)
+	_, err = r.Reserve()
+	assert.Equal(t, errNoFreePort, err)
 
 	require.NoError(t, l1.Close())
 	require.NoError(t, l2.Close())
 
 	p, err = r.Reserve()
 	require.NoError(t, err)
-	assert.EqualValues(t, 65000, p)
+	assert.EqualValues(t, 65001, p)
 	p, err = r.Reserve()
 	require.NoError(t, err)
-	assert.EqualValues(t, 65001, p)
+	assert.EqualValues(t, 65002, p)
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(65002)
-	require.NoError(t, err)
+	r.Release(65002)
 
 	p, err = r.Reserve()
 	require.NoError(t, err)
@@ -79,8 +81,7 @@ func TestPreferNewPort(t *testing.T) {
 	require.NoError(t, err)
 	assert.EqualValues(t, 65000, p)
 
-	err = r.Release(p)
-	require.NoError(t, err)
+	r.Release(p)
 
 	p, err = r.Reserve()
 	require.NoError(t, err)
@@ -105,8 +106,7 @@ func TestSinglePort(t *testing.T) {
 	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
-	err = r.Release(p)
-	require.NoError(t, err)
+	r.Release(p)
 
 	p, err = r.Reserve()
 	require.NoError(t, err)
