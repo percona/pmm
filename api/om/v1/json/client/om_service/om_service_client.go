@@ -105,6 +105,8 @@ type ClientService interface {
 
 	TriggerTopologyCollection(params *TriggerTopologyCollectionParams, opts ...ClientOption) (*TriggerTopologyCollectionOK, error)
 
+	TriggerUninstall(params *TriggerUninstallParams, opts ...ClientOption) (*TriggerUninstallOK, error)
+
 	UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts ...ClientOption) (*UpdateInventoryConfigOK, error)
 
 	UpdateSettings(params *UpdateSettingsParams, opts ...ClientOption) (*UpdateSettingsOK, error)
@@ -1296,6 +1298,50 @@ func (a *Client) TriggerTopologyCollection(params *TriggerTopologyCollectionPara
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*TriggerTopologyCollectionDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+TriggerUninstall uninstalls a managed cluster
+
+Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress.
+*/
+func (a *Client) TriggerUninstall(params *TriggerUninstallParams, opts ...ClientOption) (*TriggerUninstallOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTriggerUninstallParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TriggerUninstall",
+		Method:             "POST",
+		PathPattern:        "/v1/om/clusters/{cluster_id}:uninstall",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TriggerUninstallReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TriggerUninstallOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TriggerUninstallDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

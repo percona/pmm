@@ -283,6 +283,8 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/v1/om/inventory/hosts:bootstrap", admin},
 		{http.MethodPost, "/v1/om/inventory/bootstrap-runs/run-1:cancel", admin},
 		{http.MethodGet, "/v1/om/inventory/bootstrap-runs/run-1", viewer},
+		// Uninstall is a cluster-scoped colon verb; the destructive trigger is admin.
+		{http.MethodPost, "/v1/om/clusters/cluster-1:uninstall", admin},
 		// Collection only recomputes from data PMM already holds, so it stays viewer.
 		{http.MethodPost, "/v1/om/topology/runs:collect", viewer},
 
@@ -297,6 +299,7 @@ func TestResolveRule(t *testing.T) {
 		{http.MethodPost, "/om.v1.OmService/TriggerHostBootstrap", admin},
 		{http.MethodPost, "/om.v1.OmService/CancelBootstrapRun", admin},
 		{http.MethodPost, "/om.v1.OmService/GetBootstrapRun", viewer},
+		{http.MethodPost, "/om.v1.OmService/TriggerUninstall", admin},
 
 		// OM settings: GetSettings is the viewer read; writes are admin (default-deny).
 		{http.MethodGet, "/v1/om/settings", viewer},

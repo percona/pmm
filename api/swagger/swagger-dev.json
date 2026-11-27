@@ -35074,6 +35074,81 @@
         }
       }
     },
+    "/v1/om/clusters/{cluster_id}:uninstall": {
+      "post": {
+        "description": "Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Uninstall a managed cluster",
+        "operationId": "TriggerUninstall",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The managed cluster to uninstall.",
+            "name": "cluster_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerUninstallRequest asks to uninstall one managed cluster PMM installed.",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerUninstallResponse acknowledges a checking uninstall operation, before any host is touched.",
+              "type": "object",
+              "properties": {
+                "operation_id": {
+                  "description": "The uninstall operation's id. Poll GetOperation for its progress.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/inventory/bootstrap-runs": {
       "get": {
         "description": "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with.",

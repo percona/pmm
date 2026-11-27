@@ -49,6 +49,7 @@ const (
 	OmService_CancelOperation_FullMethodName               = "/om.v1.OmService/CancelOperation"
 	OmService_ResumeOperation_FullMethodName               = "/om.v1.OmService/ResumeOperation"
 	OmService_AbandonOperation_FullMethodName              = "/om.v1.OmService/AbandonOperation"
+	OmService_TriggerUninstall_FullMethodName              = "/om.v1.OmService/TriggerUninstall"
 )
 
 // OmServiceClient is the client API for OmService service.
@@ -152,6 +153,8 @@ type OmServiceClient interface {
 	ResumeOperation(ctx context.Context, in *ResumeOperationRequest, opts ...grpc.CallOption) (*ResumeOperationResponse, error)
 	// AbandonOperation resolves a failed operation, releasing its locks.
 	AbandonOperation(ctx context.Context, in *AbandonOperationRequest, opts ...grpc.CallOption) (*AbandonOperationResponse, error)
+	// TriggerUninstall starts uninstalling a managed cluster PMM installed, from its hosts.
+	TriggerUninstall(ctx context.Context, in *TriggerUninstallRequest, opts ...grpc.CallOption) (*TriggerUninstallResponse, error)
 }
 
 type omServiceClient struct {
@@ -452,6 +455,16 @@ func (c *omServiceClient) AbandonOperation(ctx context.Context, in *AbandonOpera
 	return out, nil
 }
 
+func (c *omServiceClient) TriggerUninstall(ctx context.Context, in *TriggerUninstallRequest, opts ...grpc.CallOption) (*TriggerUninstallResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(TriggerUninstallResponse)
+	err := c.cc.Invoke(ctx, OmService_TriggerUninstall_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OmServiceServer is the server API for OmService service.
 // All implementations must embed UnimplementedOmServiceServer
 // for forward compatibility.
@@ -553,6 +566,8 @@ type OmServiceServer interface {
 	ResumeOperation(context.Context, *ResumeOperationRequest) (*ResumeOperationResponse, error)
 	// AbandonOperation resolves a failed operation, releasing its locks.
 	AbandonOperation(context.Context, *AbandonOperationRequest) (*AbandonOperationResponse, error)
+	// TriggerUninstall starts uninstalling a managed cluster PMM installed, from its hosts.
+	TriggerUninstall(context.Context, *TriggerUninstallRequest) (*TriggerUninstallResponse, error)
 	mustEmbedUnimplementedOmServiceServer()
 }
 
@@ -677,6 +692,10 @@ func (UnimplementedOmServiceServer) ResumeOperation(context.Context, *ResumeOper
 
 func (UnimplementedOmServiceServer) AbandonOperation(context.Context, *AbandonOperationRequest) (*AbandonOperationResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method AbandonOperation not implemented")
+}
+
+func (UnimplementedOmServiceServer) TriggerUninstall(context.Context, *TriggerUninstallRequest) (*TriggerUninstallResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method TriggerUninstall not implemented")
 }
 func (UnimplementedOmServiceServer) mustEmbedUnimplementedOmServiceServer() {}
 func (UnimplementedOmServiceServer) testEmbeddedByValue()                   {}
@@ -1221,6 +1240,24 @@ func _OmService_AbandonOperation_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OmService_TriggerUninstall_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TriggerUninstallRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OmServiceServer).TriggerUninstall(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OmService_TriggerUninstall_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OmServiceServer).TriggerUninstall(ctx, req.(*TriggerUninstallRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OmService_ServiceDesc is the grpc.ServiceDesc for OmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1343,6 +1380,10 @@ var OmService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AbandonOperation",
 			Handler:    _OmService_AbandonOperation_Handler,
+		},
+		{
+			MethodName: "TriggerUninstall",
+			Handler:    _OmService_TriggerUninstall_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

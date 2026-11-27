@@ -83,6 +83,7 @@ var rules = map[string]role{
 	"/om.v1.OmService/CancelOperation":               admin,
 	"/om.v1.OmService/ResumeOperation":               admin,
 	"/om.v1.OmService/AbandonOperation":              admin,
+	"/om.v1.OmService/TriggerUninstall":              admin,
 
 	// Advisor check authoring and testing; see methodRules.
 	"/advisors.v1.AdvisorService/CreateAdvisorCheck": admin,
@@ -187,6 +188,9 @@ var methodRules = map[string]role{
 
 	// OM operation actions are colon verbs under /v1/om/operations/, whose GET reads are viewer.
 	http.MethodPost + " /v1/om/operations/": admin,
+
+	// TriggerUninstall is a cluster-scoped colon verb under /v1/om/clusters/.
+	http.MethodPost + " /v1/om/clusters/": admin,
 }
 
 var lbacPrefixes = []string{

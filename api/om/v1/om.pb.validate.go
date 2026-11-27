@@ -7121,6 +7121,223 @@ var _ interface {
 	ErrorName() string
 } = TriggerHostBootstrapResponseValidationError{}
 
+// Validate checks the field values on TriggerUninstallRequest with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TriggerUninstallRequest) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TriggerUninstallRequest with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TriggerUninstallRequestMultiError, or nil if none found.
+func (m *TriggerUninstallRequest) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TriggerUninstallRequest) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	if utf8.RuneCountInString(m.GetClusterId()) < 1 {
+		err := TriggerUninstallRequestValidationError{
+			field:  "ClusterId",
+			reason: "value length must be at least 1 runes",
+		}
+		if !all {
+			return err
+		}
+		errors = append(errors, err)
+	}
+
+	if len(errors) > 0 {
+		return TriggerUninstallRequestMultiError(errors)
+	}
+
+	return nil
+}
+
+// TriggerUninstallRequestMultiError is an error wrapping multiple validation
+// errors returned by TriggerUninstallRequest.ValidateAll() if the designated
+// constraints aren't met.
+type TriggerUninstallRequestMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TriggerUninstallRequestMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TriggerUninstallRequestMultiError) AllErrors() []error { return m }
+
+// TriggerUninstallRequestValidationError is the validation error returned by
+// TriggerUninstallRequest.Validate if the designated constraints aren't met.
+type TriggerUninstallRequestValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TriggerUninstallRequestValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TriggerUninstallRequestValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TriggerUninstallRequestValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TriggerUninstallRequestValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TriggerUninstallRequestValidationError) ErrorName() string {
+	return "TriggerUninstallRequestValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TriggerUninstallRequestValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTriggerUninstallRequest.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TriggerUninstallRequestValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TriggerUninstallRequestValidationError{}
+
+// Validate checks the field values on TriggerUninstallResponse with the rules
+// defined in the proto definition for this message. If any rules are
+// violated, the first error encountered is returned, or nil if there are no violations.
+func (m *TriggerUninstallResponse) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on TriggerUninstallResponse with the
+// rules defined in the proto definition for this message. If any rules are
+// violated, the result is a list of violation errors wrapped in
+// TriggerUninstallResponseMultiError, or nil if none found.
+func (m *TriggerUninstallResponse) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *TriggerUninstallResponse) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for OperationId
+
+	if len(errors) > 0 {
+		return TriggerUninstallResponseMultiError(errors)
+	}
+
+	return nil
+}
+
+// TriggerUninstallResponseMultiError is an error wrapping multiple validation
+// errors returned by TriggerUninstallResponse.ValidateAll() if the designated
+// constraints aren't met.
+type TriggerUninstallResponseMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m TriggerUninstallResponseMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m TriggerUninstallResponseMultiError) AllErrors() []error { return m }
+
+// TriggerUninstallResponseValidationError is the validation error returned by
+// TriggerUninstallResponse.Validate if the designated constraints aren't met.
+type TriggerUninstallResponseValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e TriggerUninstallResponseValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e TriggerUninstallResponseValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e TriggerUninstallResponseValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e TriggerUninstallResponseValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e TriggerUninstallResponseValidationError) ErrorName() string {
+	return "TriggerUninstallResponseValidationError"
+}
+
+// Error satisfies the builtin error interface
+func (e TriggerUninstallResponseValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sTriggerUninstallResponse.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = TriggerUninstallResponseValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = TriggerUninstallResponseValidationError{}
+
 // Validate checks the field values on BootstrapStep with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
 // error encountered is returned, or nil if there are no violations.

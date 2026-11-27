@@ -1006,6 +1006,18 @@ message TriggerHostBootstrapResponse {
   string generated_admin_password = 2 [(extensions.v1.sensitive) = REDACT_TYPE_FULL];
 }
 
+// TriggerUninstallRequest asks to uninstall one managed cluster PMM installed.
+message TriggerUninstallRequest {
+  // The managed cluster to uninstall.
+  string cluster_id = 1 [(validate.rules).string.min_len = 1];
+}
+
+// TriggerUninstallResponse acknowledges a checking uninstall operation, before any host is touched.
+message TriggerUninstallResponse {
+  // The uninstall operation's id. Poll GetOperation for its progress.
+  string operation_id = 1;
+}
+
 // BootstrapStep is one step's progress -- a host's own, one of its rollback
 // steps, or one of the run's run-level steps. One shape for all three, the
 // same way om_bootstrap's own StepRecord is (see its doc comment): none of
@@ -1765,6 +1777,18 @@ service OmService {
     option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
       summary: "Abandon an operation"
       description: "Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version."
+    };
+  }
+
+  // TriggerUninstall starts uninstalling a managed cluster PMM installed, from its hosts.
+  rpc TriggerUninstall(TriggerUninstallRequest) returns (TriggerUninstallResponse) {
+    option (google.api.http) = {
+      post: "/v1/om/clusters/{cluster_id}:uninstall"
+      body: "*"
+    };
+    option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+      summary: "Uninstall a managed cluster"
+      description: "Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress."
     };
   }
 }
