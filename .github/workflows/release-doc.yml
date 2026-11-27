@@ -3,7 +3,8 @@ name: Publish release changelog
 on:
   push:
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
+      # GA tags only, so a beta or RC tag never publishes a release.
+      - v[0-9]+.[0-9]+.[0-9]+
   workflow_dispatch:
     inputs:
       version:
@@ -94,10 +95,48 @@ jobs:
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary "\(.*\)"/\> \:memo\: **\1**/g'
           grep -rl '!!! note alert alert-primary' ${{ github.workspace }}-CHANGELOG.txt | xargs --no-run-if-empty sed -i 's/\!\!\! note alert alert-primary/\> \:memo\: **Note**/g'
 
+      - name: Point links and images to the published docs
+        shell: bash
+        env:
+          VERSION: ${{ steps.set_version.outputs.version }}
+          CHANGELOG: ${{ github.workspace }}-CHANGELOG.txt
+        run: |
+          python3 - <<'EOF'
+          import os, posixpath, re
+
+          base = 'https://docs.percona.com/percona-monitoring-and-management/3/'
+          version = os.environ['VERSION']
+          path = os.environ['CHANGELOG']
+          text = open(path, encoding='utf-8').read()
+
+          def absolute(match):
+              bang, label, url = match.groups()
+              if re.match(r'[a-z][a-z0-9+.-]*:', url, re.I):
+                  return match.group(0)
+              page, _, anchor = url.partition('#')
+              page = posixpath.normpath(posixpath.join('release-notes', page or f'{version}.md'))
+              page = re.sub(r'\.md$', '.html', page)
+              return f'{bang}[{label}]({base}{page}{"#" + anchor if anchor else ""})'
+
+          # Relative links and images only resolve on the docs site.
+          text = re.sub(r'(!?)\[((?:[^\[\]]|\[[^\]]*\])*)\]\(([^)\s]+)\)', absolute, text)
+          # mkdocs attribute lists such as {.power-number} have no meaning on GitHub.
+          text = re.sub(r'^[ \t]*\{\.[\w-]+\}[ \t]*\n', '', text, flags=re.M)
+          text = re.sub(r'\{\.[\w-]+\}', '', text)
+
+          open(path, 'w', encoding='utf-8').write(text)
+          left = re.findall(r'\]\((?:\.\.?/|#)[^)]*\)', text)
+          print(f'Relative links left: {len(left)}')
+          if left:
+              raise SystemExit('Some links were not converted: ' + ', '.join(left[:5]))
+          EOF
+
       - name: Create Release
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
-          draft: true
+          # Publish on the GA tag. A manual run creates a draft to check first,
+          # and never unpublishes a release that is already live.
+          draft: ${{ github.event_name == 'workflow_dispatch' }}
           tag_name: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', steps.set_version.outputs.version) || github.ref_name }}
           name: ${{ github.event_name == 'workflow_dispatch' && format('Release v{0}', steps.set_version.outputs.version) || format('Release {0}', github.ref_name) }}
