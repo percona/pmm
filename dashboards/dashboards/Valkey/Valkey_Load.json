@@ -161,7 +161,7 @@
                     "disableTextWrap": false,
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_commands_total{service_name=~\"$service_name\"}[$__rate_interval]))",
+                    "expr": "sum by(service_name) (rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[$__rate_interval]))",
                     "format": "time_series",
                     "fullMetaSearch": false,
                     "includeNullMetadata": true,
@@ -287,7 +287,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_total_reads_processed{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum by(service_name) (rate(redis_total_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m]))",
                     "format": "time_series",
                     "instant": false,
                     "intervalFactor": 2,
@@ -300,7 +300,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "sum by(service_name) (rate(redis_total_writes_processed{service_name=~\"$service_name\"}[5m]))",
+                    "expr": "sum by(service_name) (rate(redis_total_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m]))",
                     "format": "time_series",
                     "instant": false,
                     "interval": "",
@@ -419,7 +419,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\"} [1m])) by (service_name,cmd)",
+                    "expr": "sum(rate(redis_commands_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"} [1m])) by (service_name,cmd)",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 2,
@@ -537,7 +537,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "irate(redis_keyspace_hits_total{service_name=~\"$service_name\"}[5m])",
+                    "expr": "irate(redis_keyspace_hits_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -552,7 +552,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "irate(redis_keyspace_misses_total{service_name=~\"$service_name\"}[5m])",
+                    "expr": "irate(redis_keyspace_misses_total{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -672,7 +672,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "irate(redis_io_threaded_reads_processed{service_name=~\"$service_name\"}[5m])",
+                    "expr": "irate(redis_io_threaded_reads_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -687,7 +687,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "irate(redis_io_threaded_writes_processed{service_name=~\"$service_name\"}[5m])",
+                    "expr": "irate(redis_io_threaded_writes_processed{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}[5m])",
                     "format": "time_series",
                     "hide": false,
                     "interval": "",
@@ -839,7 +839,7 @@
                     "datasource": "Metrics",
                     "editorMode": "code",
                     "exemplar": false,
-                    "expr": "redis_config_io_threads{service_name=~\"$service_name\"}",
+                    "expr": "redis_config_io_threads{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                     "format": "table",
                     "instant": true,
                     "intervalFactor": 2,
@@ -1004,7 +1004,7 @@
                 {
                     "datasource": "Metrics",
                     "editorMode": "code",
-                    "expr": "redis_io_threads_active{service_name=~\"$service_name\"}",
+                    "expr": "redis_io_threads_active{service_name=~\"$service_name\",node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"}",
                     "format": "time_series",
                     "intervalFactor": 2,
                     "legendFormat": "{{service_name}}",
@@ -1030,6 +1030,7 @@
     "templating": {
         "list": [
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -1053,6 +1054,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".*",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -1078,6 +1080,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "allowCustomValue": false,
                 "current": {
                     "text": "All",
@@ -1086,7 +1089,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                "definition": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                 "includeAll": true,
                 "label": "Node Name",
                 "multi": true,
@@ -1094,7 +1097,7 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{cluster=~\"$cluster\"},node_name)",
+                    "query": "label_values(redis_up{environment=~\"$environment\",cluster=~\"$cluster\"},node_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
@@ -1103,6 +1106,7 @@
                 "type": "query"
             },
             {
+                "allValue": ".+",
                 "current": {
                     "text": "All",
                     "value": [
@@ -1110,7 +1114,7 @@
                     ]
                 },
                 "datasource": "Metrics",
-                "definition": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                "definition": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                 "includeAll": true,
                 "label": "Service Name",
                 "multi": true,
@@ -1118,7 +1122,7 @@
                 "options": [],
                 "query": {
                     "qryType": 1,
-                    "query": "label_values(redis_up{node_name=~\"$node_name\"},service_name)",
+                    "query": "label_values(redis_up{node_name=~\"$node_name\",environment=~\"$environment\",cluster=~\"$cluster\"},service_name)",
                     "refId": "PrometheusVariableQueryEditor-VariableQuery"
                 },
                 "refresh": 2,
