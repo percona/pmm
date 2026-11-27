@@ -610,7 +610,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "label": "",
                     "logBase": 1,
@@ -891,7 +890,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "label": "Threads",
                     "logBase": 1,
@@ -1178,7 +1176,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "logBase": 1,
                     "min": 0,
@@ -1847,7 +1844,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "logBase": 1,
                     "min": 0,
@@ -2850,7 +2846,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "logBase": 1,
                     "min": 0,
@@ -3944,7 +3939,6 @@
             },
             "yaxes": [
                 {
-                    "decimals": 0,
                     "format": "short",
                     "label": "",
                     "logBase": 1,
