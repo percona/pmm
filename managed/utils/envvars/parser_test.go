@@ -514,6 +514,52 @@ func TestEnvVarValidator(t *testing.T) {
 		assert.Contains(t, gotWarns[0], "PMM_VM_URL is set but empty")
 	})
 
+	t.Run("VM_downsampling_period warns that it is ignored", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VM_downsampling_period=20d:10m,120d:2h"})
+		assert.Nil(t, gotErrs)
+		assert.Equal(t, []string{
+			"VM_downsampling_period is set but is ignored: VictoriaMetrics in PMM Server has no downsampling, " +
+				"so new metrics stay at full resolution and use more disk space",
+		}, gotWarns)
+	})
+
+	t.Run("VM_prometheusDataPath warns that it is ignored", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VM_prometheusDataPath=/srv/prometheus/data"})
+		assert.Nil(t, gotErrs)
+		assert.Equal(t, []string{
+			"VM_prometheusDataPath is set but is ignored: VictoriaMetrics in PMM Server does not read Prometheus data files, " +
+				"so the metrics stored in them are not available",
+		}, gotWarns)
+	})
+
+	t.Run("an empty VM_downsampling_period does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VM_downsampling_period="})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("an upper-cased VM_DOWNSAMPLING_PERIOD is inert and does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VM_DOWNSAMPLING_PERIOD=20d:10m"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
+	t.Run("a VictoriaMetrics variable that is still supported does not warn", func(t *testing.T) {
+		t.Parallel()
+
+		_, gotErrs, gotWarns := ParseEnvVars([]string{"VM_dedup_minScrapeInterval=1m"})
+		assert.Nil(t, gotErrs)
+		assert.Nil(t, gotWarns)
+	})
+
 	t.Run("Parse Platform API Timeout", func(t *testing.T) {
 		t.Parallel()
 

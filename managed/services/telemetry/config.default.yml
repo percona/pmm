@@ -1113,6 +1113,17 @@ telemetry:
       - metric_name: "pmm_server_ha_vm_url"
         column: "PMM_VM_URL"
 
+  # VictoriaMetrics in PMM Server ignores VM_downsampling_period, so its presence counts the
+  # servers that expect downsampling and do not get it.
+  - id: PMMServerVMDownsamplingPeriod
+    source: ENV_VARS
+    transform:
+      type: StripValues
+    summary: "VM_downsampling_period is set, which VictoriaMetrics in PMM Server ignores"
+    data:
+      - metric_name: "pmm_server_vm_downsampling_period"
+        column: "VM_downsampling_period"
+
   # Deployment environment, reported as presence flags. Only the pmm and pmm-ha Helm charts set
   # PMM_INSTALL_METHOD, so its presence means "installed with Helm"; KUBERNETES_SERVICE_HOST is
   # injected by kubelet into every Pod (even when enableServiceLinks is false), so it also covers
@@ -1203,12 +1214,3 @@ telemetry:
         column: "session_sec"
       - metric_name: "rta_agent_collect_interval"
         column: "collect_interval_sec"
-
-  # legacy promdb usage
-  - id: VMPromDBSeriesReadPerQuery
-    source: VM
-    query: sum(rate(vm_promdb_series_read_per_query_sum[24h])) / sum(rate(vm_promdb_series_read_per_query_count[24h]))
-    summary: "Average number of series read per query against Prometheus-native db on PMM Server for the last 24 hours"
-    data:
-      - metric_name: "vm_promdb_series_read_per_query_avg"
-        value: 1
