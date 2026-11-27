@@ -22,6 +22,7 @@ import { useChangeAdvisorChecks } from 'hooks/api/useAdvisors';
 import { useServices } from 'hooks/api/useServices';
 import { ServicesAutocompleteInput } from 'pages/rta/components/services-autocomplete-input';
 import { AdvisorCheckRow } from 'types/advisors.types';
+import type { AvailableService } from 'types/rta.types';
 import { VersionedService } from 'types/services.types';
 import { ADVISOR_TECHNOLOGY_SERVICE_TYPE } from 'utils/advisors.utils';
 import { Messages } from './DisableServicesDrawer.messages';
@@ -69,9 +70,14 @@ export const DisableServicesDrawer: FC<DisableServicesDrawerProps> = ({
     () => check?.disabledServiceIds ?? [],
     [check?.disabledServiceIds]
   );
-  const availableServices = useMemo(
-    () => services.filter((s) => !disabledIds.includes(s.serviceId)),
-    [services, disabledIds]
+  const availableServices = useMemo<AvailableService[]>(
+    () =>
+      serviceType
+        ? services
+            .filter((s) => !disabledIds.includes(s.serviceId))
+            .map((s) => ({ ...s, serviceType }))
+        : [],
+    [services, disabledIds, serviceType]
   );
 
   // per-service disabling is unavailable while the check is disabled globally;

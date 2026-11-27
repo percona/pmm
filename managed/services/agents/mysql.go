@@ -24,6 +24,8 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	agentv1 "github.com/percona/pmm/api/agent/v1"
 	inventoryv1 "github.com/percona/pmm/api/inventory/v1"
@@ -237,6 +239,31 @@ func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent, pm
 		DisableQueryExamples:   agent.QANOptions.QueryExamplesDisabled,
 		DisableCommentsParsing: agent.QANOptions.CommentsParsingDisabled,
 		MaxQueryLogSize:        agent.QANOptions.MaxQueryLogSize,
+		TextFiles: &agentv1.TextFiles{
+			Files:              agent.Files(),
+			TemplateLeftDelim:  tdp.Left,
+			TemplateRightDelim: tdp.Right,
+		},
+		TlsSkipVerify: agent.TLSSkipVerify,
+	}
+}
+
+// rtaMySQLAgentConfig returns desired configuration of rta-mysql-agent RTA agent.
+func rtaMySQLAgentConfig(service *models.Service, agent *models.Agent, pmmAgentVersion *version.Parsed) *agentv1.SetStateRequest_BuiltinAgent {
+	tdp := agent.TemplateDelimiters(service)
+
+	apiRTAOptions := &inventoryv1.RTAOptions{}
+	if agent.RTAOptions.CollectInterval != nil {
+		apiRTAOptions.CollectInterval = durationpb.New(*agent.RTAOptions.CollectInterval)
+	}
+
+	return &agentv1.SetStateRequest_BuiltinAgent{
+		Type:                inventoryv1.AgentType_AGENT_TYPE_RTA_MYSQL_AGENT,
+		Dsn:                 agent.DSN(service, models.DSNParams{DialTimeout: time.Second, Database: ""}, nil, pmmAgentVersion),
+		RtaOptions:          apiRTAOptions,
+		ServiceId:           service.ServiceID,
+		ServiceName:         service.ServiceName,
+		RtaSessionStartTime: timestamppb.New(agent.CreatedAt),
 		TextFiles: &agentv1.TextFiles{
 			Files:              agent.Files(),
 			TemplateLeftDelim:  tdp.Left,

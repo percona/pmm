@@ -14,4 +14,4 @@ export interface PaginatedResponse<T> {
   results: T[];
 }
 
-export type CodeLanguage = 'text' | 'mongodb' | 'json';
+export type CodeLanguage = 'text' | 'mongodb' | 'json' | 'sql';

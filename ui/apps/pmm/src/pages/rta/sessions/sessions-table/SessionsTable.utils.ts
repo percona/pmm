@@ -1,5 +1,6 @@
 import { RealtimeSession, RealtimeSessionStatus } from 'types/rta.types';
 import { SessionRow } from './SessionsTable.types';
+import { sharedTechnology } from 'pages/rta/components/technology';
 
 export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
   const clusters = getClusters(sessions);
@@ -24,9 +25,13 @@ export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
         sessionId: cluster,
         type: 'cluster',
         sessionName: cluster,
+        serviceType: sharedTechnology(
+          services.map((service) => service.serviceType)
+        ),
         status: areAllRunning
           ? RealtimeSessionStatus.running
           : RealtimeSessionStatus.unspecified,
+        statusMessage: areAllRunning ? getClusterWarnings(services) : undefined,
         startTime: earliestStartedAt,
         serviceSessions: services,
       });
@@ -34,6 +39,18 @@ export const getSessionRows = (sessions: RealtimeSession[]): SessionRow[] => {
   }
 
   return rows;
+};
+
+// Each finding of the cluster's services on its own line, prefixed with the service name
+const getClusterWarnings = (services: SessionRow[]): string | undefined => {
+  const findings = services.flatMap((service) =>
+    (service.statusMessage ?? '')
+      .split('\n')
+      .filter((line) => line.trim() !== '')
+      .map((line) => `${service.sessionName}: ${line}`)
+  );
+
+  return findings.length > 0 ? findings.join('\n') : undefined;
 };
 
 const getClusters = (
@@ -55,7 +72,9 @@ const serviceToSessionRow = (serviceSession: RealtimeSession): SessionRow => ({
   sessionId: serviceSession.serviceId,
   type: 'service',
   sessionName: serviceSession.serviceName,
+  serviceType: serviceSession.serviceType,
   status: serviceSession.status,
+  statusMessage: serviceSession.statusMessage,
   startTime: serviceSession.startTime,
   serviceSessions: [],
 });

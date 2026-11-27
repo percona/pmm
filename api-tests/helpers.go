@@ -330,6 +330,9 @@ func AddAgent(t *testing.T, body agents.AddAgentBody) *agents.AddAgentOKBody {
 	case body.RtaMongodbAgent != nil:
 		require.NotNil(t, res.Payload.RtaMongodbAgent)
 		agentID = res.Payload.RtaMongodbAgent.AgentID
+	case body.RtaMysqlAgent != nil:
+		require.NotNil(t, res.Payload.RtaMysqlAgent)
+		agentID = res.Payload.RtaMysqlAgent.AgentID
 	case body.QANMongodbMongologAgent != nil:
 		require.NotNil(t, res.Payload.QANMongodbMongologAgent)
 		agentID = res.Payload.QANMongodbMongologAgent.AgentID

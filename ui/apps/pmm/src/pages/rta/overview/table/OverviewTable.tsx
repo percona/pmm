@@ -1,15 +1,18 @@
 import {
+  type MRT_ColumnDef,
   type MRT_Row,
+  type MRT_VisibilityState,
   type MaterialReactTableProps,
 } from 'material-react-table';
-import { Table, useNavigableRows } from '@percona/peak-ui';
-import type { FC } from 'react';
+import { EmptyState, Table, useNavigableRows } from '@percona/peak-ui';
+import { useMemo, useState, type FC } from 'react';
 import type { QueryData } from 'types/rta.types';
-import { OVERVIEW_TABLE_COLUMNS } from './OverviewTable.constants';
+import { ServiceType } from 'types/services.types';
+import { getOverviewTableColumns } from './OverviewTable.constants';
 import { RealtimeTableWrapper } from 'pages/rta/components/rta-table-wrapper';
-import { boxClasses } from '@mui/material/Box';
+import Box, { boxClasses } from '@mui/material/Box';
 import { Messages } from './OverviewTable.messages';
-import { filterElapsedTime } from './OverviewTable.utils';
+import { filterCommaSeparated, filterElapsedTime } from './OverviewTable.utils';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
 
 const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
@@ -19,8 +22,29 @@ const OVERVIEW_TABLE_URL_STATE_OPTIONS = {
   },
 };
 
+// Hidden by default to keep the query text in view; held as state because
+// peak-ui's stored columnVisibility cannot express hidden-by-default.
+const DEFAULT_COLUMN_VISIBILITY: MRT_VisibilityState = {
+  databaseName: false,
+  username: false,
+};
+
+// MRT draws a pinned column's background only with pinning on, so it stays on
+// but nothing is pinnable by hand. Hoisted: MRT memoizes the default column on it.
+const DEFAULT_COLUMN: Partial<MRT_ColumnDef<QueryData>> = {
+  enablePinning: false,
+};
+
+// Controlled rather than initialState so the Show/Hide menu's "Unpin all"
+// cannot unpin Elapsed time.
+const COLUMN_PINNING = { right: ['queryExecutionDurationMs'] };
+
 interface Props {
   queries: QueryData[];
+  // Technology of the services being watched; the selection cannot mix them.
+  serviceType?: ServiceType;
+  // Replaces the default empty-state text, e.g. with why a session failed.
+  noDataMessage?: string;
   onQuerySelected: (query: QueryData) => void;
   onNavigableQueriesChange: (queries: QueryData[]) => void;
   actions?: MaterialReactTableProps<QueryData>['renderTopToolbarCustomActions'];
@@ -29,6 +53,8 @@ interface Props {
 
 const OverviewTable: FC<Props> = ({
   queries,
+  serviceType,
+  noDataMessage = Messages.noData,
   onQuerySelected,
   onNavigableQueriesChange,
   actions,
@@ -42,14 +68,41 @@ const OverviewTable: FC<Props> = ({
   const { tableProps: urlStateTableProps } = useTableUrlState(
     OVERVIEW_TABLE_URL_STATE_OPTIONS
   );
+  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
+    DEFAULT_COLUMN_VISIBILITY
+  );
+  const columns = useMemo(
+    () => getOverviewTableColumns(serviceType),
+    [serviceType]
+  );
 
   return (
     <RealtimeTableWrapper>
       <Table
         tableName="realtime-overview-table"
-        columns={OVERVIEW_TABLE_COLUMNS}
+        columns={columns}
         data={queries}
-        noDataMessage={Messages.noData}
+        noDataMessage={noDataMessage}
+        // The empty row is as wide as all the columns; keep the message, which can be a long
+        // error, inside the visible part of the table so that it wraps instead of being cut off.
+        emptyState={
+          <Box
+            data-testid="overview-table-empty-state"
+            sx={{
+              position: 'sticky',
+              left: 0,
+              width: '100cqw',
+              whiteSpace: 'pre-line',
+            }}
+          >
+            <EmptyState
+              size="small"
+              width="100%"
+              title={noDataMessage}
+              titleComponent="p"
+            />
+          </Box>
+        }
         muiTopToolbarProps={{
           sx: {
             mb: 0.5,
@@ -62,9 +115,19 @@ const OverviewTable: FC<Props> = ({
         }}
         {...navigableTableProps}
         {...urlStateTableProps}
+        // Both spreads carry a `state`; merged explicitly so neither is dropped.
+        state={{
+          ...navigableTableProps.state,
+          ...urlStateTableProps.state,
+          columnVisibility,
+          columnPinning: COLUMN_PINNING,
+        }}
+        onColumnVisibilityChange={setColumnVisibility}
         enableStickyHeader
+        enableColumnPinning
+        defaultColumn={DEFAULT_COLUMN}
         enableGlobalFilter={false}
-        enableHiding={false}
+        enableHiding
         enableRowHoverAction
         rowHoverAction={(row) => {
           refresh();
@@ -72,6 +135,8 @@ const OverviewTable: FC<Props> = ({
         }}
         renderTopToolbarCustomActions={actions}
         filterFns={{
+          commaSeparatedFilterFn: (row, id, filterValue) =>
+            filterCommaSeparated(row as MRT_Row<QueryData>, id, filterValue),
           // default 'betweenInclusive' filter fails on values like '1.50', discarding the row that has 1.5 seconds
           timeRangeFilterFn: (row, id, filterValue) =>
             filterElapsedTime(row as MRT_Row<QueryData>, id, filterValue),
@@ -79,6 +144,8 @@ const OverviewTable: FC<Props> = ({
         muiTableContainerProps={{
           sx: {
             flex: 1,
+            // Lets the empty state size itself to the visible width with cqw.
+            containerType: 'inline-size',
             // TODO: use theme.shape.borderRadiusMd (8px) once percona-ui
             // publishes the Shape tokens (percona-ui#37, not in 1.0.23)
             borderRadius: '8px',

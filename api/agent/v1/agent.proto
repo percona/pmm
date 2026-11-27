@@ -45,6 +45,9 @@ message StateChangedRequest {
   uint32 listen_port = 3;
   string process_exec_path = 4;
   string version = 5;
+  // Human-readable reason for the status, such as why a built-in agent failed to initialize or what it
+  // cannot collect while running. Empty when there is nothing to report.
+  string status_message = 6;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
@@ -93,6 +96,9 @@ message SetStateRequest {
     // Service name of the service where the agent connects to.
     // Currently used by Real-Time Analytics built-in agent only.
     string service_name = 13;
+    // Start time of the Real-Time Analytics session, so that starting a new session restarts the
+    // built-in agent even when a stop and the start reach pmm-agent as one state update.
+    google.protobuf.Timestamp rta_session_start_time = 14;
   }
   map<string, BuiltinAgent> builtin_agents = 2;
 }

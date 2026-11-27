@@ -37,6 +37,7 @@ export enum AgentType {
   nomadAgent = 'nomad-agent',
   valkeyExporter = 'valkey_exporter',
   rtaMongodbAgent = 'rta-mongodb-agent',
+  rtaMysqlAgent = 'rta-mysql-agent',
 }
 
 export enum AgentStatus {

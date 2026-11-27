@@ -9,6 +9,8 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined';
 import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined';
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
+import Refresh from '@mui/icons-material/Refresh';
+import Alert from '@mui/material/Alert';
 import Paper from '@mui/material/Paper';
 import Slide from '@mui/material/Slide';
 import { QueryData } from 'types/rta.types';
@@ -19,20 +21,26 @@ import { CodeBlock } from '@percona/peak-ui';
 
 interface Props {
   query?: QueryData;
+  // The statement is no longer running: the pane shows it as last seen.
+  finished?: boolean;
   isFirstQuery: boolean;
   isLastQuery: boolean;
   onClose: () => void;
   onNext: () => void;
   onPrevious: () => void;
+  // Re-reads the list once. Omitted when there is nothing to read, and the button with it.
+  onRefresh?: () => void;
 }
 
 const DetailsPane: FC<Props> = ({
   query,
+  finished = false,
   isFirstQuery,
   isLastQuery,
   onClose,
   onNext,
   onPrevious,
+  onRefresh,
 }) => {
   useEscapeKey(onClose);
   const [tab, setTab] = useState<'details' | 'raw-data'>('details');
@@ -90,6 +98,17 @@ const DetailsPane: FC<Props> = ({
             />
           </Tabs>
           <Stack direction="row" alignItems="center" sx={{ mr: -1.5 }}>
+            {onRefresh && (
+              <Tooltip title={Messages.tooltips.refresh} arrow>
+                <IconButton
+                  data-testid="details-pane-refresh-button"
+                  aria-label={Messages.actions.refresh}
+                  onClick={onRefresh}
+                >
+                  <Refresh />
+                </IconButton>
+              </Tooltip>
+            )}
             <Tooltip title={Messages.tooltips.previous} arrow>
               <IconButton
                 data-testid="details-pane-prev-button"
@@ -135,6 +154,15 @@ const DetailsPane: FC<Props> = ({
               overflowX: 'hidden',
             }}
           >
+            {finished && (
+              <Alert
+                severity="info"
+                data-testid="details-pane-finished"
+                sx={{ mb: 2 }}
+              >
+                {Messages.finished}
+              </Alert>
+            )}
             {tab === 'details' && <QueryAndDetails queryData={query} />}
             {tab === 'raw-data' && (
               <Box
@@ -152,7 +180,13 @@ const DetailsPane: FC<Props> = ({
                   content={query.queryRawJson}
                   copyable
                   wrap
-                  sx={{ position: 'absolute', inset: 0, overflowY: 'auto' }}
+                  // pr keeps the first line clear of the floating copy button.
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    overflowY: 'auto',
+                    pr: 5,
+                  }}
                   data-testid="query-raw-data"
                 />
               </Box>

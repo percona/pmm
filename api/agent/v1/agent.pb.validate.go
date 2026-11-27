@@ -642,6 +642,8 @@ func (m *StateChangedRequest) validate(all bool) error {
 
 	// no validation rules for Version
 
+	// no validation rules for StatusMessage
+
 	if len(errors) > 0 {
 		return StateChangedRequestMultiError(errors)
 	}
@@ -8302,6 +8304,35 @@ func (m *SetStateRequest_BuiltinAgent) validate(all bool) error {
 	// no validation rules for ServiceId
 
 	// no validation rules for ServiceName
+
+	if all {
+		switch v := interface{}(m.GetRtaSessionStartTime()).(type) {
+		case interface{ ValidateAll() error }:
+			if err := v.ValidateAll(); err != nil {
+				errors = append(errors, SetStateRequest_BuiltinAgentValidationError{
+					field:  "RtaSessionStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		case interface{ Validate() error }:
+			if err := v.Validate(); err != nil {
+				errors = append(errors, SetStateRequest_BuiltinAgentValidationError{
+					field:  "RtaSessionStartTime",
+					reason: "embedded message failed validation",
+					cause:  err,
+				})
+			}
+		}
+	} else if v, ok := interface{}(m.GetRtaSessionStartTime()).(interface{ Validate() error }); ok {
+		if err := v.Validate(); err != nil {
+			return SetStateRequest_BuiltinAgentValidationError{
+				field:  "RtaSessionStartTime",
+				reason: "embedded message failed validation",
+				cause:  err,
+			}
+		}
+	}
 
 	if len(errors) > 0 {
 		return SetStateRequest_BuiltinAgentMultiError(errors)

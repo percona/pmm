@@ -193,6 +193,48 @@ func TestListServices(t *testing.T) {
 		require.Len(t, resp.Mongodb, 1)
 		assert.Equal(t, mongodbService.ServiceID, resp.Mongodb[0].ServiceId)
 	})
+
+	t.Run("list MySQL services only on pmm-agent 3.12.0 or later", func(t *testing.T) {
+		serviceIDs := make(map[string]string)
+		for _, v := range []string{"3.11.0", "3.12.0-rc"} {
+			nodeMySQL, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName: "test-node-mysql-" + v,
+			})
+			require.NoError(t, err)
+
+			serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: "mysql-" + v,
+				NodeID:      nodeMySQL.NodeID,
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
+			})
+			require.NoError(t, err)
+
+			pmmAgentMySQL, err := models.CreatePMMAgent(db.Querier, nodeMySQL.NodeID, nil)
+			require.NoError(t, err)
+
+			pmmAgentMySQL.Version = new(v)
+			err = db.Update(pmmAgentMySQL)
+			require.NoError(t, err)
+
+			_, err = models.CreateAgent(db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgentMySQL.AgentID,
+				ServiceID:  serviceMySQL.ServiceID,
+				Username:   "exporter-user",
+				Password:   "exporter-pass",
+			})
+			require.NoError(t, err)
+
+			serviceIDs[v] = serviceMySQL.ServiceID
+		}
+
+		resp, err := svc.ListServices(t.Context(), &rtav1.ListServicesRequest{
+			ServiceType: inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE,
+		})
+		require.NoError(t, err)
+		require.Len(t, resp.Mysql, 1)
+		assert.Equal(t, serviceIDs["3.12.0-rc"], resp.Mysql[0].ServiceId)
+	})
 }
 
 func TestListSessions(t *testing.T) {
@@ -247,6 +289,7 @@ func TestListSessions(t *testing.T) {
 
 		assert.Equal(t, service.ServiceID, resp.Sessions[0].ServiceId)
 		assert.Equal(t, service.ServiceName, resp.Sessions[0].ServiceName)
+		assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE, resp.Sessions[0].ServiceType)
 		assert.Equal(t, "test-cluster", resp.Sessions[0].ClusterName)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_RUNNING, resp.Sessions[0].Status)
 		assert.NotNil(t, resp.Sessions[0].StartTime)
@@ -275,6 +318,49 @@ func TestListSessions(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, resp.Sessions, 1)
 		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_UNSPECIFIED, resp.Sessions[0].Status)
+	})
+
+	t.Run("report agent on pmm-agent without the collector as error", func(t *testing.T) {
+		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-old",
+		})
+		require.NoError(t, err)
+
+		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
+		require.NoError(t, err)
+
+		// 3.9.1 was released without the MySQL collector.
+		pmmAgentOld.Version = new("3.9.1")
+		err = db.Update(pmmAgentOld)
+		require.NoError(t, err)
+
+		serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql-old",
+			NodeID:      nodeOld.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+			Cluster:     "old-cluster",
+		})
+		require.NoError(t, err)
+
+		_, err = models.CreateAgent(db.Querier, models.RTAMySQLAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentOld.AgentID,
+			ServiceID:  serviceMySQL.ServiceID,
+			Username:   "test-user",
+			Password:   "test-pass",
+		})
+		require.NoError(t, err)
+
+		registry := newMockAgentsRegistry(t)
+		registry.On("IsConnected", pmmAgentOld.AgentID).Return(true)
+		svc := NewService(db, registry, stateUpdater, store)
+
+		resp, err := svc.ListSessions(t.Context(), &rtav1.ListSessionsRequest{ClusterName: "old-cluster"})
+		require.NoError(t, err)
+		require.Len(t, resp.Sessions, 1)
+		assert.Equal(t, rtav1.SessionStatus_SESSION_STATUS_ERROR, resp.Sessions[0].Status)
+		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.9.1 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.12.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), resp.Sessions[0].StatusMessage)
 	})
 }
 
@@ -486,8 +572,123 @@ func TestStartSession(t *testing.T) {
 		})
 		require.Error(t, err)
 		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
-		assert.Equal(t, status.Convert(err).Message(), fmt.Sprintf("Service %s has pmm-agent with version not supporting Real-Time Analytics.",
-			serviceOld.ServiceID))
+		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.6.0 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.7.0 or later is required.", serviceOld.ServiceName, serviceOld.ServiceID), status.Convert(err).Message())
+	})
+
+	t.Run("existing RTA agent on pmm-agent that doesn't support RTA", func(t *testing.T) {
+		// Starting a session must fail rather than enable an agent its pmm-agent cannot run.
+		nodeOld, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+			NodeName: "test-node-3",
+		})
+		require.NoError(t, err)
+
+		pmmAgentOld, err := models.CreatePMMAgent(db.Querier, nodeOld.NodeID, nil)
+		require.NoError(t, err)
+
+		// 3.8.0 ships the MongoDB RTA collector but not the MySQL one.
+		pmmAgentOld.Version = new("3.8.0")
+		err = db.Update(pmmAgentOld)
+		require.NoError(t, err)
+
+		serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+			ServiceName: "mysql-old",
+			NodeID:      nodeOld.NodeID,
+			Address:     new("127.0.0.1"),
+			Port:        new(uint16(3306)),
+			Cluster:     "cluster-3",
+		})
+		require.NoError(t, err)
+
+		_, err = models.CreateAgent(db.Querier, models.RTAMySQLAgentType, &models.CreateAgentParams{
+			PMMAgentID: pmmAgentOld.AgentID,
+			ServiceID:  serviceMySQL.ServiceID,
+			Username:   "test-user",
+			Password:   "test-pass",
+			Disabled:   true,
+			RTAOptions: models.RTAOptions{CollectInterval: new(2 * time.Second)},
+		})
+		require.NoError(t, err)
+
+		_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{
+			ServiceId: serviceMySQL.ServiceID,
+		})
+		require.Error(t, err)
+		assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
+		assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version 3.8.0 not supporting Real-Time Analytics; "+
+			"pmm-agent 3.12.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID), status.Convert(err).Message())
+
+		// The agent must remain disabled.
+		agents, err := models.FindAgents(db.Querier, models.AgentFilters{
+			ServiceID: serviceMySQL.ServiceID,
+			AgentType: new(models.RTAMySQLAgentType),
+		})
+		require.NoError(t, err)
+		require.Len(t, agents, 1)
+		assert.True(t, agents[0].Disabled)
+	})
+
+	t.Run("MySQL needs pmm-agent 3.12.0", func(t *testing.T) {
+		for i, tc := range []struct {
+			version string
+			wantErr bool
+		}{
+			{version: "3.11.0", wantErr: true},
+			{version: "3.12.0-rc"},
+			{version: "3.12.0"},
+		} {
+			nodeMySQL, err := models.CreateNode(db.Querier, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName: fmt.Sprintf("test-node-mysql-%d", i),
+			})
+			require.NoError(t, err)
+
+			pmmAgentMySQL, err := models.CreatePMMAgent(db.Querier, nodeMySQL.NodeID, nil)
+			require.NoError(t, err)
+
+			pmmAgentMySQL.Version = new(tc.version)
+			err = db.Update(pmmAgentMySQL)
+			require.NoError(t, err)
+
+			serviceMySQL, err := models.AddNewService(db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+				ServiceName: fmt.Sprintf("mysql-%d", i),
+				NodeID:      nodeMySQL.NodeID,
+				Address:     new("127.0.0.1"),
+				Port:        new(uint16(3306)),
+			})
+			require.NoError(t, err)
+
+			_, err = models.CreateAgent(db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
+				PMMAgentID: pmmAgentMySQL.AgentID,
+				ServiceID:  serviceMySQL.ServiceID,
+				Username:   "exporter-user",
+				Password:   "exporter-pass",
+			})
+			require.NoError(t, err)
+
+			if !tc.wantErr {
+				registry.On("IsConnected", pmmAgentMySQL.AgentID).Return(true).Once()
+				stateUpdater.On("RequestStateUpdate", mock.Anything, pmmAgentMySQL.AgentID).Return().Once()
+			}
+
+			_, err = svc.StartSession(t.Context(), &rtav1.StartSessionRequest{ServiceId: serviceMySQL.ServiceID})
+
+			agents, findErr := models.FindAgents(db.Querier, models.AgentFilters{
+				ServiceID: serviceMySQL.ServiceID,
+				AgentType: new(models.RTAMySQLAgentType),
+			})
+			require.NoError(t, findErr)
+
+			if !tc.wantErr {
+				require.NoError(t, err, tc.version)
+				require.Len(t, agents, 1, tc.version)
+				continue
+			}
+
+			assert.Equal(t, codes.FailedPrecondition, status.Convert(err).Code())
+			assert.Equal(t, fmt.Sprintf("Service %s (id %s) has pmm-agent with version %s not supporting Real-Time Analytics; "+
+				"pmm-agent 3.12.0 or later is required.", serviceMySQL.ServiceName, serviceMySQL.ServiceID, tc.version), status.Convert(err).Message())
+			assert.Empty(t, agents)
+		}
 	})
 }
 
@@ -906,4 +1107,15 @@ func TestService_Collect(t *testing.T) {
 		assert.Equal(t, "service-1", storeqQs[i].ServiceId)
 		assert.Equal(t, "mongodb-1", storeqQs[i].ServiceName)
 	}
+}
+
+func TestGetProtoServiceType(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MYSQL_SERVICE, getProtoServiceType(models.MySQLServiceType))
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_MONGODB_SERVICE, getProtoServiceType(models.MongoDBServiceType))
+
+	// Service types that cannot run RTA carry no technology rather than a wrong one.
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.PostgreSQLServiceType))
+	assert.Equal(t, inventoryv1.ServiceType_SERVICE_TYPE_UNSPECIFIED, getProtoServiceType(models.ExternalServiceType))
 }

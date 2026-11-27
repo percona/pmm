@@ -15,20 +15,30 @@ import {
 } from 'hooks/api/useRealtime';
 import { DOCS_URLS } from 'lib/constants';
 import { RealtimeSession } from 'types/rta.types';
-import { createRealtimeOverviewUrl } from 'utils/link.utils';
+import {
+  createRealtimeOverviewUrl,
+  createRealtimeSessionsUrl,
+} from 'utils/link.utils';
+import { sharedTechnology } from '../components/technology';
 import { RealtimeSelectionForm } from '../components/selection-form';
-import { ServiceType } from 'types/services.types';
 
 export const RealtimeSelection: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  // TODO: Add other service types when available
-  const { isLoading } = useAvailableServices([ServiceType.mongodb]);
+  // The default technologies, so this shares the selection form's fetch.
+  const { isLoading } = useAvailableServices();
   const { data: sessions, isLoading: isLoadingSessions } =
     useRealtimeSessions();
 
   const handleSuccess = (sessions: RealtimeSession[]) => {
     const serviceIds = sessions.map((s) => s.serviceId);
+
+    // One view shows one technology, so a mixed start goes to the session list.
+    if (!sharedTechnology(sessions.map((s) => s.serviceType))) {
+      navigate(createRealtimeSessionsUrl(serviceIds));
+
+      return;
+    }
 
     navigate(createRealtimeOverviewUrl(serviceIds));
   };
