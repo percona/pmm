@@ -4,7 +4,7 @@ Referenced from [`AGENTS.md`](../../../AGENTS.md) (Definition of Done / workflow
 
 ## Build, deploy, iterate
 
-PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server:3-dev-container`) that runs every server component (pmm-managed, grafana, victoriametrics, clickhouse, postgresql, qan-api2, vmproxy, pmm-agent, nginx, vmalert) under `supervisord`. The repo is bind-mounted into the container and Go/UI binaries are rebuilt on the host mount and hot-swapped into the running services. Start it **once** and reuse it — do **not** rebuild the image on every code change.
+PMM development uses a **single "fat" Docker container** (`perconalab/pmm-server:3-dev-container`) that runs every server component (pmm-managed, grafana, victoriametrics, clickhouse, postgresql, qan-api2, vmproxy, pmm-agent, nginx) under `supervisord`. The repo is bind-mounted into the container and Go/UI binaries are rebuilt on the host mount and hot-swapped into the running services. Start it **once** and reuse it — do **not** rebuild the image on every code change.
 
 ### Starting the environment
 - Docker (with the compose plugin) is required. If `docker info` fails, the daemon isn't running — start it with `sudo dockerd > /tmp/dockerd.log 2>&1 &` (depending on the Docker version, you might need `/etc/docker/daemon.json` to set `"storage-driver": "fuse-overlayfs"` and `"features": {"containerd-snapshotter": false}`). To run `make`/`docker` without `sudo`, add your user to the `docker` group (`sudo usermod -aG docker "$USER"` then `newgrp docker`) rather than loosening socket permissions.

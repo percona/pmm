@@ -57,8 +57,6 @@ var commonExpectedFiles = []string{
 	"victoriametrics.ini",
 	"victoriametrics.log",
 	"victoriametrics_targets.json",
-	"vmalert.ini",
-	"vmalert.log",
 	"vmproxy.ini",
 	"vmproxy.log",
 }

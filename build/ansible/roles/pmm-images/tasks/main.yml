@@ -57,7 +57,6 @@
     mode: 0775
   loop:
     - /srv # otherwise it's owned by root
-    - /srv/prometheus/rules
     - /etc/grafana
     - /srv/clickhouse
 
