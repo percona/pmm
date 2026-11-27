@@ -38543,6 +38543,34 @@
                         "type": "string",
                         "format": "date-time",
                         "x-order": 17
+                      },
+                      "residual_hosts": {
+                        "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                        "type": "array",
+                        "items": {
+                          "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                          "type": "object",
+                          "properties": {
+                            "host": {
+                              "description": "The host the outcome is for.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                              "type": "string",
+                              "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "enum": [
+                                "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                                "RESIDUAL_HOST_STATUS_REMOVED",
+                                "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                                "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                              ],
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 18
                       }
                     }
                   },
@@ -38716,6 +38744,34 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -38857,6 +38913,12 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 0
+                },
+                "confirm_phrase": {
+                  "description": "The server-validated confirm phrase, for a kind that seals one on the operation; a\nkind that seals none ignores it.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
                 }
               }
             }
@@ -38976,6 +39038,34 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -39165,6 +39255,34 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -39235,6 +39353,12 @@
                   "type": "integer",
                   "format": "int32",
                   "x-order": 0
+                },
+                "confirm_phrase": {
+                  "description": "The server-validated confirm phrase, for a kind that seals one on the operation; a\nkind that seals none ignores it.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
                 }
               }
             }
@@ -39354,6 +39478,34 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
                     }
                   },
                   "x-order": 0
@@ -39543,6 +39695,34 @@
                       "type": "string",
                       "format": "date-time",
                       "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
                     }
                   },
                   "x-order": 0

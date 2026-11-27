@@ -46,6 +46,7 @@ func (p AttentionPolicy) Exempt(reason string) bool {
 type OperationKind struct {
 	Kind                    string
 	ConfirmsFor             func(models.OmOperationTrigger) bool
+	ConfirmPhrase           func(op *models.OmOperation) string
 	CancellableWhileRunning bool
 	Resumable               bool
 	NonInterruptibleSteps   map[string]bool
@@ -65,6 +66,15 @@ func (k OperationKind) Confirms(trigger models.OmOperationTrigger) bool {
 		return false
 	}
 	return k.ConfirmsFor(trigger)
+}
+
+// confirmPhrase is the server-validated phrase this kind seals on an operation at confirmation
+// time, empty when the kind requires none.
+func (k OperationKind) confirmPhrase(op *models.OmOperation) string {
+	if k.ConfirmPhrase == nil {
+		return ""
+	}
+	return k.ConfirmPhrase(op)
 }
 
 // OperationRegistry is the set of known operation kinds; a feature registers its kind here.

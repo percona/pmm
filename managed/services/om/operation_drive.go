@@ -54,7 +54,7 @@ func driveChecking(
 		return failChecking(ctx, db, op, block.Reason)
 	}
 	if kind.Confirms(op.Trigger) {
-		return awaitConfirmation(ctx, db, op, digest)
+		return awaitConfirmation(ctx, db, op, digest, kind.confirmPhrase(op))
 	}
 	recheck := func(*reform.TX) (bool, error) { return false, nil }
 	return startGate(ctx, db, op, models.OmOperationChecking, op.Version, nil, kind, lockSubjects(kind.LockSet(op)), recheck)
@@ -88,12 +88,17 @@ func failChecking(ctx context.Context, db *reform.DB, op *models.OmOperation, re
 
 // awaitConfirmation seals the reviewed report digest and moves a checking operation to
 // awaiting_confirmation; the plan revision sealed at report time is what the confirm CAS fences.
-func awaitConfirmation(ctx context.Context, db *reform.DB, op *models.OmOperation, digest string) (StartOutcome, error) {
+// A kind that requires one also seals the server-validated confirm phrase here.
+func awaitConfirmation(ctx context.Context, db *reform.DB, op *models.OmOperation, digest, phrase string) (StartOutcome, error) {
+	var phrasePtr *string
+	if phrase != "" {
+		phrasePtr = &phrase
+	}
 	err := db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
 		_, err := tx.Exec(
-			"UPDATE om_operations SET status = 'awaiting_confirmation', report_digest = $1, version = version + 1 "+
-				"WHERE id = $2 AND status = 'checking' AND version = $3",
-			digest, op.ID, op.Version)
+			"UPDATE om_operations SET status = 'awaiting_confirmation', report_digest = $1, confirm_phrase = $2, version = version + 1 "+
+				"WHERE id = $3 AND status = 'checking' AND version = $4",
+			digest, phrasePtr, op.ID, op.Version)
 		return err
 	})
 	if err != nil {

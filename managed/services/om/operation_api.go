@@ -70,6 +70,10 @@ func (s *Service) ConfirmOperation(ctx context.Context, req *omv1.ConfirmOperati
 	if op.ReportDigest == nil {
 		return nil, status.Error(codes.FailedPrecondition, "operation has no sealed report to confirm")
 	}
+	err = checkConfirmPhrase(op, req.ConfirmPhrase)
+	if err != nil {
+		return nil, err
+	}
 	kind, err := s.kindFor(op)
 	if err != nil {
 		return nil, err
@@ -140,6 +144,10 @@ func (s *Service) AbandonOperation(ctx context.Context, req *omv1.AbandonOperati
 	if err != nil {
 		return nil, operationReadError(err)
 	}
+	err = checkConfirmPhrase(op, req.ConfirmPhrase)
+	if err != nil {
+		return nil, err
+	}
 	moved, err := abandonOperation(ctx, s.db, op, req.GetVersion())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -186,6 +194,18 @@ func operationNotMoved(current models.OmOperationStatus) error {
 		"operation changed concurrently or is not in a state this action applies to (status '%s')", current)
 }
 
+// checkConfirmPhrase rejects a confirm or abandon of an operation that sealed a confirm phrase
+// unless the request repeats it exactly; an operation that sealed none ignores the field.
+func checkConfirmPhrase(op *models.OmOperation, provided *string) error {
+	if op.ConfirmPhrase == nil || *op.ConfirmPhrase == "" {
+		return nil
+	}
+	if provided == nil || *provided != *op.ConfirmPhrase {
+		return status.Error(codes.InvalidArgument, "confirm phrase does not match the phrase sealed on the operation")
+	}
+	return nil
+}
+
 // confirmOutcomeError maps a non-running start-gate outcome to a client error.
 func confirmOutcomeError(outcome StartOutcome) error {
 	switch outcome {
@@ -221,6 +241,35 @@ func operationToProto(op *models.OmOperation) *omv1.Operation {
 		FinishedAt:        optTimestamp(op.FinishedAt),
 		NotBefore:         optTimestamp(op.NotBefore),
 		DeadlineAt:        optTimestamp(op.DeadlineAt),
+		ResidualHosts:     residualHostsToProto(op),
+	}
+}
+
+// residualHostsToProto maps an operation's recorded residual hosts to their wire form; a record
+// that fails to decode is treated as absent.
+func residualHostsToProto(op *models.OmOperation) []*omv1.ResidualHost {
+	hosts, err := op.ResidualHostList()
+	if err != nil || len(hosts) == 0 {
+		return nil
+	}
+	out := make([]*omv1.ResidualHost, len(hosts))
+	for i := range hosts {
+		out[i] = &omv1.ResidualHost{Host: hosts[i].Host, Status: residualHostStatusToProto(hosts[i].Status)}
+	}
+	return out
+}
+
+// residualHostStatusToProto maps a residual-host status to its wire enum.
+func residualHostStatusToProto(s models.OmResidualHostStatus) omv1.ResidualHostStatus {
+	switch s {
+	case models.OmResidualHostRemoved:
+		return omv1.ResidualHostStatus_RESIDUAL_HOST_STATUS_REMOVED
+	case models.OmResidualHostNotRemoved:
+		return omv1.ResidualHostStatus_RESIDUAL_HOST_STATUS_NOT_REMOVED
+	case models.OmResidualHostStillRunning:
+		return omv1.ResidualHostStatus_RESIDUAL_HOST_STATUS_STILL_RUNNING
+	default:
+		return omv1.ResidualHostStatus_RESIDUAL_HOST_STATUS_UNSPECIFIED
 	}
 }
 

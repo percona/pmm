@@ -52,6 +52,8 @@ func (v *omOperationTableType) Columns() []string {
 		"created_at",
 		"started_at",
 		"finished_at",
+		"confirm_phrase",
+		"residual_hosts",
 	}
 }
 
@@ -100,6 +102,8 @@ var OmOperationTable = &omOperationTableType{
 			{Name: "CreatedAt", Type: "time.Time", Column: "created_at"},
 			{Name: "StartedAt", Type: "*time.Time", Column: "started_at"},
 			{Name: "FinishedAt", Type: "*time.Time", Column: "finished_at"},
+			{Name: "ConfirmPhrase", Type: "*string", Column: "confirm_phrase"},
+			{Name: "ResidualHosts", Type: "[]uint8", Column: "residual_hosts"},
 		},
 		PKFieldIndex: 0,
 	},
@@ -108,7 +112,7 @@ var OmOperationTable = &omOperationTableType{
 
 // String returns a string representation of this struct or record.
 func (s OmOperation) String() string {
-	res := make([]string, 24)
+	res := make([]string, 26)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Kind: " + reform.Inspect(s.Kind, true)
 	res[2] = "KindVersion: " + reform.Inspect(s.KindVersion, true)
@@ -133,6 +137,8 @@ func (s OmOperation) String() string {
 	res[21] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	res[22] = "StartedAt: " + reform.Inspect(s.StartedAt, true)
 	res[23] = "FinishedAt: " + reform.Inspect(s.FinishedAt, true)
+	res[24] = "ConfirmPhrase: " + reform.Inspect(s.ConfirmPhrase, true)
+	res[25] = "ResidualHosts: " + reform.Inspect(s.ResidualHosts, true)
 	return strings.Join(res, ", ")
 }
 
@@ -164,6 +170,8 @@ func (s *OmOperation) Values() []interface{} {
 		s.CreatedAt,
 		s.StartedAt,
 		s.FinishedAt,
+		s.ConfirmPhrase,
+		s.ResidualHosts,
 	}
 }
 
@@ -195,6 +203,8 @@ func (s *OmOperation) Pointers() []interface{} {
 		&s.CreatedAt,
 		&s.StartedAt,
 		&s.FinishedAt,
+		&s.ConfirmPhrase,
+		&s.ResidualHosts,
 	}
 }
 

@@ -10078,6 +10078,40 @@ func (m *Operation) validate(all bool) error {
 		}
 	}
 
+	for idx, item := range m.GetResidualHosts() {
+		_, _ = idx, item
+
+		if all {
+			switch v := interface{}(item).(type) {
+			case interface{ ValidateAll() error }:
+				if err := v.ValidateAll(); err != nil {
+					errors = append(errors, OperationValidationError{
+						field:  fmt.Sprintf("ResidualHosts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			case interface{ Validate() error }:
+				if err := v.Validate(); err != nil {
+					errors = append(errors, OperationValidationError{
+						field:  fmt.Sprintf("ResidualHosts[%v]", idx),
+						reason: "embedded message failed validation",
+						cause:  err,
+					})
+				}
+			}
+		} else if v, ok := interface{}(item).(interface{ Validate() error }); ok {
+			if err := v.Validate(); err != nil {
+				return OperationValidationError{
+					field:  fmt.Sprintf("ResidualHosts[%v]", idx),
+					reason: "embedded message failed validation",
+					cause:  err,
+				}
+			}
+		}
+
+	}
+
 	if m.ClusterId != nil {
 		// no validation rules for ClusterId
 	}
@@ -10178,6 +10212,109 @@ var _ interface {
 	Cause() error
 	ErrorName() string
 } = OperationValidationError{}
+
+// Validate checks the field values on ResidualHost with the rules defined in
+// the proto definition for this message. If any rules are violated, the first
+// error encountered is returned, or nil if there are no violations.
+func (m *ResidualHost) Validate() error {
+	return m.validate(false)
+}
+
+// ValidateAll checks the field values on ResidualHost with the rules defined
+// in the proto definition for this message. If any rules are violated, the
+// result is a list of violation errors wrapped in ResidualHostMultiError, or
+// nil if none found.
+func (m *ResidualHost) ValidateAll() error {
+	return m.validate(true)
+}
+
+func (m *ResidualHost) validate(all bool) error {
+	if m == nil {
+		return nil
+	}
+
+	var errors []error
+
+	// no validation rules for Host
+
+	// no validation rules for Status
+
+	if len(errors) > 0 {
+		return ResidualHostMultiError(errors)
+	}
+
+	return nil
+}
+
+// ResidualHostMultiError is an error wrapping multiple validation errors
+// returned by ResidualHost.ValidateAll() if the designated constraints aren't met.
+type ResidualHostMultiError []error
+
+// Error returns a concatenation of all the error messages it wraps.
+func (m ResidualHostMultiError) Error() string {
+	msgs := make([]string, 0, len(m))
+	for _, err := range m {
+		msgs = append(msgs, err.Error())
+	}
+	return strings.Join(msgs, "; ")
+}
+
+// AllErrors returns a list of validation violation errors.
+func (m ResidualHostMultiError) AllErrors() []error { return m }
+
+// ResidualHostValidationError is the validation error returned by
+// ResidualHost.Validate if the designated constraints aren't met.
+type ResidualHostValidationError struct {
+	field  string
+	reason string
+	cause  error
+	key    bool
+}
+
+// Field function returns field value.
+func (e ResidualHostValidationError) Field() string { return e.field }
+
+// Reason function returns reason value.
+func (e ResidualHostValidationError) Reason() string { return e.reason }
+
+// Cause function returns cause value.
+func (e ResidualHostValidationError) Cause() error { return e.cause }
+
+// Key function returns key value.
+func (e ResidualHostValidationError) Key() bool { return e.key }
+
+// ErrorName returns error name.
+func (e ResidualHostValidationError) ErrorName() string { return "ResidualHostValidationError" }
+
+// Error satisfies the builtin error interface
+func (e ResidualHostValidationError) Error() string {
+	cause := ""
+	if e.cause != nil {
+		cause = fmt.Sprintf(" | caused by: %v", e.cause)
+	}
+
+	key := ""
+	if e.key {
+		key = "key for "
+	}
+
+	return fmt.Sprintf(
+		"invalid %sResidualHost.%s: %s%s",
+		key,
+		e.field,
+		e.reason,
+		cause)
+}
+
+var _ error = ResidualHostValidationError{}
+
+var _ interface {
+	Field() string
+	Reason() string
+	Key() bool
+	Cause() error
+	ErrorName() string
+} = ResidualHostValidationError{}
 
 // Validate checks the field values on OperationStep with the rules defined in
 // the proto definition for this message. If any rules are violated, the first
@@ -10919,6 +11056,10 @@ func (m *ConfirmOperationRequest) validate(all bool) error {
 			return err
 		}
 		errors = append(errors, err)
+	}
+
+	if m.ConfirmPhrase != nil {
+		// no validation rules for ConfirmPhrase
 	}
 
 	if len(errors) > 0 {
@@ -11684,6 +11825,10 @@ func (m *AbandonOperationRequest) validate(all bool) error {
 			return err
 		}
 		errors = append(errors, err)
+	}
+
+	if m.ConfirmPhrase != nil {
+		// no validation rules for ConfirmPhrase
 	}
 
 	if len(errors) > 0 {

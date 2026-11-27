@@ -579,6 +579,59 @@ func (OmSettingSource) EnumDescriptor() ([]byte, []int) {
 	return file_om_v1_om_proto_rawDescGZIP(), []int{8}
 }
 
+// ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.
+type ResidualHostStatus int32
+
+const (
+	ResidualHostStatus_RESIDUAL_HOST_STATUS_UNSPECIFIED   ResidualHostStatus = 0
+	ResidualHostStatus_RESIDUAL_HOST_STATUS_REMOVED       ResidualHostStatus = 1
+	ResidualHostStatus_RESIDUAL_HOST_STATUS_NOT_REMOVED   ResidualHostStatus = 2
+	ResidualHostStatus_RESIDUAL_HOST_STATUS_STILL_RUNNING ResidualHostStatus = 3
+)
+
+// Enum value maps for ResidualHostStatus.
+var (
+	ResidualHostStatus_name = map[int32]string{
+		0: "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+		1: "RESIDUAL_HOST_STATUS_REMOVED",
+		2: "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+		3: "RESIDUAL_HOST_STATUS_STILL_RUNNING",
+	}
+	ResidualHostStatus_value = map[string]int32{
+		"RESIDUAL_HOST_STATUS_UNSPECIFIED":   0,
+		"RESIDUAL_HOST_STATUS_REMOVED":       1,
+		"RESIDUAL_HOST_STATUS_NOT_REMOVED":   2,
+		"RESIDUAL_HOST_STATUS_STILL_RUNNING": 3,
+	}
+)
+
+func (x ResidualHostStatus) Enum() *ResidualHostStatus {
+	p := new(ResidualHostStatus)
+	*p = x
+	return p
+}
+
+func (x ResidualHostStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ResidualHostStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_om_v1_om_proto_enumTypes[9].Descriptor()
+}
+
+func (ResidualHostStatus) Type() protoreflect.EnumType {
+	return &file_om_v1_om_proto_enumTypes[9]
+}
+
+func (x ResidualHostStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ResidualHostStatus.Descriptor instead.
+func (ResidualHostStatus) EnumDescriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{9}
+}
+
 // TopologyService represents one monitored MongoDB service as the topology document
 // records it.
 //
@@ -5743,7 +5796,10 @@ type Operation struct {
 	// The earliest it may run, for a scheduled operation.
 	NotBefore *timestamppb.Timestamp `protobuf:"bytes,17,opt,name=not_before,json=notBefore,proto3" json:"not_before,omitempty"`
 	// When it will be abandoned if still unfinished.
-	DeadlineAt    *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=deadline_at,json=deadlineAt,proto3" json:"deadline_at,omitempty"`
+	DeadlineAt *timestamppb.Timestamp `protobuf:"bytes,18,opt,name=deadline_at,json=deadlineAt,proto3" json:"deadline_at,omitempty"`
+	// Per-host cleanup outcome a destructive kind records when a run is abandoned partway;
+	// empty for an operation that recorded none.
+	ResidualHosts []*ResidualHost `protobuf:"bytes,19,rep,name=residual_hosts,json=residualHosts,proto3" json:"residual_hosts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -5904,6 +5960,68 @@ func (x *Operation) GetDeadlineAt() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Operation) GetResidualHosts() []*ResidualHost {
+	if x != nil {
+		return x.ResidualHosts
+	}
+	return nil
+}
+
+// ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.
+type ResidualHost struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The host the outcome is for.
+	Host string `protobuf:"bytes,1,opt,name=host,proto3" json:"host,omitempty"`
+	// What remained on the host when the operation was abandoned.
+	Status        ResidualHostStatus `protobuf:"varint,2,opt,name=status,proto3,enum=om.v1.ResidualHostStatus" json:"status,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ResidualHost) Reset() {
+	*x = ResidualHost{}
+	mi := &file_om_v1_om_proto_msgTypes[71]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResidualHost) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResidualHost) ProtoMessage() {}
+
+func (x *ResidualHost) ProtoReflect() protoreflect.Message {
+	mi := &file_om_v1_om_proto_msgTypes[71]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResidualHost.ProtoReflect.Descriptor instead.
+func (*ResidualHost) Descriptor() ([]byte, []int) {
+	return file_om_v1_om_proto_rawDescGZIP(), []int{71}
+}
+
+func (x *ResidualHost) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *ResidualHost) GetStatus() ResidualHostStatus {
+	if x != nil {
+		return x.Status
+	}
+	return ResidualHostStatus_RESIDUAL_HOST_STATUS_UNSPECIFIED
+}
+
 // OperationStep is one dispatch within an operation.
 //
 // The step's result payload is withheld for the same reason as the operation's params: it is
@@ -5938,7 +6056,7 @@ type OperationStep struct {
 
 func (x *OperationStep) Reset() {
 	*x = OperationStep{}
-	mi := &file_om_v1_om_proto_msgTypes[71]
+	mi := &file_om_v1_om_proto_msgTypes[72]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -5950,7 +6068,7 @@ func (x *OperationStep) String() string {
 func (*OperationStep) ProtoMessage() {}
 
 func (x *OperationStep) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[71]
+	mi := &file_om_v1_om_proto_msgTypes[72]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -5963,7 +6081,7 @@ func (x *OperationStep) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OperationStep.ProtoReflect.Descriptor instead.
 func (*OperationStep) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{71}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{72}
 }
 
 func (x *OperationStep) GetId() string {
@@ -6054,7 +6172,7 @@ type ListOperationsRequest struct {
 
 func (x *ListOperationsRequest) Reset() {
 	*x = ListOperationsRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[72]
+	mi := &file_om_v1_om_proto_msgTypes[73]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6066,7 +6184,7 @@ func (x *ListOperationsRequest) String() string {
 func (*ListOperationsRequest) ProtoMessage() {}
 
 func (x *ListOperationsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[72]
+	mi := &file_om_v1_om_proto_msgTypes[73]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6079,7 +6197,7 @@ func (x *ListOperationsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOperationsRequest.ProtoReflect.Descriptor instead.
 func (*ListOperationsRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{72}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{73}
 }
 
 func (x *ListOperationsRequest) GetClusterId() string {
@@ -6100,7 +6218,7 @@ type ListOperationsResponse struct {
 
 func (x *ListOperationsResponse) Reset() {
 	*x = ListOperationsResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[73]
+	mi := &file_om_v1_om_proto_msgTypes[74]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6112,7 +6230,7 @@ func (x *ListOperationsResponse) String() string {
 func (*ListOperationsResponse) ProtoMessage() {}
 
 func (x *ListOperationsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[73]
+	mi := &file_om_v1_om_proto_msgTypes[74]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6125,7 +6243,7 @@ func (x *ListOperationsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListOperationsResponse.ProtoReflect.Descriptor instead.
 func (*ListOperationsResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{73}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{74}
 }
 
 func (x *ListOperationsResponse) GetOperations() []*Operation {
@@ -6146,7 +6264,7 @@ type GetOperationRequest struct {
 
 func (x *GetOperationRequest) Reset() {
 	*x = GetOperationRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[74]
+	mi := &file_om_v1_om_proto_msgTypes[75]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6158,7 +6276,7 @@ func (x *GetOperationRequest) String() string {
 func (*GetOperationRequest) ProtoMessage() {}
 
 func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[74]
+	mi := &file_om_v1_om_proto_msgTypes[75]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6171,7 +6289,7 @@ func (x *GetOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOperationRequest.ProtoReflect.Descriptor instead.
 func (*GetOperationRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{74}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{75}
 }
 
 func (x *GetOperationRequest) GetOperationId() string {
@@ -6194,7 +6312,7 @@ type GetOperationResponse struct {
 
 func (x *GetOperationResponse) Reset() {
 	*x = GetOperationResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[75]
+	mi := &file_om_v1_om_proto_msgTypes[76]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6206,7 +6324,7 @@ func (x *GetOperationResponse) String() string {
 func (*GetOperationResponse) ProtoMessage() {}
 
 func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[75]
+	mi := &file_om_v1_om_proto_msgTypes[76]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6219,7 +6337,7 @@ func (x *GetOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetOperationResponse.ProtoReflect.Descriptor instead.
 func (*GetOperationResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{75}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{76}
 }
 
 func (x *GetOperationResponse) GetOperation() *Operation {
@@ -6243,14 +6361,17 @@ type ConfirmOperationRequest struct {
 	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
 	// The version the caller reviewed. The confirm's optimistic fence: a rescan or any other
 	// change since the review has bumped it, so a stale confirm moves nothing.
-	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	Version int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	// The server-validated confirm phrase, for a kind that seals one on the operation; a
+	// kind that seals none ignores it.
+	ConfirmPhrase *string `protobuf:"bytes,3,opt,name=confirm_phrase,json=confirmPhrase,proto3,oneof" json:"confirm_phrase,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ConfirmOperationRequest) Reset() {
 	*x = ConfirmOperationRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[76]
+	mi := &file_om_v1_om_proto_msgTypes[77]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6262,7 +6383,7 @@ func (x *ConfirmOperationRequest) String() string {
 func (*ConfirmOperationRequest) ProtoMessage() {}
 
 func (x *ConfirmOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[76]
+	mi := &file_om_v1_om_proto_msgTypes[77]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6275,7 +6396,7 @@ func (x *ConfirmOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmOperationRequest.ProtoReflect.Descriptor instead.
 func (*ConfirmOperationRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{76}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{77}
 }
 
 func (x *ConfirmOperationRequest) GetOperationId() string {
@@ -6292,6 +6413,13 @@ func (x *ConfirmOperationRequest) GetVersion() int32 {
 	return 0
 }
 
+func (x *ConfirmOperationRequest) GetConfirmPhrase() string {
+	if x != nil && x.ConfirmPhrase != nil {
+		return *x.ConfirmPhrase
+	}
+	return ""
+}
+
 // ConfirmOperationResponse returns the operation as it now stands.
 type ConfirmOperationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -6303,7 +6431,7 @@ type ConfirmOperationResponse struct {
 
 func (x *ConfirmOperationResponse) Reset() {
 	*x = ConfirmOperationResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[77]
+	mi := &file_om_v1_om_proto_msgTypes[78]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6315,7 +6443,7 @@ func (x *ConfirmOperationResponse) String() string {
 func (*ConfirmOperationResponse) ProtoMessage() {}
 
 func (x *ConfirmOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[77]
+	mi := &file_om_v1_om_proto_msgTypes[78]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6328,7 +6456,7 @@ func (x *ConfirmOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfirmOperationResponse.ProtoReflect.Descriptor instead.
 func (*ConfirmOperationResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{77}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{78}
 }
 
 func (x *ConfirmOperationResponse) GetOperation() *Operation {
@@ -6351,7 +6479,7 @@ type CancelOperationRequest struct {
 
 func (x *CancelOperationRequest) Reset() {
 	*x = CancelOperationRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[78]
+	mi := &file_om_v1_om_proto_msgTypes[79]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6363,7 +6491,7 @@ func (x *CancelOperationRequest) String() string {
 func (*CancelOperationRequest) ProtoMessage() {}
 
 func (x *CancelOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[78]
+	mi := &file_om_v1_om_proto_msgTypes[79]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6376,7 +6504,7 @@ func (x *CancelOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelOperationRequest.ProtoReflect.Descriptor instead.
 func (*CancelOperationRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{78}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{79}
 }
 
 func (x *CancelOperationRequest) GetOperationId() string {
@@ -6404,7 +6532,7 @@ type CancelOperationResponse struct {
 
 func (x *CancelOperationResponse) Reset() {
 	*x = CancelOperationResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[79]
+	mi := &file_om_v1_om_proto_msgTypes[80]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6416,7 +6544,7 @@ func (x *CancelOperationResponse) String() string {
 func (*CancelOperationResponse) ProtoMessage() {}
 
 func (x *CancelOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[79]
+	mi := &file_om_v1_om_proto_msgTypes[80]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6429,7 +6557,7 @@ func (x *CancelOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CancelOperationResponse.ProtoReflect.Descriptor instead.
 func (*CancelOperationResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{79}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{80}
 }
 
 func (x *CancelOperationResponse) GetOperation() *Operation {
@@ -6452,7 +6580,7 @@ type ResumeOperationRequest struct {
 
 func (x *ResumeOperationRequest) Reset() {
 	*x = ResumeOperationRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[80]
+	mi := &file_om_v1_om_proto_msgTypes[81]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6464,7 +6592,7 @@ func (x *ResumeOperationRequest) String() string {
 func (*ResumeOperationRequest) ProtoMessage() {}
 
 func (x *ResumeOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[80]
+	mi := &file_om_v1_om_proto_msgTypes[81]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6477,7 +6605,7 @@ func (x *ResumeOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeOperationRequest.ProtoReflect.Descriptor instead.
 func (*ResumeOperationRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{80}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{81}
 }
 
 func (x *ResumeOperationRequest) GetOperationId() string {
@@ -6505,7 +6633,7 @@ type ResumeOperationResponse struct {
 
 func (x *ResumeOperationResponse) Reset() {
 	*x = ResumeOperationResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[81]
+	mi := &file_om_v1_om_proto_msgTypes[82]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6517,7 +6645,7 @@ func (x *ResumeOperationResponse) String() string {
 func (*ResumeOperationResponse) ProtoMessage() {}
 
 func (x *ResumeOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[81]
+	mi := &file_om_v1_om_proto_msgTypes[82]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6530,7 +6658,7 @@ func (x *ResumeOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResumeOperationResponse.ProtoReflect.Descriptor instead.
 func (*ResumeOperationResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{81}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{82}
 }
 
 func (x *ResumeOperationResponse) GetOperation() *Operation {
@@ -6546,14 +6674,17 @@ type AbandonOperationRequest struct {
 	// The failed operation to abandon.
 	OperationId string `protobuf:"bytes,1,opt,name=operation_id,json=operationId,proto3" json:"operation_id,omitempty"`
 	// The version the caller read, fencing the abandon against a concurrent change.
-	Version       int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	Version int32 `protobuf:"varint,2,opt,name=version,proto3" json:"version,omitempty"`
+	// The server-validated confirm phrase, for a kind that seals one on the operation; a
+	// kind that seals none ignores it.
+	ConfirmPhrase *string `protobuf:"bytes,3,opt,name=confirm_phrase,json=confirmPhrase,proto3,oneof" json:"confirm_phrase,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *AbandonOperationRequest) Reset() {
 	*x = AbandonOperationRequest{}
-	mi := &file_om_v1_om_proto_msgTypes[82]
+	mi := &file_om_v1_om_proto_msgTypes[83]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6565,7 +6696,7 @@ func (x *AbandonOperationRequest) String() string {
 func (*AbandonOperationRequest) ProtoMessage() {}
 
 func (x *AbandonOperationRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[82]
+	mi := &file_om_v1_om_proto_msgTypes[83]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6578,7 +6709,7 @@ func (x *AbandonOperationRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AbandonOperationRequest.ProtoReflect.Descriptor instead.
 func (*AbandonOperationRequest) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{82}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{83}
 }
 
 func (x *AbandonOperationRequest) GetOperationId() string {
@@ -6595,6 +6726,13 @@ func (x *AbandonOperationRequest) GetVersion() int32 {
 	return 0
 }
 
+func (x *AbandonOperationRequest) GetConfirmPhrase() string {
+	if x != nil && x.ConfirmPhrase != nil {
+		return *x.ConfirmPhrase
+	}
+	return ""
+}
+
 // AbandonOperationResponse returns the operation as it now stands.
 type AbandonOperationResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -6606,7 +6744,7 @@ type AbandonOperationResponse struct {
 
 func (x *AbandonOperationResponse) Reset() {
 	*x = AbandonOperationResponse{}
-	mi := &file_om_v1_om_proto_msgTypes[83]
+	mi := &file_om_v1_om_proto_msgTypes[84]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -6618,7 +6756,7 @@ func (x *AbandonOperationResponse) String() string {
 func (*AbandonOperationResponse) ProtoMessage() {}
 
 func (x *AbandonOperationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_om_v1_om_proto_msgTypes[83]
+	mi := &file_om_v1_om_proto_msgTypes[84]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -6631,7 +6769,7 @@ func (x *AbandonOperationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AbandonOperationResponse.ProtoReflect.Descriptor instead.
 func (*AbandonOperationResponse) Descriptor() ([]byte, []int) {
-	return file_om_v1_om_proto_rawDescGZIP(), []int{83}
+	return file_om_v1_om_proto_rawDescGZIP(), []int{84}
 }
 
 func (x *AbandonOperationResponse) GetOperation() *Operation {
@@ -7101,7 +7239,7 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x03key\x18\x02 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\x03keyB\r\n" +
 	"\v_cluster_id\"9\n" +
 	"\x1dDeleteSettingOverrideResponse\x12\x18\n" +
-	"\aremoved\x18\x01 \x01(\bR\aremoved\"\xd3\x06\n" +
+	"\aremoved\x18\x01 \x01(\bR\aremoved\"\x8f\a\n" +
 	"\tOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04kind\x18\x02 \x01(\tR\x04kind\x12!\n" +
@@ -7128,13 +7266,17 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\n" +
 	"not_before\x18\x11 \x01(\v2\x1a.google.protobuf.TimestampR\tnotBefore\x12;\n" +
 	"\vdeadline_at\x18\x12 \x01(\v2\x1a.google.protobuf.TimestampR\n" +
-	"deadlineAtB\r\n" +
+	"deadlineAt\x12:\n" +
+	"\x0eresidual_hosts\x18\x13 \x03(\v2\x13.om.v1.ResidualHostR\rresidualHostsB\r\n" +
 	"\v_cluster_idB\x16\n" +
 	"\x14_parent_operation_idB\x10\n" +
 	"\x0e_report_digestB\r\n" +
 	"\v_error_codeB\x0f\n" +
 	"\r_confirmed_byB\x0f\n" +
-	"\r_cancelled_by\"\x8e\x03\n" +
+	"\r_cancelled_by\"U\n" +
+	"\fResidualHost\x12\x12\n" +
+	"\x04host\x18\x01 \x01(\tR\x04host\x121\n" +
+	"\x06status\x18\x02 \x01(\x0e2\x19.om.v1.ResidualHostStatusR\x06status\"\x8e\x03\n" +
 	"\rOperationStep\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1f\n" +
 	"\vtarget_kind\x18\x02 \x01(\tR\n" +
@@ -7163,10 +7305,12 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\"r\n" +
 	"\x14GetOperationResponse\x12.\n" +
 	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\x12*\n" +
-	"\x05steps\x18\x02 \x03(\v2\x14.om.v1.OperationStepR\x05steps\"h\n" +
+	"\x05steps\x18\x02 \x03(\v2\x14.om.v1.OperationStepR\x05steps\"\xa7\x01\n" +
 	"\x17ConfirmOperationRequest\x12*\n" +
 	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
-	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"J\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\x12*\n" +
+	"\x0econfirm_phrase\x18\x03 \x01(\tH\x00R\rconfirmPhrase\x88\x01\x01B\x11\n" +
+	"\x0f_confirm_phrase\"J\n" +
 	"\x18ConfirmOperationResponse\x12.\n" +
 	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"g\n" +
 	"\x16CancelOperationRequest\x12*\n" +
@@ -7178,10 +7322,12 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
 	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"I\n" +
 	"\x17ResumeOperationResponse\x12.\n" +
-	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"h\n" +
+	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation\"\xa7\x01\n" +
 	"\x17AbandonOperationRequest\x12*\n" +
 	"\foperation_id\x18\x01 \x01(\tB\a\xfaB\x04r\x02\x10\x01R\voperationId\x12!\n" +
-	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\"J\n" +
+	"\aversion\x18\x02 \x01(\x05B\a\xfaB\x04\x1a\x02(\x01R\aversion\x12*\n" +
+	"\x0econfirm_phrase\x18\x03 \x01(\tH\x00R\rconfirmPhrase\x88\x01\x01B\x11\n" +
+	"\x0f_confirm_phrase\"J\n" +
 	"\x18AbandonOperationResponse\x12.\n" +
 	"\toperation\x18\x01 \x01(\v2\x10.om.v1.OperationR\toperation*_\n" +
 	"\rServiceStatus\x12\x1e\n" +
@@ -7229,7 +7375,12 @@ const file_om_v1_om_proto_rawDesc = "" +
 	"\x1dOM_SETTING_SOURCE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19OM_SETTING_SOURCE_CLUSTER\x10\x01\x12\x1c\n" +
 	"\x18OM_SETTING_SOURCE_GLOBAL\x10\x02\x12\x1d\n" +
-	"\x19OM_SETTING_SOURCE_DEFAULT\x10\x032\xb2E\n" +
+	"\x19OM_SETTING_SOURCE_DEFAULT\x10\x03*\xaa\x01\n" +
+	"\x12ResidualHostStatus\x12$\n" +
+	" RESIDUAL_HOST_STATUS_UNSPECIFIED\x10\x00\x12 \n" +
+	"\x1cRESIDUAL_HOST_STATUS_REMOVED\x10\x01\x12$\n" +
+	" RESIDUAL_HOST_STATUS_NOT_REMOVED\x10\x02\x12&\n" +
+	"\"RESIDUAL_HOST_STATUS_STILL_RUNNING\x10\x032\xb2E\n" +
 	"\tOmService\x12\x89\x02\n" +
 	"\vGetTopology\x12\x19.om.v1.GetTopologyRequest\x1a\x1a.om.v1.GetTopologyResponse\"\xc2\x01\x92A\xa7\x01\x12\x18Get the MongoDB topology\x1a\x8a\x01Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load.\x82\xd3\xe4\x93\x02\x11\x12\x0f/v1/om/topology\x12\xee\x01\n" +
 	"\x10ListTopologyRuns\x12\x1e.om.v1.ListTopologyRunsRequest\x1a\x1f.om.v1.ListTopologyRunsResponse\"\x98\x01\x92Ay\x12\x14List collection runs\x1aaReturns the recorded collection runs, newest first, with what each one saw and any errors it hit.\x82\xd3\xe4\x93\x02\x16\x12\x14/v1/om/topology/runs\x12\xf7\x01\n" +
@@ -7275,8 +7426,8 @@ func file_om_v1_om_proto_rawDescGZIP() []byte {
 }
 
 var (
-	file_om_v1_om_proto_enumTypes = make([]protoimpl.EnumInfo, 9)
-	file_om_v1_om_proto_msgTypes  = make([]protoimpl.MessageInfo, 87)
+	file_om_v1_om_proto_enumTypes = make([]protoimpl.EnumInfo, 10)
+	file_om_v1_om_proto_msgTypes  = make([]protoimpl.MessageInfo, 88)
 	file_om_v1_om_proto_goTypes   = []any{
 		ServiceStatus(0),                              // 0: om.v1.ServiceStatus
 		ProcessRole(0),                                // 1: om.v1.ProcessRole
@@ -7287,254 +7438,258 @@ var (
 		ExecutorResolution(0),                         // 6: om.v1.ExecutorResolution
 		SettingReload(0),                              // 7: om.v1.SettingReload
 		OmSettingSource(0),                            // 8: om.v1.OmSettingSource
-		(*TopologyService)(nil),                       // 9: om.v1.TopologyService
-		(*Cluster)(nil),                               // 10: om.v1.Cluster
-		(*Environment)(nil),                           // 11: om.v1.Environment
-		(*Summary)(nil),                               // 12: om.v1.Summary
-		(*Snapshot)(nil),                              // 13: om.v1.Snapshot
-		(*GetTopologyRequest)(nil),                    // 14: om.v1.GetTopologyRequest
-		(*GetTopologyResponse)(nil),                   // 15: om.v1.GetTopologyResponse
-		(*TopologyRunCounts)(nil),                     // 16: om.v1.TopologyRunCounts
-		(*SourceReport)(nil),                          // 17: om.v1.SourceReport
-		(*TopologyRunError)(nil),                      // 18: om.v1.TopologyRunError
-		(*TopologyRun)(nil),                           // 19: om.v1.TopologyRun
-		(*GetTopologyRunRequest)(nil),                 // 20: om.v1.GetTopologyRunRequest
-		(*GetTopologyRunResponse)(nil),                // 21: om.v1.GetTopologyRunResponse
-		(*ListTopologyRunsRequest)(nil),               // 22: om.v1.ListTopologyRunsRequest
-		(*ListTopologyRunsResponse)(nil),              // 23: om.v1.ListTopologyRunsResponse
-		(*TriggerTopologyCollectionRequest)(nil),      // 24: om.v1.TriggerTopologyCollectionRequest
-		(*TriggerTopologyCollectionResponse)(nil),     // 25: om.v1.TriggerTopologyCollectionResponse
-		(*InventoryExecutor)(nil),                     // 26: om.v1.InventoryExecutor
-		(*UnregisteredMongod)(nil),                    // 27: om.v1.UnregisteredMongod
-		(*InventoryFreshness)(nil),                    // 28: om.v1.InventoryFreshness
-		(*InventoryService)(nil),                      // 29: om.v1.InventoryService
-		(*InventoryHost)(nil),                         // 30: om.v1.InventoryHost
-		(*InventoryRunCounts)(nil),                    // 31: om.v1.InventoryRunCounts
-		(*InventoryRunEntityService)(nil),             // 32: om.v1.InventoryRunEntityService
-		(*InventoryRunEntity)(nil),                    // 33: om.v1.InventoryRunEntity
-		(*InventoryRun)(nil),                          // 34: om.v1.InventoryRun
-		(*InventoryRunFailingNode)(nil),               // 35: om.v1.InventoryRunFailingNode
-		(*InventorySetting)(nil),                      // 36: om.v1.InventorySetting
-		(*ListInventoryHostsRequest)(nil),             // 37: om.v1.ListInventoryHostsRequest
-		(*ListInventoryHostsResponse)(nil),            // 38: om.v1.ListInventoryHostsResponse
-		(*GetInventoryHostRequest)(nil),               // 39: om.v1.GetInventoryHostRequest
-		(*GetInventoryHostResponse)(nil),              // 40: om.v1.GetInventoryHostResponse
-		(*DeleteInventoryHostRequest)(nil),            // 41: om.v1.DeleteInventoryHostRequest
-		(*DeleteInventoryHostResponse)(nil),           // 42: om.v1.DeleteInventoryHostResponse
-		(*ListInventoryServicesRequest)(nil),          // 43: om.v1.ListInventoryServicesRequest
-		(*ListInventoryServicesResponse)(nil),         // 44: om.v1.ListInventoryServicesResponse
-		(*GetInventoryServiceRequest)(nil),            // 45: om.v1.GetInventoryServiceRequest
-		(*GetInventoryServiceResponse)(nil),           // 46: om.v1.GetInventoryServiceResponse
-		(*DeleteInventoryServiceRequest)(nil),         // 47: om.v1.DeleteInventoryServiceRequest
-		(*DeleteInventoryServiceResponse)(nil),        // 48: om.v1.DeleteInventoryServiceResponse
-		(*ListInventoryRunsRequest)(nil),              // 49: om.v1.ListInventoryRunsRequest
-		(*ListInventoryRunsResponse)(nil),             // 50: om.v1.ListInventoryRunsResponse
-		(*GetInventoryRunRequest)(nil),                // 51: om.v1.GetInventoryRunRequest
-		(*GetInventoryRunResponse)(nil),               // 52: om.v1.GetInventoryRunResponse
-		(*TriggerInventoryRefreshRequest)(nil),        // 53: om.v1.TriggerInventoryRefreshRequest
-		(*TriggerInventoryRefreshResponse)(nil),       // 54: om.v1.TriggerInventoryRefreshResponse
-		(*TriggerHostBootstrapRequest)(nil),           // 55: om.v1.TriggerHostBootstrapRequest
-		(*BootstrapMemberConfig)(nil),                 // 56: om.v1.BootstrapMemberConfig
-		(*TriggerHostBootstrapResponse)(nil),          // 57: om.v1.TriggerHostBootstrapResponse
-		(*BootstrapStep)(nil),                         // 58: om.v1.BootstrapStep
-		(*BootstrapHost)(nil),                         // 59: om.v1.BootstrapHost
-		(*GetBootstrapRunRequest)(nil),                // 60: om.v1.GetBootstrapRunRequest
-		(*GetBootstrapRunResponse)(nil),               // 61: om.v1.GetBootstrapRunResponse
-		(*CancelBootstrapRunRequest)(nil),             // 62: om.v1.CancelBootstrapRunRequest
-		(*CancelBootstrapRunResponse)(nil),            // 63: om.v1.CancelBootstrapRunResponse
-		(*ListBootstrapRunsRequest)(nil),              // 64: om.v1.ListBootstrapRunsRequest
-		(*ListBootstrapRunsResponse)(nil),             // 65: om.v1.ListBootstrapRunsResponse
-		(*GetInventoryConfigRequest)(nil),             // 66: om.v1.GetInventoryConfigRequest
-		(*GetInventoryConfigResponse)(nil),            // 67: om.v1.GetInventoryConfigResponse
-		(*UpdateInventoryConfigRequest)(nil),          // 68: om.v1.UpdateInventoryConfigRequest
-		(*UpdateInventoryConfigResponse)(nil),         // 69: om.v1.UpdateInventoryConfigResponse
-		(*DeleteInventoryConfigOverrideRequest)(nil),  // 70: om.v1.DeleteInventoryConfigOverrideRequest
-		(*DeleteInventoryConfigOverrideResponse)(nil), // 71: om.v1.DeleteInventoryConfigOverrideResponse
-		(*OmSetting)(nil),                             // 72: om.v1.OmSetting
-		(*GetSettingsRequest)(nil),                    // 73: om.v1.GetSettingsRequest
-		(*GetSettingsResponse)(nil),                   // 74: om.v1.GetSettingsResponse
-		(*UpdateSettingsRequest)(nil),                 // 75: om.v1.UpdateSettingsRequest
-		(*UpdateSettingsResponse)(nil),                // 76: om.v1.UpdateSettingsResponse
-		(*DeleteSettingOverrideRequest)(nil),          // 77: om.v1.DeleteSettingOverrideRequest
-		(*DeleteSettingOverrideResponse)(nil),         // 78: om.v1.DeleteSettingOverrideResponse
-		(*Operation)(nil),                             // 79: om.v1.Operation
-		(*OperationStep)(nil),                         // 80: om.v1.OperationStep
-		(*ListOperationsRequest)(nil),                 // 81: om.v1.ListOperationsRequest
-		(*ListOperationsResponse)(nil),                // 82: om.v1.ListOperationsResponse
-		(*GetOperationRequest)(nil),                   // 83: om.v1.GetOperationRequest
-		(*GetOperationResponse)(nil),                  // 84: om.v1.GetOperationResponse
-		(*ConfirmOperationRequest)(nil),               // 85: om.v1.ConfirmOperationRequest
-		(*ConfirmOperationResponse)(nil),              // 86: om.v1.ConfirmOperationResponse
-		(*CancelOperationRequest)(nil),                // 87: om.v1.CancelOperationRequest
-		(*CancelOperationResponse)(nil),               // 88: om.v1.CancelOperationResponse
-		(*ResumeOperationRequest)(nil),                // 89: om.v1.ResumeOperationRequest
-		(*ResumeOperationResponse)(nil),               // 90: om.v1.ResumeOperationResponse
-		(*AbandonOperationRequest)(nil),               // 91: om.v1.AbandonOperationRequest
-		(*AbandonOperationResponse)(nil),              // 92: om.v1.AbandonOperationResponse
-		nil,                                           // 93: om.v1.Summary.ProcessRoleCountsEntry
-		nil,                                           // 94: om.v1.SourceReport.DetailEntry
-		nil,                                           // 95: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
-		(*timestamppb.Timestamp)(nil),                 // 96: google.protobuf.Timestamp
-		(*structpb.Struct)(nil),                       // 97: google.protobuf.Struct
-		(*structpb.Value)(nil),                        // 98: google.protobuf.Value
+		ResidualHostStatus(0),                         // 9: om.v1.ResidualHostStatus
+		(*TopologyService)(nil),                       // 10: om.v1.TopologyService
+		(*Cluster)(nil),                               // 11: om.v1.Cluster
+		(*Environment)(nil),                           // 12: om.v1.Environment
+		(*Summary)(nil),                               // 13: om.v1.Summary
+		(*Snapshot)(nil),                              // 14: om.v1.Snapshot
+		(*GetTopologyRequest)(nil),                    // 15: om.v1.GetTopologyRequest
+		(*GetTopologyResponse)(nil),                   // 16: om.v1.GetTopologyResponse
+		(*TopologyRunCounts)(nil),                     // 17: om.v1.TopologyRunCounts
+		(*SourceReport)(nil),                          // 18: om.v1.SourceReport
+		(*TopologyRunError)(nil),                      // 19: om.v1.TopologyRunError
+		(*TopologyRun)(nil),                           // 20: om.v1.TopologyRun
+		(*GetTopologyRunRequest)(nil),                 // 21: om.v1.GetTopologyRunRequest
+		(*GetTopologyRunResponse)(nil),                // 22: om.v1.GetTopologyRunResponse
+		(*ListTopologyRunsRequest)(nil),               // 23: om.v1.ListTopologyRunsRequest
+		(*ListTopologyRunsResponse)(nil),              // 24: om.v1.ListTopologyRunsResponse
+		(*TriggerTopologyCollectionRequest)(nil),      // 25: om.v1.TriggerTopologyCollectionRequest
+		(*TriggerTopologyCollectionResponse)(nil),     // 26: om.v1.TriggerTopologyCollectionResponse
+		(*InventoryExecutor)(nil),                     // 27: om.v1.InventoryExecutor
+		(*UnregisteredMongod)(nil),                    // 28: om.v1.UnregisteredMongod
+		(*InventoryFreshness)(nil),                    // 29: om.v1.InventoryFreshness
+		(*InventoryService)(nil),                      // 30: om.v1.InventoryService
+		(*InventoryHost)(nil),                         // 31: om.v1.InventoryHost
+		(*InventoryRunCounts)(nil),                    // 32: om.v1.InventoryRunCounts
+		(*InventoryRunEntityService)(nil),             // 33: om.v1.InventoryRunEntityService
+		(*InventoryRunEntity)(nil),                    // 34: om.v1.InventoryRunEntity
+		(*InventoryRun)(nil),                          // 35: om.v1.InventoryRun
+		(*InventoryRunFailingNode)(nil),               // 36: om.v1.InventoryRunFailingNode
+		(*InventorySetting)(nil),                      // 37: om.v1.InventorySetting
+		(*ListInventoryHostsRequest)(nil),             // 38: om.v1.ListInventoryHostsRequest
+		(*ListInventoryHostsResponse)(nil),            // 39: om.v1.ListInventoryHostsResponse
+		(*GetInventoryHostRequest)(nil),               // 40: om.v1.GetInventoryHostRequest
+		(*GetInventoryHostResponse)(nil),              // 41: om.v1.GetInventoryHostResponse
+		(*DeleteInventoryHostRequest)(nil),            // 42: om.v1.DeleteInventoryHostRequest
+		(*DeleteInventoryHostResponse)(nil),           // 43: om.v1.DeleteInventoryHostResponse
+		(*ListInventoryServicesRequest)(nil),          // 44: om.v1.ListInventoryServicesRequest
+		(*ListInventoryServicesResponse)(nil),         // 45: om.v1.ListInventoryServicesResponse
+		(*GetInventoryServiceRequest)(nil),            // 46: om.v1.GetInventoryServiceRequest
+		(*GetInventoryServiceResponse)(nil),           // 47: om.v1.GetInventoryServiceResponse
+		(*DeleteInventoryServiceRequest)(nil),         // 48: om.v1.DeleteInventoryServiceRequest
+		(*DeleteInventoryServiceResponse)(nil),        // 49: om.v1.DeleteInventoryServiceResponse
+		(*ListInventoryRunsRequest)(nil),              // 50: om.v1.ListInventoryRunsRequest
+		(*ListInventoryRunsResponse)(nil),             // 51: om.v1.ListInventoryRunsResponse
+		(*GetInventoryRunRequest)(nil),                // 52: om.v1.GetInventoryRunRequest
+		(*GetInventoryRunResponse)(nil),               // 53: om.v1.GetInventoryRunResponse
+		(*TriggerInventoryRefreshRequest)(nil),        // 54: om.v1.TriggerInventoryRefreshRequest
+		(*TriggerInventoryRefreshResponse)(nil),       // 55: om.v1.TriggerInventoryRefreshResponse
+		(*TriggerHostBootstrapRequest)(nil),           // 56: om.v1.TriggerHostBootstrapRequest
+		(*BootstrapMemberConfig)(nil),                 // 57: om.v1.BootstrapMemberConfig
+		(*TriggerHostBootstrapResponse)(nil),          // 58: om.v1.TriggerHostBootstrapResponse
+		(*BootstrapStep)(nil),                         // 59: om.v1.BootstrapStep
+		(*BootstrapHost)(nil),                         // 60: om.v1.BootstrapHost
+		(*GetBootstrapRunRequest)(nil),                // 61: om.v1.GetBootstrapRunRequest
+		(*GetBootstrapRunResponse)(nil),               // 62: om.v1.GetBootstrapRunResponse
+		(*CancelBootstrapRunRequest)(nil),             // 63: om.v1.CancelBootstrapRunRequest
+		(*CancelBootstrapRunResponse)(nil),            // 64: om.v1.CancelBootstrapRunResponse
+		(*ListBootstrapRunsRequest)(nil),              // 65: om.v1.ListBootstrapRunsRequest
+		(*ListBootstrapRunsResponse)(nil),             // 66: om.v1.ListBootstrapRunsResponse
+		(*GetInventoryConfigRequest)(nil),             // 67: om.v1.GetInventoryConfigRequest
+		(*GetInventoryConfigResponse)(nil),            // 68: om.v1.GetInventoryConfigResponse
+		(*UpdateInventoryConfigRequest)(nil),          // 69: om.v1.UpdateInventoryConfigRequest
+		(*UpdateInventoryConfigResponse)(nil),         // 70: om.v1.UpdateInventoryConfigResponse
+		(*DeleteInventoryConfigOverrideRequest)(nil),  // 71: om.v1.DeleteInventoryConfigOverrideRequest
+		(*DeleteInventoryConfigOverrideResponse)(nil), // 72: om.v1.DeleteInventoryConfigOverrideResponse
+		(*OmSetting)(nil),                             // 73: om.v1.OmSetting
+		(*GetSettingsRequest)(nil),                    // 74: om.v1.GetSettingsRequest
+		(*GetSettingsResponse)(nil),                   // 75: om.v1.GetSettingsResponse
+		(*UpdateSettingsRequest)(nil),                 // 76: om.v1.UpdateSettingsRequest
+		(*UpdateSettingsResponse)(nil),                // 77: om.v1.UpdateSettingsResponse
+		(*DeleteSettingOverrideRequest)(nil),          // 78: om.v1.DeleteSettingOverrideRequest
+		(*DeleteSettingOverrideResponse)(nil),         // 79: om.v1.DeleteSettingOverrideResponse
+		(*Operation)(nil),                             // 80: om.v1.Operation
+		(*ResidualHost)(nil),                          // 81: om.v1.ResidualHost
+		(*OperationStep)(nil),                         // 82: om.v1.OperationStep
+		(*ListOperationsRequest)(nil),                 // 83: om.v1.ListOperationsRequest
+		(*ListOperationsResponse)(nil),                // 84: om.v1.ListOperationsResponse
+		(*GetOperationRequest)(nil),                   // 85: om.v1.GetOperationRequest
+		(*GetOperationResponse)(nil),                  // 86: om.v1.GetOperationResponse
+		(*ConfirmOperationRequest)(nil),               // 87: om.v1.ConfirmOperationRequest
+		(*ConfirmOperationResponse)(nil),              // 88: om.v1.ConfirmOperationResponse
+		(*CancelOperationRequest)(nil),                // 89: om.v1.CancelOperationRequest
+		(*CancelOperationResponse)(nil),               // 90: om.v1.CancelOperationResponse
+		(*ResumeOperationRequest)(nil),                // 91: om.v1.ResumeOperationRequest
+		(*ResumeOperationResponse)(nil),               // 92: om.v1.ResumeOperationResponse
+		(*AbandonOperationRequest)(nil),               // 93: om.v1.AbandonOperationRequest
+		(*AbandonOperationResponse)(nil),              // 94: om.v1.AbandonOperationResponse
+		nil,                                           // 95: om.v1.Summary.ProcessRoleCountsEntry
+		nil,                                           // 96: om.v1.SourceReport.DetailEntry
+		nil,                                           // 97: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
+		(*timestamppb.Timestamp)(nil),                 // 98: google.protobuf.Timestamp
+		(*structpb.Struct)(nil),                       // 99: google.protobuf.Struct
+		(*structpb.Value)(nil),                        // 100: google.protobuf.Value
 	}
 )
 
 var file_om_v1_om_proto_depIdxs = []int32{
 	0,   // 0: om.v1.TopologyService.status:type_name -> om.v1.ServiceStatus
 	1,   // 1: om.v1.TopologyService.process_role:type_name -> om.v1.ProcessRole
-	96,  // 2: om.v1.TopologyService.observed_at:type_name -> google.protobuf.Timestamp
-	96,  // 3: om.v1.TopologyService.last_up_at:type_name -> google.protobuf.Timestamp
-	9,   // 4: om.v1.Cluster.services:type_name -> om.v1.TopologyService
+	98,  // 2: om.v1.TopologyService.observed_at:type_name -> google.protobuf.Timestamp
+	98,  // 3: om.v1.TopologyService.last_up_at:type_name -> google.protobuf.Timestamp
+	10,  // 4: om.v1.Cluster.services:type_name -> om.v1.TopologyService
 	4,   // 5: om.v1.Cluster.type:type_name -> om.v1.ClusterType
 	5,   // 6: om.v1.Cluster.health:type_name -> om.v1.ClusterHealth
-	10,  // 7: om.v1.Environment.clusters:type_name -> om.v1.Cluster
-	93,  // 8: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
-	96,  // 9: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
-	96,  // 10: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
-	13,  // 11: om.v1.GetTopologyResponse.snapshot:type_name -> om.v1.Snapshot
-	12,  // 12: om.v1.GetTopologyResponse.summary:type_name -> om.v1.Summary
-	11,  // 13: om.v1.GetTopologyResponse.environments:type_name -> om.v1.Environment
+	11,  // 7: om.v1.Environment.clusters:type_name -> om.v1.Cluster
+	95,  // 8: om.v1.Summary.process_role_counts:type_name -> om.v1.Summary.ProcessRoleCountsEntry
+	98,  // 9: om.v1.Snapshot.generated_at:type_name -> google.protobuf.Timestamp
+	98,  // 10: om.v1.Snapshot.observed_at:type_name -> google.protobuf.Timestamp
+	14,  // 11: om.v1.GetTopologyResponse.snapshot:type_name -> om.v1.Snapshot
+	13,  // 12: om.v1.GetTopologyResponse.summary:type_name -> om.v1.Summary
+	12,  // 13: om.v1.GetTopologyResponse.environments:type_name -> om.v1.Environment
 	3,   // 14: om.v1.SourceReport.status:type_name -> om.v1.SourceStatus
-	94,  // 15: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
+	96,  // 15: om.v1.SourceReport.detail:type_name -> om.v1.SourceReport.DetailEntry
 	2,   // 16: om.v1.TopologyRun.status:type_name -> om.v1.RunStatus
-	96,  // 17: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
-	96,  // 18: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
-	16,  // 19: om.v1.TopologyRun.counts:type_name -> om.v1.TopologyRunCounts
-	18,  // 20: om.v1.TopologyRun.errors:type_name -> om.v1.TopologyRunError
-	17,  // 21: om.v1.TopologyRun.sources:type_name -> om.v1.SourceReport
-	19,  // 22: om.v1.GetTopologyRunResponse.run:type_name -> om.v1.TopologyRun
-	19,  // 23: om.v1.ListTopologyRunsResponse.runs:type_name -> om.v1.TopologyRun
+	98,  // 17: om.v1.TopologyRun.start_time:type_name -> google.protobuf.Timestamp
+	98,  // 18: om.v1.TopologyRun.end_time:type_name -> google.protobuf.Timestamp
+	17,  // 19: om.v1.TopologyRun.counts:type_name -> om.v1.TopologyRunCounts
+	19,  // 20: om.v1.TopologyRun.errors:type_name -> om.v1.TopologyRunError
+	18,  // 21: om.v1.TopologyRun.sources:type_name -> om.v1.SourceReport
+	20,  // 22: om.v1.GetTopologyRunResponse.run:type_name -> om.v1.TopologyRun
+	20,  // 23: om.v1.ListTopologyRunsResponse.runs:type_name -> om.v1.TopologyRun
 	2,   // 24: om.v1.TriggerTopologyCollectionResponse.status:type_name -> om.v1.RunStatus
-	96,  // 25: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
-	96,  // 26: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
-	96,  // 27: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
-	96,  // 28: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
-	96,  // 29: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
-	97,  // 30: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
-	28,  // 31: om.v1.InventoryService.freshness:type_name -> om.v1.InventoryFreshness
-	26,  // 32: om.v1.InventoryHost.executor:type_name -> om.v1.InventoryExecutor
-	27,  // 33: om.v1.InventoryHost.unregistered_mongods:type_name -> om.v1.UnregisteredMongod
-	97,  // 34: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
-	28,  // 35: om.v1.InventoryHost.freshness:type_name -> om.v1.InventoryFreshness
-	29,  // 36: om.v1.InventoryHost.services:type_name -> om.v1.InventoryService
+	98,  // 25: om.v1.TriggerTopologyCollectionResponse.start_time:type_name -> google.protobuf.Timestamp
+	98,  // 26: om.v1.InventoryFreshness.first_seen_at:type_name -> google.protobuf.Timestamp
+	98,  // 27: om.v1.InventoryFreshness.last_attempt_at:type_name -> google.protobuf.Timestamp
+	98,  // 28: om.v1.InventoryFreshness.last_success_at:type_name -> google.protobuf.Timestamp
+	98,  // 29: om.v1.InventoryFreshness.failing_since:type_name -> google.protobuf.Timestamp
+	99,  // 30: om.v1.InventoryService.observed:type_name -> google.protobuf.Struct
+	29,  // 31: om.v1.InventoryService.freshness:type_name -> om.v1.InventoryFreshness
+	27,  // 32: om.v1.InventoryHost.executor:type_name -> om.v1.InventoryExecutor
+	28,  // 33: om.v1.InventoryHost.unregistered_mongods:type_name -> om.v1.UnregisteredMongod
+	99,  // 34: om.v1.InventoryHost.observed:type_name -> google.protobuf.Struct
+	29,  // 35: om.v1.InventoryHost.freshness:type_name -> om.v1.InventoryFreshness
+	30,  // 36: om.v1.InventoryHost.services:type_name -> om.v1.InventoryService
 	6,   // 37: om.v1.InventoryRunEntity.resolution:type_name -> om.v1.ExecutorResolution
-	32,  // 38: om.v1.InventoryRunEntity.services:type_name -> om.v1.InventoryRunEntityService
+	33,  // 38: om.v1.InventoryRunEntity.services:type_name -> om.v1.InventoryRunEntityService
 	2,   // 39: om.v1.InventoryRun.status:type_name -> om.v1.RunStatus
-	96,  // 40: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
-	96,  // 41: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
-	31,  // 42: om.v1.InventoryRun.counts:type_name -> om.v1.InventoryRunCounts
-	35,  // 43: om.v1.InventoryRun.failing_nodes:type_name -> om.v1.InventoryRunFailingNode
-	98,  // 44: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
-	98,  // 45: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
+	98,  // 40: om.v1.InventoryRun.start_time:type_name -> google.protobuf.Timestamp
+	98,  // 41: om.v1.InventoryRun.end_time:type_name -> google.protobuf.Timestamp
+	32,  // 42: om.v1.InventoryRun.counts:type_name -> om.v1.InventoryRunCounts
+	36,  // 43: om.v1.InventoryRun.failing_nodes:type_name -> om.v1.InventoryRunFailingNode
+	100, // 44: om.v1.InventorySetting.value:type_name -> google.protobuf.Value
+	100, // 45: om.v1.InventorySetting.default_value:type_name -> google.protobuf.Value
 	7,   // 46: om.v1.InventorySetting.reload:type_name -> om.v1.SettingReload
-	30,  // 47: om.v1.ListInventoryHostsResponse.hosts:type_name -> om.v1.InventoryHost
-	30,  // 48: om.v1.GetInventoryHostResponse.host:type_name -> om.v1.InventoryHost
-	29,  // 49: om.v1.ListInventoryServicesResponse.services:type_name -> om.v1.InventoryService
-	29,  // 50: om.v1.GetInventoryServiceResponse.service:type_name -> om.v1.InventoryService
-	96,  // 51: om.v1.ListInventoryRunsRequest.since:type_name -> google.protobuf.Timestamp
-	96,  // 52: om.v1.ListInventoryRunsRequest.until:type_name -> google.protobuf.Timestamp
-	34,  // 53: om.v1.ListInventoryRunsResponse.runs:type_name -> om.v1.InventoryRun
-	34,  // 54: om.v1.GetInventoryRunResponse.run:type_name -> om.v1.InventoryRun
-	33,  // 55: om.v1.GetInventoryRunResponse.entities:type_name -> om.v1.InventoryRunEntity
+	31,  // 47: om.v1.ListInventoryHostsResponse.hosts:type_name -> om.v1.InventoryHost
+	31,  // 48: om.v1.GetInventoryHostResponse.host:type_name -> om.v1.InventoryHost
+	30,  // 49: om.v1.ListInventoryServicesResponse.services:type_name -> om.v1.InventoryService
+	30,  // 50: om.v1.GetInventoryServiceResponse.service:type_name -> om.v1.InventoryService
+	98,  // 51: om.v1.ListInventoryRunsRequest.since:type_name -> google.protobuf.Timestamp
+	98,  // 52: om.v1.ListInventoryRunsRequest.until:type_name -> google.protobuf.Timestamp
+	35,  // 53: om.v1.ListInventoryRunsResponse.runs:type_name -> om.v1.InventoryRun
+	35,  // 54: om.v1.GetInventoryRunResponse.run:type_name -> om.v1.InventoryRun
+	34,  // 55: om.v1.GetInventoryRunResponse.entities:type_name -> om.v1.InventoryRunEntity
 	2,   // 56: om.v1.TriggerInventoryRefreshResponse.status:type_name -> om.v1.RunStatus
-	96,  // 57: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
-	95,  // 58: om.v1.TriggerHostBootstrapRequest.member_configs:type_name -> om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
-	58,  // 59: om.v1.BootstrapHost.steps:type_name -> om.v1.BootstrapStep
-	58,  // 60: om.v1.BootstrapHost.rollback_steps:type_name -> om.v1.BootstrapStep
-	58,  // 61: om.v1.BootstrapHost.finalize_steps:type_name -> om.v1.BootstrapStep
-	59,  // 62: om.v1.GetBootstrapRunResponse.hosts:type_name -> om.v1.BootstrapHost
-	58,  // 63: om.v1.GetBootstrapRunResponse.run_steps:type_name -> om.v1.BootstrapStep
-	96,  // 64: om.v1.GetBootstrapRunResponse.started_at:type_name -> google.protobuf.Timestamp
-	96,  // 65: om.v1.GetBootstrapRunResponse.finished_at:type_name -> google.protobuf.Timestamp
-	61,  // 66: om.v1.CancelBootstrapRunResponse.run:type_name -> om.v1.GetBootstrapRunResponse
-	61,  // 67: om.v1.ListBootstrapRunsResponse.runs:type_name -> om.v1.GetBootstrapRunResponse
-	36,  // 68: om.v1.GetInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	97,  // 69: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
-	36,  // 70: om.v1.UpdateInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
-	98,  // 71: om.v1.OmSetting.value:type_name -> google.protobuf.Value
+	98,  // 57: om.v1.TriggerInventoryRefreshResponse.start_time:type_name -> google.protobuf.Timestamp
+	97,  // 58: om.v1.TriggerHostBootstrapRequest.member_configs:type_name -> om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry
+	59,  // 59: om.v1.BootstrapHost.steps:type_name -> om.v1.BootstrapStep
+	59,  // 60: om.v1.BootstrapHost.rollback_steps:type_name -> om.v1.BootstrapStep
+	59,  // 61: om.v1.BootstrapHost.finalize_steps:type_name -> om.v1.BootstrapStep
+	60,  // 62: om.v1.GetBootstrapRunResponse.hosts:type_name -> om.v1.BootstrapHost
+	59,  // 63: om.v1.GetBootstrapRunResponse.run_steps:type_name -> om.v1.BootstrapStep
+	98,  // 64: om.v1.GetBootstrapRunResponse.started_at:type_name -> google.protobuf.Timestamp
+	98,  // 65: om.v1.GetBootstrapRunResponse.finished_at:type_name -> google.protobuf.Timestamp
+	62,  // 66: om.v1.CancelBootstrapRunResponse.run:type_name -> om.v1.GetBootstrapRunResponse
+	62,  // 67: om.v1.ListBootstrapRunsResponse.runs:type_name -> om.v1.GetBootstrapRunResponse
+	37,  // 68: om.v1.GetInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
+	99,  // 69: om.v1.UpdateInventoryConfigRequest.values:type_name -> google.protobuf.Struct
+	37,  // 70: om.v1.UpdateInventoryConfigResponse.settings:type_name -> om.v1.InventorySetting
+	100, // 71: om.v1.OmSetting.value:type_name -> google.protobuf.Value
 	8,   // 72: om.v1.OmSetting.source:type_name -> om.v1.OmSettingSource
-	72,  // 73: om.v1.GetSettingsResponse.settings:type_name -> om.v1.OmSetting
-	97,  // 74: om.v1.UpdateSettingsRequest.values:type_name -> google.protobuf.Struct
-	72,  // 75: om.v1.UpdateSettingsResponse.settings:type_name -> om.v1.OmSetting
-	96,  // 76: om.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
-	96,  // 77: om.v1.Operation.started_at:type_name -> google.protobuf.Timestamp
-	96,  // 78: om.v1.Operation.finished_at:type_name -> google.protobuf.Timestamp
-	96,  // 79: om.v1.Operation.not_before:type_name -> google.protobuf.Timestamp
-	96,  // 80: om.v1.Operation.deadline_at:type_name -> google.protobuf.Timestamp
-	96,  // 81: om.v1.OperationStep.dispatched_at:type_name -> google.protobuf.Timestamp
-	96,  // 82: om.v1.OperationStep.finished_at:type_name -> google.protobuf.Timestamp
-	79,  // 83: om.v1.ListOperationsResponse.operations:type_name -> om.v1.Operation
-	79,  // 84: om.v1.GetOperationResponse.operation:type_name -> om.v1.Operation
-	80,  // 85: om.v1.GetOperationResponse.steps:type_name -> om.v1.OperationStep
-	79,  // 86: om.v1.ConfirmOperationResponse.operation:type_name -> om.v1.Operation
-	79,  // 87: om.v1.CancelOperationResponse.operation:type_name -> om.v1.Operation
-	79,  // 88: om.v1.ResumeOperationResponse.operation:type_name -> om.v1.Operation
-	79,  // 89: om.v1.AbandonOperationResponse.operation:type_name -> om.v1.Operation
-	56,  // 90: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry.value:type_name -> om.v1.BootstrapMemberConfig
-	14,  // 91: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
-	22,  // 92: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
-	20,  // 93: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
-	24,  // 94: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
-	37,  // 95: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
-	39,  // 96: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
-	41,  // 97: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
-	43,  // 98: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
-	45,  // 99: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
-	47,  // 100: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
-	49,  // 101: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
-	51,  // 102: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
-	53,  // 103: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
-	55,  // 104: om.v1.OmService.TriggerHostBootstrap:input_type -> om.v1.TriggerHostBootstrapRequest
-	60,  // 105: om.v1.OmService.GetBootstrapRun:input_type -> om.v1.GetBootstrapRunRequest
-	64,  // 106: om.v1.OmService.ListBootstrapRuns:input_type -> om.v1.ListBootstrapRunsRequest
-	62,  // 107: om.v1.OmService.CancelBootstrapRun:input_type -> om.v1.CancelBootstrapRunRequest
-	66,  // 108: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
-	68,  // 109: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
-	70,  // 110: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
-	73,  // 111: om.v1.OmService.GetSettings:input_type -> om.v1.GetSettingsRequest
-	75,  // 112: om.v1.OmService.UpdateSettings:input_type -> om.v1.UpdateSettingsRequest
-	77,  // 113: om.v1.OmService.DeleteSettingOverride:input_type -> om.v1.DeleteSettingOverrideRequest
-	81,  // 114: om.v1.OmService.ListOperations:input_type -> om.v1.ListOperationsRequest
-	83,  // 115: om.v1.OmService.GetOperation:input_type -> om.v1.GetOperationRequest
-	85,  // 116: om.v1.OmService.ConfirmOperation:input_type -> om.v1.ConfirmOperationRequest
-	87,  // 117: om.v1.OmService.CancelOperation:input_type -> om.v1.CancelOperationRequest
-	89,  // 118: om.v1.OmService.ResumeOperation:input_type -> om.v1.ResumeOperationRequest
-	91,  // 119: om.v1.OmService.AbandonOperation:input_type -> om.v1.AbandonOperationRequest
-	15,  // 120: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
-	23,  // 121: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
-	21,  // 122: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
-	25,  // 123: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
-	38,  // 124: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
-	40,  // 125: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
-	42,  // 126: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
-	44,  // 127: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
-	46,  // 128: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
-	48,  // 129: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
-	50,  // 130: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
-	52,  // 131: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
-	54,  // 132: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
-	57,  // 133: om.v1.OmService.TriggerHostBootstrap:output_type -> om.v1.TriggerHostBootstrapResponse
-	61,  // 134: om.v1.OmService.GetBootstrapRun:output_type -> om.v1.GetBootstrapRunResponse
-	65,  // 135: om.v1.OmService.ListBootstrapRuns:output_type -> om.v1.ListBootstrapRunsResponse
-	63,  // 136: om.v1.OmService.CancelBootstrapRun:output_type -> om.v1.CancelBootstrapRunResponse
-	67,  // 137: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
-	69,  // 138: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
-	71,  // 139: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
-	74,  // 140: om.v1.OmService.GetSettings:output_type -> om.v1.GetSettingsResponse
-	76,  // 141: om.v1.OmService.UpdateSettings:output_type -> om.v1.UpdateSettingsResponse
-	78,  // 142: om.v1.OmService.DeleteSettingOverride:output_type -> om.v1.DeleteSettingOverrideResponse
-	82,  // 143: om.v1.OmService.ListOperations:output_type -> om.v1.ListOperationsResponse
-	84,  // 144: om.v1.OmService.GetOperation:output_type -> om.v1.GetOperationResponse
-	86,  // 145: om.v1.OmService.ConfirmOperation:output_type -> om.v1.ConfirmOperationResponse
-	88,  // 146: om.v1.OmService.CancelOperation:output_type -> om.v1.CancelOperationResponse
-	90,  // 147: om.v1.OmService.ResumeOperation:output_type -> om.v1.ResumeOperationResponse
-	92,  // 148: om.v1.OmService.AbandonOperation:output_type -> om.v1.AbandonOperationResponse
-	120, // [120:149] is the sub-list for method output_type
-	91,  // [91:120] is the sub-list for method input_type
-	91,  // [91:91] is the sub-list for extension type_name
-	91,  // [91:91] is the sub-list for extension extendee
-	0,   // [0:91] is the sub-list for field type_name
+	73,  // 73: om.v1.GetSettingsResponse.settings:type_name -> om.v1.OmSetting
+	99,  // 74: om.v1.UpdateSettingsRequest.values:type_name -> google.protobuf.Struct
+	73,  // 75: om.v1.UpdateSettingsResponse.settings:type_name -> om.v1.OmSetting
+	98,  // 76: om.v1.Operation.created_at:type_name -> google.protobuf.Timestamp
+	98,  // 77: om.v1.Operation.started_at:type_name -> google.protobuf.Timestamp
+	98,  // 78: om.v1.Operation.finished_at:type_name -> google.protobuf.Timestamp
+	98,  // 79: om.v1.Operation.not_before:type_name -> google.protobuf.Timestamp
+	98,  // 80: om.v1.Operation.deadline_at:type_name -> google.protobuf.Timestamp
+	81,  // 81: om.v1.Operation.residual_hosts:type_name -> om.v1.ResidualHost
+	9,   // 82: om.v1.ResidualHost.status:type_name -> om.v1.ResidualHostStatus
+	98,  // 83: om.v1.OperationStep.dispatched_at:type_name -> google.protobuf.Timestamp
+	98,  // 84: om.v1.OperationStep.finished_at:type_name -> google.protobuf.Timestamp
+	80,  // 85: om.v1.ListOperationsResponse.operations:type_name -> om.v1.Operation
+	80,  // 86: om.v1.GetOperationResponse.operation:type_name -> om.v1.Operation
+	82,  // 87: om.v1.GetOperationResponse.steps:type_name -> om.v1.OperationStep
+	80,  // 88: om.v1.ConfirmOperationResponse.operation:type_name -> om.v1.Operation
+	80,  // 89: om.v1.CancelOperationResponse.operation:type_name -> om.v1.Operation
+	80,  // 90: om.v1.ResumeOperationResponse.operation:type_name -> om.v1.Operation
+	80,  // 91: om.v1.AbandonOperationResponse.operation:type_name -> om.v1.Operation
+	57,  // 92: om.v1.TriggerHostBootstrapRequest.MemberConfigsEntry.value:type_name -> om.v1.BootstrapMemberConfig
+	15,  // 93: om.v1.OmService.GetTopology:input_type -> om.v1.GetTopologyRequest
+	23,  // 94: om.v1.OmService.ListTopologyRuns:input_type -> om.v1.ListTopologyRunsRequest
+	21,  // 95: om.v1.OmService.GetTopologyRun:input_type -> om.v1.GetTopologyRunRequest
+	25,  // 96: om.v1.OmService.TriggerTopologyCollection:input_type -> om.v1.TriggerTopologyCollectionRequest
+	38,  // 97: om.v1.OmService.ListInventoryHosts:input_type -> om.v1.ListInventoryHostsRequest
+	40,  // 98: om.v1.OmService.GetInventoryHost:input_type -> om.v1.GetInventoryHostRequest
+	42,  // 99: om.v1.OmService.DeleteInventoryHost:input_type -> om.v1.DeleteInventoryHostRequest
+	44,  // 100: om.v1.OmService.ListInventoryServices:input_type -> om.v1.ListInventoryServicesRequest
+	46,  // 101: om.v1.OmService.GetInventoryService:input_type -> om.v1.GetInventoryServiceRequest
+	48,  // 102: om.v1.OmService.DeleteInventoryService:input_type -> om.v1.DeleteInventoryServiceRequest
+	50,  // 103: om.v1.OmService.ListInventoryRuns:input_type -> om.v1.ListInventoryRunsRequest
+	52,  // 104: om.v1.OmService.GetInventoryRun:input_type -> om.v1.GetInventoryRunRequest
+	54,  // 105: om.v1.OmService.TriggerInventoryRefresh:input_type -> om.v1.TriggerInventoryRefreshRequest
+	56,  // 106: om.v1.OmService.TriggerHostBootstrap:input_type -> om.v1.TriggerHostBootstrapRequest
+	61,  // 107: om.v1.OmService.GetBootstrapRun:input_type -> om.v1.GetBootstrapRunRequest
+	65,  // 108: om.v1.OmService.ListBootstrapRuns:input_type -> om.v1.ListBootstrapRunsRequest
+	63,  // 109: om.v1.OmService.CancelBootstrapRun:input_type -> om.v1.CancelBootstrapRunRequest
+	67,  // 110: om.v1.OmService.GetInventoryConfig:input_type -> om.v1.GetInventoryConfigRequest
+	69,  // 111: om.v1.OmService.UpdateInventoryConfig:input_type -> om.v1.UpdateInventoryConfigRequest
+	71,  // 112: om.v1.OmService.DeleteInventoryConfigOverride:input_type -> om.v1.DeleteInventoryConfigOverrideRequest
+	74,  // 113: om.v1.OmService.GetSettings:input_type -> om.v1.GetSettingsRequest
+	76,  // 114: om.v1.OmService.UpdateSettings:input_type -> om.v1.UpdateSettingsRequest
+	78,  // 115: om.v1.OmService.DeleteSettingOverride:input_type -> om.v1.DeleteSettingOverrideRequest
+	83,  // 116: om.v1.OmService.ListOperations:input_type -> om.v1.ListOperationsRequest
+	85,  // 117: om.v1.OmService.GetOperation:input_type -> om.v1.GetOperationRequest
+	87,  // 118: om.v1.OmService.ConfirmOperation:input_type -> om.v1.ConfirmOperationRequest
+	89,  // 119: om.v1.OmService.CancelOperation:input_type -> om.v1.CancelOperationRequest
+	91,  // 120: om.v1.OmService.ResumeOperation:input_type -> om.v1.ResumeOperationRequest
+	93,  // 121: om.v1.OmService.AbandonOperation:input_type -> om.v1.AbandonOperationRequest
+	16,  // 122: om.v1.OmService.GetTopology:output_type -> om.v1.GetTopologyResponse
+	24,  // 123: om.v1.OmService.ListTopologyRuns:output_type -> om.v1.ListTopologyRunsResponse
+	22,  // 124: om.v1.OmService.GetTopologyRun:output_type -> om.v1.GetTopologyRunResponse
+	26,  // 125: om.v1.OmService.TriggerTopologyCollection:output_type -> om.v1.TriggerTopologyCollectionResponse
+	39,  // 126: om.v1.OmService.ListInventoryHosts:output_type -> om.v1.ListInventoryHostsResponse
+	41,  // 127: om.v1.OmService.GetInventoryHost:output_type -> om.v1.GetInventoryHostResponse
+	43,  // 128: om.v1.OmService.DeleteInventoryHost:output_type -> om.v1.DeleteInventoryHostResponse
+	45,  // 129: om.v1.OmService.ListInventoryServices:output_type -> om.v1.ListInventoryServicesResponse
+	47,  // 130: om.v1.OmService.GetInventoryService:output_type -> om.v1.GetInventoryServiceResponse
+	49,  // 131: om.v1.OmService.DeleteInventoryService:output_type -> om.v1.DeleteInventoryServiceResponse
+	51,  // 132: om.v1.OmService.ListInventoryRuns:output_type -> om.v1.ListInventoryRunsResponse
+	53,  // 133: om.v1.OmService.GetInventoryRun:output_type -> om.v1.GetInventoryRunResponse
+	55,  // 134: om.v1.OmService.TriggerInventoryRefresh:output_type -> om.v1.TriggerInventoryRefreshResponse
+	58,  // 135: om.v1.OmService.TriggerHostBootstrap:output_type -> om.v1.TriggerHostBootstrapResponse
+	62,  // 136: om.v1.OmService.GetBootstrapRun:output_type -> om.v1.GetBootstrapRunResponse
+	66,  // 137: om.v1.OmService.ListBootstrapRuns:output_type -> om.v1.ListBootstrapRunsResponse
+	64,  // 138: om.v1.OmService.CancelBootstrapRun:output_type -> om.v1.CancelBootstrapRunResponse
+	68,  // 139: om.v1.OmService.GetInventoryConfig:output_type -> om.v1.GetInventoryConfigResponse
+	70,  // 140: om.v1.OmService.UpdateInventoryConfig:output_type -> om.v1.UpdateInventoryConfigResponse
+	72,  // 141: om.v1.OmService.DeleteInventoryConfigOverride:output_type -> om.v1.DeleteInventoryConfigOverrideResponse
+	75,  // 142: om.v1.OmService.GetSettings:output_type -> om.v1.GetSettingsResponse
+	77,  // 143: om.v1.OmService.UpdateSettings:output_type -> om.v1.UpdateSettingsResponse
+	79,  // 144: om.v1.OmService.DeleteSettingOverride:output_type -> om.v1.DeleteSettingOverrideResponse
+	84,  // 145: om.v1.OmService.ListOperations:output_type -> om.v1.ListOperationsResponse
+	86,  // 146: om.v1.OmService.GetOperation:output_type -> om.v1.GetOperationResponse
+	88,  // 147: om.v1.OmService.ConfirmOperation:output_type -> om.v1.ConfirmOperationResponse
+	90,  // 148: om.v1.OmService.CancelOperation:output_type -> om.v1.CancelOperationResponse
+	92,  // 149: om.v1.OmService.ResumeOperation:output_type -> om.v1.ResumeOperationResponse
+	94,  // 150: om.v1.OmService.AbandonOperation:output_type -> om.v1.AbandonOperationResponse
+	122, // [122:151] is the sub-list for method output_type
+	93,  // [93:122] is the sub-list for method input_type
+	93,  // [93:93] is the sub-list for extension type_name
+	93,  // [93:93] is the sub-list for extension extendee
+	0,   // [0:93] is the sub-list for field type_name
 }
 
 func init() { file_om_v1_om_proto_init() }
@@ -7567,15 +7722,17 @@ func file_om_v1_om_proto_init() {
 	file_om_v1_om_proto_msgTypes[66].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[68].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[70].OneofWrappers = []any{}
-	file_om_v1_om_proto_msgTypes[71].OneofWrappers = []any{}
 	file_om_v1_om_proto_msgTypes[72].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[73].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[77].OneofWrappers = []any{}
+	file_om_v1_om_proto_msgTypes[83].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_om_v1_om_proto_rawDesc), len(file_om_v1_om_proto_rawDesc)),
-			NumEnums:      9,
-			NumMessages:   87,
+			NumEnums:      10,
+			NumMessages:   88,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

@@ -1287,6 +1287,25 @@ message Operation {
   google.protobuf.Timestamp not_before = 17;
   // When it will be abandoned if still unfinished.
   google.protobuf.Timestamp deadline_at = 18;
+  // Per-host cleanup outcome a destructive kind records when a run is abandoned partway;
+  // empty for an operation that recorded none.
+  repeated ResidualHost residual_hosts = 19;
+}
+
+// ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.
+enum ResidualHostStatus {
+  RESIDUAL_HOST_STATUS_UNSPECIFIED = 0;
+  RESIDUAL_HOST_STATUS_REMOVED = 1;
+  RESIDUAL_HOST_STATUS_NOT_REMOVED = 2;
+  RESIDUAL_HOST_STATUS_STILL_RUNNING = 3;
+}
+
+// ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.
+message ResidualHost {
+  // The host the outcome is for.
+  string host = 1;
+  // What remained on the host when the operation was abandoned.
+  ResidualHostStatus status = 2;
 }
 
 // OperationStep is one dispatch within an operation.
@@ -1351,6 +1370,9 @@ message ConfirmOperationRequest {
   // The version the caller reviewed. The confirm's optimistic fence: a rescan or any other
   // change since the review has bumped it, so a stale confirm moves nothing.
   int32 version = 2 [(validate.rules).int32.gte = 1];
+  // The server-validated confirm phrase, for a kind that seals one on the operation; a
+  // kind that seals none ignores it.
+  optional string confirm_phrase = 3;
 }
 
 // ConfirmOperationResponse returns the operation as it now stands.
@@ -1393,6 +1415,9 @@ message AbandonOperationRequest {
   string operation_id = 1 [(validate.rules).string.min_len = 1];
   // The version the caller read, fencing the abandon against a concurrent change.
   int32 version = 2 [(validate.rules).int32.gte = 1];
+  // The server-validated confirm phrase, for a kind that seals one on the operation; a
+  // kind that seals none ignores it.
+  optional string confirm_phrase = 3;
 }
 
 // AbandonOperationResponse returns the operation as it now stands.

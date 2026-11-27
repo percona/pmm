@@ -624,6 +624,10 @@ type ResumeOperationOKBodyOperation struct {
 	// When it will be abandoned if still unfinished.
 	// Format: date-time
 	DeadlineAt strfmt.DateTime `json:"deadline_at,omitempty"`
+
+	// Per-host cleanup outcome a destructive kind records when a run is abandoned partway;
+	// empty for an operation that recorded none.
+	ResidualHosts []*ResumeOperationOKBodyOperationResidualHostsItems0 `json:"residual_hosts"`
 }
 
 // Validate validates this resume operation OK body operation
@@ -647,6 +651,10 @@ func (o *ResumeOperationOKBodyOperation) Validate(formats strfmt.Registry) error
 	}
 
 	if err := o.validateDeadlineAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateResidualHosts(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -716,8 +724,73 @@ func (o *ResumeOperationOKBodyOperation) validateDeadlineAt(formats strfmt.Regis
 	return nil
 }
 
-// ContextValidate validates this resume operation OK body operation based on context it is used
+func (o *ResumeOperationOKBodyOperation) validateResidualHosts(formats strfmt.Registry) error {
+	if swag.IsZero(o.ResidualHosts) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ResidualHosts); i++ {
+		if swag.IsZero(o.ResidualHosts[i]) { // not required
+			continue
+		}
+
+		if o.ResidualHosts[i] != nil {
+			if err := o.ResidualHosts[i].Validate(formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("resumeOperationOk" + "." + "operation" + "." + "residual_hosts" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("resumeOperationOk" + "." + "operation" + "." + "residual_hosts" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// ContextValidate validate this resume operation OK body operation based on the context it is used
 func (o *ResumeOperationOKBodyOperation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.contextValidateResidualHosts(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ResumeOperationOKBodyOperation) contextValidateResidualHosts(ctx context.Context, formats strfmt.Registry) error {
+	for i := 0; i < len(o.ResidualHosts); i++ {
+		if o.ResidualHosts[i] != nil {
+
+			if swag.IsZero(o.ResidualHosts[i]) { // not required
+				return nil
+			}
+
+			if err := o.ResidualHosts[i].ContextValidate(ctx, formats); err != nil {
+				ve := new(errors.Validation)
+				if stderrors.As(err, &ve) {
+					return ve.ValidateName("resumeOperationOk" + "." + "operation" + "." + "residual_hosts" + "." + strconv.Itoa(i))
+				}
+				ce := new(errors.CompositeError)
+				if stderrors.As(err, &ce) {
+					return ce.ValidateName("resumeOperationOk" + "." + "operation" + "." + "residual_hosts" + "." + strconv.Itoa(i))
+				}
+
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 
@@ -732,6 +805,104 @@ func (o *ResumeOperationOKBodyOperation) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ResumeOperationOKBodyOperation) UnmarshalBinary(b []byte) error {
 	var res ResumeOperationOKBodyOperation
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*
+ResumeOperationOKBodyOperationResidualHostsItems0 ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.
+swagger:model ResumeOperationOKBodyOperationResidualHostsItems0
+*/
+type ResumeOperationOKBodyOperationResidualHostsItems0 struct {
+	// The host the outcome is for.
+	Host string `json:"host,omitempty"`
+
+	// ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.
+	// Enum: ["RESIDUAL_HOST_STATUS_UNSPECIFIED","RESIDUAL_HOST_STATUS_REMOVED","RESIDUAL_HOST_STATUS_NOT_REMOVED","RESIDUAL_HOST_STATUS_STILL_RUNNING"]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this resume operation OK body operation residual hosts items0
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var resumeOperationOkBodyOperationResidualHostsItems0TypeStatusPropEnum []any
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["RESIDUAL_HOST_STATUS_UNSPECIFIED","RESIDUAL_HOST_STATUS_REMOVED","RESIDUAL_HOST_STATUS_NOT_REMOVED","RESIDUAL_HOST_STATUS_STILL_RUNNING"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		resumeOperationOkBodyOperationResidualHostsItems0TypeStatusPropEnum = append(resumeOperationOkBodyOperationResidualHostsItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSUNSPECIFIED captures enum value "RESIDUAL_HOST_STATUS_UNSPECIFIED"
+	ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSUNSPECIFIED string = "RESIDUAL_HOST_STATUS_UNSPECIFIED"
+
+	// ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSREMOVED captures enum value "RESIDUAL_HOST_STATUS_REMOVED"
+	ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSREMOVED string = "RESIDUAL_HOST_STATUS_REMOVED"
+
+	// ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSNOTREMOVED captures enum value "RESIDUAL_HOST_STATUS_NOT_REMOVED"
+	ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSNOTREMOVED string = "RESIDUAL_HOST_STATUS_NOT_REMOVED"
+
+	// ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSSTILLRUNNING captures enum value "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+	ResumeOperationOKBodyOperationResidualHostsItems0StatusRESIDUALHOSTSTATUSSTILLRUNNING string = "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+)
+
+// prop value enum
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, resumeOperationOkBodyOperationResidualHostsItems0TypeStatusPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) validateStatus(formats strfmt.Registry) error {
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this resume operation OK body operation residual hosts items0 based on context it is used
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ResumeOperationOKBodyOperationResidualHostsItems0) UnmarshalBinary(b []byte) error {
+	var res ResumeOperationOKBodyOperationResidualHostsItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -16,6 +16,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"gopkg.in/reform.v1"
@@ -79,6 +80,8 @@ type OmOperation struct {
 	CreatedAt          time.Time          `reform:"created_at"`
 	StartedAt          *time.Time         `reform:"started_at"`
 	FinishedAt         *time.Time         `reform:"finished_at"`
+	ConfirmPhrase      *string            `reform:"confirm_phrase"`
+	ResidualHosts      []byte             `reform:"residual_hosts"`
 }
 
 // BeforeInsert implements reform.BeforeInserter. It sets the defaults the migration drops
@@ -112,6 +115,46 @@ func (o *OmOperation) AfterFind() error {
 		}
 	}
 	return nil
+}
+
+// OmResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.
+type OmResidualHostStatus string
+
+// Residual-host cleanup outcomes.
+const (
+	OmResidualHostRemoved      = OmResidualHostStatus("removed")
+	OmResidualHostNotRemoved   = OmResidualHostStatus("not_removed")
+	OmResidualHostStillRunning = OmResidualHostStatus("still_running")
+)
+
+// OmResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.
+type OmResidualHost struct {
+	Host   string               `json:"host"`
+	Status OmResidualHostStatus `json:"status"`
+}
+
+// ResidualHostList returns the per-host cleanup outcomes recorded on the operation, nil when none.
+func (o *OmOperation) ResidualHostList() ([]OmResidualHost, error) {
+	if len(o.ResidualHosts) == 0 {
+		return nil, nil
+	}
+	var hosts []OmResidualHost
+	err := json.Unmarshal(o.ResidualHosts, &hosts)
+	if err != nil {
+		return nil, err
+	}
+	return hosts, nil
+}
+
+// SetOmOperationResidualHosts records a destructive operation's per-host cleanup outcomes, for a
+// kind abandoning a run partway.
+func SetOmOperationResidualHosts(q *reform.Querier, operationID string, hosts []OmResidualHost) error {
+	payload, err := json.Marshal(hosts)
+	if err != nil {
+		return err
+	}
+	_, err = q.Exec("UPDATE om_operations SET residual_hosts = $1 WHERE id = $2", payload, operationID)
+	return err
 }
 
 // OmStepTargetKind is what a dispatched step targets.
