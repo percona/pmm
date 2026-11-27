@@ -13,6 +13,7 @@ import {
   type ServiceChanges,
   type UpdateServiceParams,
 } from 'types/services.types';
+import { parseCustomLabels, toCustomLabelsText } from 'utils/labels.utils';
 import {
   DEFAULT_SLOWLOG_FILE_SIZE,
   EXPORTER_TYPES,
@@ -21,37 +22,9 @@ import {
   QUERY_SOURCES,
   SERVICE_SETTINGS,
 } from './EditService.constants';
+import { RdsAuthMode } from '../Inventory.types';
 import type { EditServiceFormValues } from './EditService.schema';
-import {
-  QuerySource,
-  RdsAuthMode,
-  type SettingName,
-} from './EditService.types';
-
-export const toCustomLabelsText = (labels: Record<string, string>) =>
-  Object.entries(labels)
-    .map(([name, value]) => `${name}:${value}`)
-    .join('\n');
-
-// Only label names are restricted, so a value can hold colons too
-export const splitCustomLabel = (entry: string): [string, string] => {
-  const separator = entry.indexOf(':');
-
-  return separator === -1
-    ? [entry, '']
-    : [entry.slice(0, separator), entry.slice(separator + 1)];
-};
-
-// Labels are separated by new lines or spaces, but a space only starts a new
-// label before another "name:", so values can hold spaces
-export const splitCustomLabelEntries = (text: string) =>
-  text
-    .split(/\n|\s+(?=[^\s:]+:)/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-
-export const parseCustomLabels = (text: string): Record<string, string> =>
-  Object.fromEntries(splitCustomLabelEntries(text).map(splitCustomLabel));
+import { QuerySource, type SettingName } from './EditService.types';
 
 export const toListText = (list: string[]) => list.join(', ');
 

@@ -9,6 +9,7 @@ import { HelpCenter } from 'pages/help-center';
 import { RealtimeSelection } from 'pages/rta/selection';
 import Providers from 'Providers';
 import {
+  PMM_ADD_SERVICE_PATH,
   PMM_NEW_NAV_PATH,
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
@@ -17,6 +18,7 @@ import {
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
 import {
+  AddServiceRedirect,
   EditServiceRedirect,
   InventoryRedirect,
   Redirect,
@@ -41,6 +43,7 @@ import { AdvisorRuns } from 'pages/advisors/runs';
 import { RUN_FILTER_PARAMS } from 'pages/advisors/runs/AdvisorRuns.filters';
 import { AdvisorScheduler } from 'pages/advisors/scheduler';
 import { AlertsPage } from 'pages/alerting/status';
+import { AddServicePage } from 'pages/inventory/add-service';
 import { AtwApp } from '@pmm-extensions/plugins-atw';
 import { OmApp } from '@pmm/plugins-om';
 import { OmPage } from 'om/OmPage';
@@ -94,6 +97,10 @@ const router = createBrowserRouter(
             {
               path: 'settings/:tab?',
               element: <Settings />,
+            },
+            {
+              path: `${relativeToNav(PMM_ADD_SERVICE_PATH)}/:type?`,
+              element: <AddServicePage />,
             },
             {
               path: 'inventory',
@@ -252,6 +259,10 @@ const router = createBrowserRouter(
             {
               path: 'graph/settings/:tab?',
               element: <SettingsRedirect />,
+            },
+            {
+              path: 'graph/add-instance/:type?',
+              element: <AddServiceRedirect />,
             },
             {
               path: 'graph/alerting/alerts',

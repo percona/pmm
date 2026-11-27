@@ -1,0 +1,1 @@
+export { DiscoveryCredentials } from './DiscoveryCredentials';

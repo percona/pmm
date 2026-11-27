@@ -1,5 +1,11 @@
 import type {
+  AddAzureDatabasePayload,
+  AddServicePayload,
   BaseService,
+  DiscoverAzurePayload,
+  DiscoverAzureResponse,
+  DiscoverRDSPayload,
+  DiscoverRDSResponse,
   EditableService,
   ListServicesParams,
   ListServicesResponse,
@@ -23,6 +29,9 @@ import {
   toServiceAgent,
   toUpdateServicePayload,
 } from './inventory.utils';
+import { withVerbatimKeys } from './api.utils';
+
+const MAP_FIELDS = ['customLabels', 'extraDsnParams'];
 
 export const getServiceTypes = async (): Promise<ListTypesResponse> => {
   const res = await api.post('/inventory/services:getTypes');
@@ -98,4 +107,40 @@ export const updateService = async ({
   );
 
   return res.data.warning ?? '';
+};
+
+export const addService = async (payload: AddServicePayload): Promise<void> => {
+  await api.post('/management/services', withVerbatimKeys(payload, MAP_FIELDS));
+};
+
+export const addAzureService = async (
+  payload: AddAzureDatabasePayload
+): Promise<void> => {
+  await api.post(
+    '/management/services/azure',
+    withVerbatimKeys(payload, MAP_FIELDS)
+  );
+};
+
+// The RDS discovery page reports errors itself, rewording the missing-credentials one.
+export const discoverRDS = async (
+  payload: DiscoverRDSPayload,
+  signal?: AbortSignal
+): Promise<DiscoverRDSResponse> => {
+  const res = await api.post<DiscoverRDSResponse>(
+    '/management/services:discoverRDS',
+    payload,
+    { disableNotifications: true, signal }
+  );
+  return res.data;
+};
+
+export const discoverAzure = async (
+  payload: DiscoverAzurePayload
+): Promise<DiscoverAzureResponse> => {
+  const res = await api.post<DiscoverAzureResponse>(
+    '/management/services:discoverAzure',
+    payload
+  );
+  return res.data;
 };

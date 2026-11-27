@@ -111,3 +111,6 @@ export const LEGACY_FILTER_PARAMS = [
 export const LEGACY_FILTER_VALUES: Record<string, string> = {
   'N/A': ServiceStatus.unspecified,
 };
+
+// Mirrors the server's rule on aws_role_arn in api/inventory/v1/agents.proto
+export const AWS_ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;

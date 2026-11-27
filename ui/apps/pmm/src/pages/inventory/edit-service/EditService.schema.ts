@@ -1,28 +1,23 @@
 import { LogLevel, type RdsExporter } from 'types/agent.types';
 import { ManagedServiceType, MetricsMode } from 'types/services.types';
+import {
+  areCustomLabelsValid,
+  splitCustomLabel,
+  splitCustomLabelEntries,
+} from 'utils/labels.utils';
 import { z } from 'zod';
+import { AWS_ROLE_ARN_RE } from '../Inventory.constants';
+import { RdsAuthMode } from '../Inventory.types';
 import {
   MAX_DURATION_SECONDS,
   MAX_PORT,
   NUMBER_SETTINGS,
 } from './EditService.constants';
 import { Messages } from './EditService.messages';
-import {
-  QuerySource,
-  RdsAuthMode,
-  type SettingName,
-} from './EditService.types';
-import {
-  isSettingShown,
-  splitCustomLabel,
-  splitCustomLabelEntries,
-} from './EditService.utils';
+import { QuerySource, type SettingName } from './EditService.types';
+import { isSettingShown } from './EditService.utils';
 
-// Prometheus label names, see https://prometheus.io/docs/concepts/data_model
-const LABEL_NAME_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 const DSN_PARAM_NAME_RE = /^\w+$/;
-// Mirrors the server's rule on aws_role_arn in api/inventory/v1/agents.proto
-const AWS_ROLE_ARN_RE = /^arn:aws[a-zA-Z0-9-]*:iam::[0-9]{12}:role\/.+$/;
 const WHOLE_NUMBER_RE = /^-?\d+$/;
 // A protobuf duration takes no sign or exponent, and 9 decimals at most
 const DURATION_SECONDS_RE = /^\d*(\.\d{1,9})?$/;
@@ -40,12 +35,6 @@ const arePairsValid = (text: string, isNameValid: (name: string) => boolean) =>
 
     return isNameValid(name) && !!value;
   });
-
-export const areCustomLabelsValid = (text: string) =>
-  arePairsValid(
-    text,
-    (name) => LABEL_NAME_RE.test(name) && !name.startsWith('__')
-  );
 
 export const areDsnParamsValid = (text: string) =>
   arePairsValid(text, (name) => DSN_PARAM_NAME_RE.test(name));

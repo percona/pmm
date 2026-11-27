@@ -1,0 +1,18 @@
+import {
+  DATABASE_SERVICE_DEFAULTS,
+  DISABLE_COLLECTORS_DEFAULTS,
+  MAX_QUERY_LENGTH_DEFAULTS,
+  MONGODB_TLS_CERTIFICATES_DEFAULTS,
+} from '../ServiceForm.constants';
+import type { MongoDBFormValues } from './MongoDBForm.types';
+
+export const X509_AUTHENTICATION = 'MONGODB-X509';
+
+export const MONGODB_DEFAULTS: MongoDBFormValues = {
+  ...DATABASE_SERVICE_DEFAULTS,
+  port: '27017',
+  ...MONGODB_TLS_CERTIFICATES_DEFAULTS,
+  ...DISABLE_COLLECTORS_DEFAULTS,
+  ...MAX_QUERY_LENGTH_DEFAULTS,
+  qanMongodbProfiler: false,
+};

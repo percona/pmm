@@ -14,6 +14,7 @@ const MIGRATED_GRAFANA_PATHS = [
   '/graph/settings',
   '/graph/inventory',
   '/graph/edit-instance',
+  '/graph/add-instance',
   '/graph/advisors',
   '/graph/pmm-database-checks',
 ];

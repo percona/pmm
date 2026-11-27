@@ -1,5 +1,5 @@
 import { Messages } from '../EditService.messages';
-import { RdsAuthMode } from '../EditService.types';
+import { RdsAuthMode } from '../../Inventory.types';
 
 const { rds } = Messages;
 

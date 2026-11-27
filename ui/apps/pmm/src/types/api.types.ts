@@ -13,6 +13,11 @@ declare module 'axios' {
     /** Set by the auth retry interceptor so a replayed request is never replayed twice. */
     authRetried?: boolean;
   }
+
+  export interface AxiosError {
+    /** Set by the api error notifier once it has shown this error. */
+    notified?: boolean;
+  }
 }
 
 declare module '@tanstack/react-query' {

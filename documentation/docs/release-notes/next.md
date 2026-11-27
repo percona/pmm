@@ -12,7 +12,11 @@ Percona Monitoring and Management (PMM) is an open source solution for monitorin
 
 ## 📈 Improvements
 
+- [PMM-15003](https://perconadev.atlassian.net/browse/PMM-15003): The **Inventory > Add service** pages now run in native PMM UI, like [**Inventory**](3.11.0.md#inventory-page-now-in-native-pmm-ui) since PMM 3.11.0, so adding a service looks and works like the rest of PMM. Your existing links to these pages keep working.
+
 ## ✅ Fixed issues
+
+- [PMM-15003](https://perconadev.atlassian.net/browse/PMM-15003): Fixed two issues when you add a service on **Inventory > Add service**. If you chose HTTPS for an external service, PMM still collected its metrics over HTTP. If you added a MongoDB service with TLS, PMM ignored the **TLS certificate password** that you entered. Both services now connect the way you set them up.
 
 ## 🔶 Known issues
 

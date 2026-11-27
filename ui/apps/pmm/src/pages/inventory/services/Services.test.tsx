@@ -109,7 +109,7 @@ describe('Services', () => {
     );
     expect(screen.getByTestId('add-service-button')).toHaveAttribute(
       'href',
-      '/graph/add-instance'
+      '/add-instance'
     );
   });
 

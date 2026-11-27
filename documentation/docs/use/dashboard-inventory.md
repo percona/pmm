@@ -18,7 +18,7 @@ To open a tab directly, go to **Inventory > Services** or **Inventory > Nodes**.
 
 ## Add a service
 
-To start monitoring another database, click **Add Service** on the **Services** tab, or go to **Inventory > Add service**, then [connect your database](../install-pmm/install-pmm-client/connect-database/index.md).
+To start monitoring another database, click **Add service** on the **Services** tab, or go to **Inventory > Add service**, then [connect your database](../install-pmm/install-pmm-client/connect-database/index.md).
 
 ## Check that your databases are monitored
 

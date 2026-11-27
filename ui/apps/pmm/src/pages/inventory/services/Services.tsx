@@ -19,7 +19,7 @@ import { ExportButton } from 'components/export-button';
 import { useManagedServices, useRemoveServices } from 'hooks/api/useServices';
 import { useLocalStorage } from 'hooks/utils/useLocalStorage';
 import { useTableUrlState } from 'hooks/utils/useTableUrlState';
-import { PMM_ADD_SERVICE_URL } from 'lib/constants';
+import { PMM_ADD_SERVICE_PATH } from 'lib/constants';
 import { enqueueSnackbar } from 'notistack';
 import { type FC, useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
@@ -243,7 +243,7 @@ export const Services: FC = () => {
               <Button
                 startIcon={<AddOutlinedIcon />}
                 component={RouterLink}
-                to={PMM_ADD_SERVICE_URL}
+                to={PMM_ADD_SERVICE_PATH}
                 data-testid="add-service-button"
               >
                 {Messages.actions.add}

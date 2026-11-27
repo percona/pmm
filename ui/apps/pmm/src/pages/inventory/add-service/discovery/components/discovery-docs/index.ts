@@ -1,0 +1,1 @@
+export { DiscoveryDocs } from './DiscoveryDocs';

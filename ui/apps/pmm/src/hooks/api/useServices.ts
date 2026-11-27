@@ -6,6 +6,10 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
+  addAzureService,
+  addService,
+  discoverAzure,
+  discoverRDS,
   getEditableService,
   getService,
   getServiceTypes,
@@ -15,7 +19,13 @@ import {
   updateService,
 } from 'api/services';
 import type {
+  AddAzureDatabasePayload,
+  AddServicePayload,
   BaseService,
+  DiscoverAzurePayload,
+  DiscoverAzureResponse,
+  DiscoverRDSPayload,
+  DiscoverRDSResponse,
   EditableService,
   ListServicesParams,
   ListServicesResponse,
@@ -83,6 +93,65 @@ export const useRemoveServices = (
     },
   });
 };
+
+// The inventory refreshes in the background, so the caller moves on without waiting for it.
+const useAddMutation = <T>(
+  mutationKey: string[],
+  mutationFn: (payload: T) => Promise<void>,
+  options?: Partial<UseMutationOptions<void, Error, T>>
+) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey,
+    mutationFn,
+    ...options,
+    onSuccess: (data, variables, onMutate, context) => {
+      void invalidateInventory(queryClient);
+      return options?.onSuccess?.(data, variables, onMutate, context);
+    },
+  });
+};
+
+export const useAddService = (
+  options?: Partial<UseMutationOptions<void, Error, AddServicePayload>>
+) => useAddMutation(['services:add'], addService, options);
+
+export const useAddAzureService = (
+  options?: Partial<UseMutationOptions<void, Error, AddAzureDatabasePayload>>
+) => useAddMutation(['services:add-azure'], addAzureService, options);
+
+// Discovery with PMM Server's own AWS identity; aborted when the page is left.
+export const useServerRDSInstances = (
+  options?: Partial<UseQueryOptions<DiscoverRDSResponse>>
+) =>
+  useQuery({
+    queryKey: ['services:discover-rds-server'],
+    queryFn: ({ signal }) => discoverRDS({}, signal),
+    ...options,
+  });
+
+export const useDiscoverRDS = (
+  options?: Partial<
+    UseMutationOptions<DiscoverRDSResponse, Error, DiscoverRDSPayload>
+  >
+) =>
+  useMutation({
+    mutationKey: ['services:discover-rds'],
+    mutationFn: (payload) => discoverRDS(payload),
+    ...options,
+  });
+
+export const useDiscoverAzure = (
+  options?: Partial<
+    UseMutationOptions<DiscoverAzureResponse, Error, DiscoverAzurePayload>
+  >
+) =>
+  useMutation({
+    mutationKey: ['services:discover-azure'],
+    mutationFn: discoverAzure,
+    ...options,
+  });
 
 export const useEditableService = (
   serviceId?: string,
