@@ -27,7 +27,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 	jsonpb "google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -292,7 +294,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		}
 
 		test.in.GroupBy = "unknown dimension"
-		expectedErr := fmt.Errorf("unknown group dimension: %#q", "unknown dimension")
+		expectedErr := status.Errorf(codes.InvalidArgument, "unknown group dimension: '%s'", "unknown dimension")
 		_, err := s.GetReport(makeContext(t), test.in)
 		if err.Error() != expectedErr.Error() {
 			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
