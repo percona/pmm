@@ -6,6 +6,7 @@ declare POSTGRES_DATA_DIR="${POSTGRES_DATA_DIR:?must be exported by the entrypoi
 declare POSTGRES_OLD_DATA_DIR="${POSTGRES_OLD_DATA_DIR:?must be exported by the entrypoint}"
 declare POSTGRES_PASSWORD_FILE="${POSTGRES_PASSWORD_FILE:?must be exported by the entrypoint}"
 declare POSTGRES_BIN_DIR="${POSTGRES_BIN_DIR:?must be exported by the entrypoint}"
+declare GRAFANA_DB_PASSWORD_FILE="/run/pmm/secrets/grafana-db-password"
 
 # ── shared cluster primitives ─────────────────────────────────────────────────
 # Stores the postgres superuser password with restricted permissions.
@@ -44,6 +45,51 @@ create_pg_stat_statements() {
     echo "Ensuring pg_stat_statements extension..."
     "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
         -c "CREATE EXTENSION IF NOT EXISTS pg_stat_statements SCHEMA public"
+}
+
+# Prints the argument without the leading and trailing whitespace that Go's strings.TrimSpace removes, whatever the locale.
+trim_space() {
+    local LC_ALL=C value=$1
+    # The UTF-8 encodings of the characters Go's unicode.IsSpace matches.
+    local space=$'([\t\n\v\f\r ]|\xc2[\x85\xa0]|\xe1\x9a\x80|\xe2\x80[\x80-\x8a\xa8\xa9\xaf]|\xe2\x81\x9f|\xe3\x80\x80)'
+
+    while [[ $value =~ ^$space ]]; do
+        value=${value:${#BASH_REMATCH[0]}}
+    done
+    while [[ $value =~ $space$ ]]; do
+        value=${value:0:${#value}-${#BASH_REMATCH[0]}}
+    done
+    printf '%s' "$value"
+}
+
+# Runs the SQL on stdin as postgres, with the password Grafana reads in the psql variable password.
+psql_with_grafana_password() {
+    local password
+
+    # Grafana trims the file's content with strings.TrimSpace, so the role must not keep that whitespace either.
+    password=$(trim_space "$(< "$GRAFANA_DB_PASSWORD_FILE")")
+    # psql reads the password from its environment, which other users can't see, unlike its arguments.
+    # The statements carry the password, which pg_stat_statements must not record.
+    GRAFANA_DB_PASSWORD="$password" PGOPTIONS="-c pg_stat_statements.track_utility=off" \
+        "$POSTGRES_BIN_DIR/psql" -X -v ON_ERROR_STOP=1 -h /run/postgresql -U postgres -d postgres \
+        -c '\getenv password GRAFANA_DB_PASSWORD' -f -
+}
+
+# Gives the grafana role the password Grafana reads, creating the role and the database it owns when missing.
+ensure_grafana_db() {
+    echo "Ensuring grafana role and database..."
+    psql_with_grafana_password <<'SQL'
+SELECT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'grafana') AS grafana_role_exists \gset
+\if :grafana_role_exists
+ALTER ROLE grafana PASSWORD :'password';
+\else
+CREATE ROLE grafana LOGIN PASSWORD :'password';
+\endif
+SELECT NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'grafana') AS grafana_db_missing \gset
+\if :grafana_db_missing
+CREATE DATABASE grafana OWNER grafana;
+\endif
+SQL
 }
 
 # ── pg14 → pg18 upgrade ───────────────────────────────────────────────────────
@@ -111,17 +157,21 @@ upgrade_pg14_to_pg18() {
 
     # Each role owns its database: since PostgreSQL 15 the public schema belongs to
     # pg_database_owner, so ownership is what lets the role create tables in it.
-    # Both roles use their own name as the password, same as the ansible tasks that
-    # provision them on a fresh installation.
+    # pmm-managed's role gets its own name as the password; pmm-managed resets it to the
+    # configured one when it can't log in.
     for db in pmm-managed grafana; do
         dump="${BACKUP_DIR}/pg18-upgrade-${db}.sql"
         if [ ! -f "$dump" ]; then
             continue
         fi
-        echo "Creating $db role and database..."
-        "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
-            -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
-            -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        if [ "$db" = "grafana" ]; then
+            ensure_grafana_db
+        else
+            echo "Creating $db role and database..."
+            "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d postgres \
+                -c "CREATE ROLE \"$db\" LOGIN PASSWORD '$db'" \
+                -c "CREATE DATABASE \"$db\" OWNER \"$db\""
+        fi
         echo "Restoring $db database..."
         "$POSTGRES_BIN_DIR/psql" -h /run/postgresql -U postgres -d "$db" -f "$dump"
     done
@@ -205,6 +255,28 @@ ensure_postgres_password() {
     fi
 }
 
+# Grafana connects as soon as supervisord starts it, so this runs on every start before that, which
+# also makes a changed password take effect.
+prepare_grafana_db() {
+    local started=0
+
+    if [ -n "${GF_DATABASE_URL}" ] || [ -n "${GF_DATABASE_HOST}" ]; then
+        return
+    fi
+
+    if ! "$POSTGRES_BIN_DIR/pg_ctl" status -D "$POSTGRES_DATA_DIR" > /dev/null 2>&1; then
+        "$POSTGRES_BIN_DIR/pg_ctl" start -D "$POSTGRES_DATA_DIR" -o "-c logging_collector=off -c listen_addresses=" -w
+        started=1
+    fi
+
+    ensure_grafana_db
+
+    if [ "$started" -eq 1 ]; then
+        "$POSTGRES_BIN_DIR/pg_ctl" stop -D "$POSTGRES_DATA_DIR" -w
+    fi
+}
+
 upgrade_pg14_to_pg18
 init_postgres_cluster
 ensure_postgres_password
+prepare_grafana_db

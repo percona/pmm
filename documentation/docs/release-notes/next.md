@@ -14,6 +14,8 @@ Percona Monitoring and Management (PMM) is an open source solution for monitorin
 
 ## ✅ Fixed issues
 
+- [PMM-15919](https://perconadev.atlassian.net/browse/PMM-15919): Fixed the PMM UI becoming unavailable after upgrading from PMM 3.9.1 or earlier with your own Grafana database password in `GF_DATABASE_PASSWORD`, which the upgrade reset to the default. PMM now also creates its built-in alert rules when Grafana uses an external PostgreSQL database without TLS through `GF_DATABASE_URL`. PMM Server no longer records its database passwords in `pg_stat_statements` either, where Query Analytics for PMM Server's own PostgreSQL database could show them.
+
 ## 🔶 Known issues
 
 ## 🚀 Ready to upgrade to PMM {{VERSION}}?

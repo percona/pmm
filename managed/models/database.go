@@ -1662,8 +1662,20 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 	// and append further statements, which run as the postgres superuser.
 	quotedUser := pq.QuoteIdentifier(params.Username)
 
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to start a transaction: %w", err)
+	}
+	defer tx.Rollback() //nolint:errcheck
+
+	// The statements below carry the password, which pg_stat_statements must not record.
+	_, err = tx.ExecContext(ctx, `SET LOCAL pg_stat_statements.track_utility = off`)
+	if err != nil {
+		return fmt.Errorf("failed to stop pg_stat_statements from tracking the password: %w", err)
+	}
+
 	if roleCount == 0 {
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
+		_, err = tx.ExecContext(ctx, fmt.Sprintf(`CREATE USER %s LOGIN PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to create user %s: %w", params.Username, err)
 		}
@@ -1672,10 +1684,15 @@ func initWithRoot(ctx context.Context, params SetupDBParams) error {
 		// scram-sha-256 during an upgrade, leaving the role with no usable password hash).
 		// initWithRoot is only ever called after a 28000/28P01 auth error, so resetting the
 		// password to the currently configured value is OK.
-		_, err = db.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
+		_, err = tx.ExecContext(ctx, fmt.Sprintf(`ALTER USER %s WITH PASSWORD %s`, quotedUser, pq.QuoteLiteral(params.Password)))
 		if err != nil {
 			return fmt.Errorf("failed to update password for user %s: %w", params.Username, err)
 		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return fmt.Errorf("failed to commit user %s: %w", params.Username, err)
 	}
 
 	var dbCount int
