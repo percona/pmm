@@ -76,6 +76,8 @@ PMM checks these requirements during scans and reports the results so you can fi
     | HTTPS access to `repo.percona.com` and OS package mirrors | Reported only | Required |
     | HTTPS access to the `/extensions` URL on PMM Server | Not needed | Required |
 
+<a id="provide-mongodb-credentials-for-scans"></a>
+
 ### How scans connect to MongoDB
 
 Scans connect to each `mongod` without credentials. They read the replica set state and the running MongoDB version with commands that MongoDB answers without authentication. You don't need to create a MongoDB user or the `/root/.mongodb_uri` file on your nodes for scans.
