@@ -1,5 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { getDumpLogs } from 'api/dump';
+import type * as UseDump from 'hooks/api/useDump';
 import { TEST_DUMP } from 'utils/testStubs';
+import { wrapWithQueryProvider } from 'utils/testUtils';
 import { TestWrapper } from 'utils/testWrapper';
 import { DumpLogsDialog } from './DumpLogsDialog';
 
@@ -7,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   useDumpLogs: vi.fn(),
 }));
 
+vi.mock('api/dump');
 vi.mock('hooks/api/useDump', () => ({
   useDumpLogs: mocks.useDumpLogs,
 }));
@@ -19,6 +23,34 @@ const renderDialog = () =>
   );
 
 describe('DumpLogsDialog', () => {
+  beforeEach(() => {
+    mocks.useDumpLogs.mockReset();
+  });
+
+  it('keeps the export status while the next lines load', async () => {
+    const actual = await vi.importActual<typeof UseDump>('hooks/api/useDump');
+    mocks.useDumpLogs.mockImplementation(actual.useDumpLogs);
+    vi.mocked(getDumpLogs)
+      .mockResolvedValueOnce({
+        logs: [{ chunkId: 1, data: 'exporting' }],
+        end: false,
+      })
+      .mockReturnValue(new Promise(() => undefined));
+
+    render(
+      <TestWrapper>
+        {wrapWithQueryProvider(
+          <DumpLogsDialog dump={TEST_DUMP} open onClose={vi.fn()} />
+        )}
+      </TestWrapper>
+    );
+
+    await waitFor(() => expect(getDumpLogs).toHaveBeenCalledTimes(2));
+    expect(
+      screen.getByText("Export running. New lines appear as they're written.")
+    ).toBeVisible();
+  });
+
   it('renders newline-separated chunks and copies them', async () => {
     mocks.useDumpLogs.mockReturnValue({
       data: {

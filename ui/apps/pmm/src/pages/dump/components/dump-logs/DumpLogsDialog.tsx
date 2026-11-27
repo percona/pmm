@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CodeBlock, Dialog, DialogTitle } from '@percona/peak-ui';
+import { keepPreviousData } from '@tanstack/react-query';
 import { useDumpLogs } from 'hooks/api/useDump';
 import { type FC, useEffect, useState } from 'react';
 import type { Dump, DumpLogChunk } from 'types/dump.types';
@@ -35,6 +36,7 @@ export const DumpLogsDialog: FC<DumpLogsDialogProps> = ({
     { dumpId, offset, limit: LOG_CHUNK_LIMIT },
     {
       enabled: open && !!dumpId,
+      placeholderData: keepPreviousData,
       refetchInterval: (query) =>
         query.state.data?.end ? false : LOG_REFETCH_INTERVAL_MS,
     }

@@ -2,11 +2,12 @@ import { z } from 'zod';
 import { Messages } from './ExportDataset.messages';
 import { toWallClock } from './ExportDataset.time';
 
+// Same character classes as PMM Server's validators.ValidatePassword
 const isStrongPassword = (password: string) =>
   password.length >= 8 &&
-  /[A-Za-z]/.test(password) &&
-  /\d/.test(password) &&
-  /[^A-Za-z0-9]/.test(password);
+  /\p{L}/u.test(password) &&
+  /\p{N}/u.test(password) &&
+  /[\p{P}\p{S}]/u.test(password);
 
 const exportDatasetFields = z.object({
   serviceScope: z.enum(['all', 'selected']),

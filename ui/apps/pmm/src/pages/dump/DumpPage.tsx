@@ -54,16 +54,27 @@ export const DumpPage: FC = () => {
   });
   const { mutateAsync: removeDumps } = useDeleteDumps();
   const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
+  // Dialogs keep their datasets while closing, so their text doesn't change mid-fade
   const [dumpsToDelete, setDumpsToDelete] = useState<Dump[]>([]);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [supportDumps, setSupportDumps] = useState<Dump[]>([]);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
   const [logsDump, setLogsDump] = useState<Dump | null>(null);
   const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const dumps = useMemo(() => data?.dumps ?? [], [data]);
+  const selectedDumps = useMemo(
+    () => dumps.filter(({ dumpId }) => rowSelection[dumpId]),
+    [dumps, rowSelection]
+  );
+  const listedSelection = useMemo(
+    () => Object.fromEntries(selectedDumps.map(({ dumpId }) => [dumpId, true])),
+    [selectedDumps]
+  );
   const { tableProps } = useTableUrlState({
     ...DUMP_URL_STATE_OPTIONS,
-    additionalState: { rowSelection },
+    additionalState: { rowSelection: listedSelection },
   });
-  const dumps = useMemo(() => data?.dumps ?? [], [data]);
-  const selectedDumps = dumps.filter(({ dumpId }) => rowSelection[dumpId]);
+  const hasNoDumps = !isLoading && !dumps.length;
   const notReadyCount = countWhere(selectedDumps, (dump) => !isDumpReady(dump));
   const notReadyReason = notReadyCount
     ? Messages.reasons.bulkNotReady(notReadyCount, selectedDumps.length)
@@ -74,6 +85,16 @@ export const DumpPage: FC = () => {
     setIsLogsOpen(true);
   }, []);
   const columns = useMemo(() => getDumpColumns(showLogs), [showLogs]);
+
+  const confirmDelete = (items: Dump[]) => {
+    setDumpsToDelete(items);
+    setIsDeleteOpen(true);
+  };
+
+  const sendToSupport = (items: Dump[]) => {
+    setSupportDumps(items);
+    setIsSupportOpen(true);
+  };
 
   const download = (items: Dump[]) => {
     if (items.length > 1) {
@@ -96,8 +117,7 @@ export const DumpPage: FC = () => {
         : Messages.delete.multipleSuccess,
       { variant: 'success' }
     );
-    setRowSelection({});
-    setDumpsToDelete([]);
+    setIsDeleteOpen(false);
   };
 
   return (
@@ -118,8 +138,8 @@ export const DumpPage: FC = () => {
           </Link>
         </Typography>
         {isError && <Alert severity="error">{Messages.loadError}</Alert>}
-        {!isLoading && !isError && !dumps.length ? (
-          <DumpEmptyState />
+        {hasNoDumps ? (
+          !isError && <DumpEmptyState />
         ) : (
           <Table
             {...DEFAULT_TABLE_OPTIONS}
@@ -191,7 +211,7 @@ export const DumpPage: FC = () => {
                   key="support"
                   disabled={!isReady}
                   onClick={() => {
-                    setSupportDumps([original]);
+                    sendToSupport([original]);
                     closeMenu();
                   }}
                 >
@@ -218,7 +238,7 @@ export const DumpPage: FC = () => {
                 <MenuItem
                   key="delete"
                   onClick={() => {
-                    setDumpsToDelete([original]);
+                    confirmDelete([original]);
                     closeMenu();
                   }}
                 >
@@ -262,7 +282,7 @@ export const DumpPage: FC = () => {
                       <Button
                         startIcon={<SendIcon />}
                         disabled={!!notReadyReason}
-                        onClick={() => setSupportDumps(selectedDumps)}
+                        onClick={() => sendToSupport(selectedDumps)}
                         data-testid="dump-sendToSupport"
                       >
                         {Messages.actions.sendToSupport}
@@ -271,7 +291,7 @@ export const DumpPage: FC = () => {
                     <Button
                       color="error"
                       startIcon={<DeleteOutlineIcon />}
-                      onClick={() => setDumpsToDelete(selectedDumps)}
+                      onClick={() => confirmDelete(selectedDumps)}
                       data-testid="dump-delete-selected"
                     >
                       {Messages.actions.delete}
@@ -294,7 +314,7 @@ export const DumpPage: FC = () => {
       </Stack>
       <DeleteModal
         testId="dump-delete-modal"
-        open={!!dumpsToDelete.length}
+        open={isDeleteOpen}
         title={Messages.delete.title(dumpsToDelete.length)}
         message={Messages.delete.message}
         confirmLabel={Messages.delete.confirm(dumpsToDelete.length)}
@@ -304,7 +324,7 @@ export const DumpPage: FC = () => {
             : undefined
         }
         onConfirm={handleDelete}
-        onClose={() => setDumpsToDelete([])}
+        onClose={() => setIsDeleteOpen(false)}
       >
         <List dense>
           {dumpsToDelete.map((dump) => (
@@ -315,9 +335,9 @@ export const DumpPage: FC = () => {
         </List>
       </DeleteModal>
       <SendToSupport
-        open={!!supportDumps.length}
+        open={isSupportOpen}
         dumps={supportDumps}
-        onClose={() => setSupportDumps([])}
+        onClose={() => setIsSupportOpen(false)}
       />
       <DumpLogsDialog
         key={logsDump?.dumpId}

@@ -6,7 +6,11 @@ import type { FC } from 'react';
 import { type Dump, DumpStatus as Status } from 'types/dump.types';
 import { DUMP_STATUS } from '../../DumpPage.constants';
 import { Messages } from '../../DumpPage.messages';
-import { formatRelativeTime, isDumpCreating } from '../../DumpPage.utils';
+import {
+  formatRelativeTime,
+  isDumpCreating,
+  toDate,
+} from '../../DumpPage.utils';
 
 interface Props {
   dump: Dump;
@@ -22,7 +26,7 @@ export const DumpStatus: FC<Props> = ({ dump, onShowLogs }) => {
       <StatusIcon severity={severity} size="small" />
       <Stack alignItems="flex-start">
         <Typography variant="body2">{label}</Typography>
-        {isDumpCreating(dump) && (
+        {isDumpCreating(dump) && toDate(dump.createdAt) && (
           <Typography variant="caption" color="text.secondary">
             {Messages.status.startedAgo(formatRelativeTime(dump.createdAt))}
           </Typography>

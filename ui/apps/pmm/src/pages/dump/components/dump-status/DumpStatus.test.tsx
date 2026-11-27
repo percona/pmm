@@ -4,11 +4,14 @@ import { TEST_DUMP } from 'utils/testStubs';
 import { TestWrapper } from 'utils/testWrapper';
 import { DumpStatus } from './DumpStatus';
 
-const renderStatus = (status: Status, onShowLogs = vi.fn()) =>
+const renderStatus = (
+  status: Status,
+  { onShowLogs = vi.fn(), createdAt = '2026-10-27T06:36:00Z' } = {}
+) =>
   render(
     <TestWrapper>
       <DumpStatus
-        dump={{ ...TEST_DUMP, status, createdAt: '2026-10-27T06:36:00Z' }}
+        dump={{ ...TEST_DUMP, status, createdAt }}
         onShowLogs={onShowLogs}
       />
     </TestWrapper>
@@ -36,9 +39,16 @@ describe('DumpStatus', () => {
     expect(screen.getByText('started 3 minutes ago')).toBeVisible();
   });
 
+  it('leaves out the start time when it cannot be read', () => {
+    renderStatus(Status.InProgress, { createdAt: '' });
+
+    expect(screen.getByText('Creating…')).toBeVisible();
+    expect(screen.queryByText(/started/)).not.toBeInTheDocument();
+  });
+
   it('opens the logs from a failed dataset', () => {
     const onShowLogs = vi.fn();
-    renderStatus(Status.Error, onShowLogs);
+    renderStatus(Status.Error, { onShowLogs });
 
     expect(screen.getByText('Failed')).toBeVisible();
     fireEvent.click(

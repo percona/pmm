@@ -37,10 +37,14 @@ const FAILED = dump('failed', {
 });
 
 const renderPage = (
-  dumps: Dump[],
+  dumps: Dump[] | Error,
   userContext?: Parameters<typeof TestWrapper>[0]['userContext']
 ) => {
-  vi.mocked(listDumps).mockResolvedValue({ dumps });
+  if (dumps instanceof Error) {
+    vi.mocked(listDumps).mockRejectedValue(dumps);
+  } else {
+    vi.mocked(listDumps).mockResolvedValue({ dumps });
+  }
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
   });
@@ -64,6 +68,13 @@ const selectRows = async (...dumpIds: string[]) => {
       })
     );
   }
+};
+
+const openRowAction = async (dumpId: string, name: string) => {
+  fireEvent.click(
+    within(await row(dumpId)).getByRole('button', { name: 'Row Actions' })
+  );
+  fireEvent.click(await screen.findByRole('menuitem', { name }));
 };
 
 const hover = async (element: HTMLElement) => {
@@ -129,12 +140,7 @@ describe('DumpPage', () => {
   it('warns that deleting a dataset being created does not stop its export', async () => {
     renderPage([CREATING]);
 
-    fireEvent.click(
-      within(await row('creating')).getByRole('button', {
-        name: 'Row Actions',
-      })
-    );
-    fireEvent.click(await screen.findByRole('menuitem', { name: 'Delete' }));
+    await openRowAction('creating', 'Delete');
 
     expect(await screen.findByTestId('dump-delete-modal')).toHaveTextContent(
       "Deleting a dataset that is still being created doesn't stop its export."
@@ -167,6 +173,74 @@ describe('DumpPage', () => {
         screen.queryByTestId('dump-selected-count')
       ).not.toBeInTheDocument()
     );
+  });
+
+  it('clears the select-all checkbox once selected datasets leave the list', async () => {
+    const { client } = renderPage([READY, FAILED, CREATING]);
+    await selectRows('ready');
+
+    act(() =>
+      client.setQueryData(['dumps:list'], { dumps: [FAILED, CREATING] })
+    );
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('checkbox', { name: 'Toggle select all' })
+      ).toHaveAttribute('data-indeterminate', 'false')
+    );
+  });
+
+  it('keeps the other selected datasets after deleting one from its menu', async () => {
+    renderPage([READY, FAILED, CREATING]);
+    await selectRows('ready', 'failed');
+
+    await openRowAction('creating', 'Delete');
+    vi.mocked(listDumps).mockResolvedValue({ dumps: [READY, FAILED] });
+    fireEvent.click(
+      within(await screen.findByTestId('dump-delete-modal')).getByTestId(
+        'dump-delete-modal-confirm'
+      )
+    );
+
+    expect(
+      await screen.findByText('Dataset deleted successfully.')
+    ).toBeVisible();
+    expect(screen.getByTestId('dump-selected-count')).toHaveTextContent(
+      '2 selected'
+    );
+  });
+
+  it('keeps naming the datasets while the Delete dialog closes', async () => {
+    renderPage([READY, FAILED]);
+    await selectRows('ready', 'failed');
+    fireEvent.click(screen.getByTestId('dump-delete-selected'));
+    const modal = await screen.findByTestId('dump-delete-modal');
+
+    fireEvent.click(within(modal).getByTestId('dump-delete-modal-cancel'));
+
+    expect(modal).toBeInTheDocument();
+    expect(
+      within(modal).getByTestId('dump-delete-modal-title')
+    ).toHaveTextContent('Delete 2 datasets?');
+  });
+
+  it('keeps naming the datasets while Send to Support closes', async () => {
+    renderPage([READY, dump('ready-2')]);
+    await selectRows('ready', 'ready-2');
+    fireEvent.click(screen.getByTestId('dump-sendToSupport'));
+    const dialog = await screen.findByTestId('dump-send-to-support-dialog');
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveTextContent('Send 2 datasets to Percona Support');
+  });
+
+  it('shows only the error when the first load fails', async () => {
+    renderPage(new Error('Network Error'));
+
+    expect(await screen.findByText('Could not load datasets.')).toBeVisible();
+    expect(screen.queryByText('No datasets yet')).not.toBeInTheDocument();
   });
 
   it('explains disabled bulk actions', async () => {

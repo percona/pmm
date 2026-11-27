@@ -74,6 +74,29 @@ describe('exportDatasetSchema', () => {
       }),
     ]);
   });
+
+  it.each([
+    ['letters outside A-Z', 'ÄÖÜäöü1!'],
+    ['digits outside 0-9', 'abcdef١!'],
+  ])('accepts a password with %s, as PMM Server does', (_, password) => {
+    expect(
+      issuesFor({
+        ...getDefaultValues('UTC'),
+        enableEncryption: true,
+        encryptionPassword: password,
+      })
+    ).toEqual([]);
+  });
+
+  it("doesn't count a space as a special character, as PMM Server doesn't", () => {
+    expect(
+      issuesFor({
+        ...getDefaultValues('UTC'),
+        enableEncryption: true,
+        encryptionPassword: 'abcdefg1 ',
+      })
+    ).toEqual([expect.objectContaining({ path: ['encryptionPassword'] })]);
+  });
 });
 
 describe('wall-clock time in the PMM timezone', () => {

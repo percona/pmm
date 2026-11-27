@@ -1,6 +1,5 @@
-import { tz } from '@date-fns/tz/tz';
-import { formatDistanceStrict } from 'date-fns';
-import { format } from 'date-fns/format';
+import { tz } from '@date-fns/tz';
+import { format, formatDistanceStrict } from 'date-fns';
 import { PMM_DUMP_ARCHIVE_PATH, TIME_FORMAT } from 'lib/constants';
 import { type Dump, DumpStatus } from 'types/dump.types';
 import { DOWNLOAD_DELAY_MS } from './DumpPage.constants';
@@ -8,7 +7,7 @@ import { Messages } from './DumpPage.messages';
 
 const DATA_WINDOW_FORMAT = 'MMM d, HH:mm';
 
-const toDate = (value: string) => {
+export const toDate = (value: string) => {
   const date = new Date(value);
 
   return value && !Number.isNaN(date.getTime()) ? date : null;
