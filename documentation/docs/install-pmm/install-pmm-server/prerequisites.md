@@ -37,6 +37,10 @@ PMM Server requirements scale with the number of monitored nodes:
     - **Storage**: 500+ GB
     - **Use cases**: Large enterprises, mission-critical database fleets
 
+=== "Extra large (500+ nodes)"
+
+    At 500+ nodes, hardware requirements vary significantly based on your specific workload, topology, and data volumes. [Contact Percona experts](../../get-help.md) for sizing guidance specific to your environment.
+
 For detailed sizing calculations, see [Hardware and system requirements](../plan-pmm-installation/hardware_and_system.md).
 
 ### Architecture requirements
