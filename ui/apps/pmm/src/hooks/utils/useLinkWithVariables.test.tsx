@@ -12,6 +12,15 @@ const CURRENT =
   '/graph/d/mysql-instance-summary/mysql-instance-summary?from=now-1h&to=now&var-service_name=mysql-1';
 const TARGET = '/graph/d/node-cpu/cpu-utilization';
 
+const renderWithUrl = (url: string, grafanaReady = true) =>
+  renderHook(({ url }) => useLinkWithVariables(url), {
+    initialProps: { url },
+    wrapper: ({ children }) =>
+      wrapWithRouter(wrapWithGrafana(children, { grafanaReady }), {
+        initialEntries: ['/extensions/atw'],
+      }),
+  });
+
 const render = (grafanaReady: boolean) =>
   renderHook(() => useLinkWithVariables(TARGET), {
     wrapper: ({ children }) =>
@@ -66,5 +75,79 @@ describe('useLinkWithVariables', () => {
         `${TARGET}?from=now-1h&to=now&var-node_name=node-1`
       )
     );
+  });
+
+  it('should follow a non-dashboard link that changes', () => {
+    const { result, rerender } = renderWithUrl('/extensions/atw');
+
+    expect(result.current).toBe('/extensions/atw');
+
+    rerender({ url: '/extensions/task-manager' });
+
+    expect(result.current).toBe('/extensions/task-manager');
+    expect(messenger.sendMessageWithResult).not.toHaveBeenCalled();
+  });
+
+  it('should follow a link that changes after Grafana expanded the previous one', async () => {
+    vi.mocked(messenger.sendMessageWithResult).mockResolvedValue({
+      url: '/d/node-cpu/cpu-utilization?var-node_name=node-1',
+    });
+    const { result, rerender } = renderWithUrl(TARGET);
+
+    await waitFor(() =>
+      expect(result.current).toBe(`${TARGET}?var-node_name=node-1`)
+    );
+
+    rerender({ url: '/extensions/task-manager' });
+
+    expect(result.current).toBe('/extensions/task-manager');
+  });
+
+  it('should ignore an expansion that arrives after the link changed', async () => {
+    let resolve: (value: { url: string }) => void = () => {};
+    vi.mocked(messenger.sendMessageWithResult).mockReturnValue(
+      new Promise((r) => {
+        resolve = r;
+      })
+    );
+    const { result, rerender } = renderWithUrl(TARGET);
+
+    await waitFor(() =>
+      expect(messenger.sendMessageWithResult).toHaveBeenCalled()
+    );
+    rerender({ url: '/extensions/task-manager' });
+    await act(async () => {
+      resolve({ url: '/d/node-cpu/cpu-utilization?var-node_name=node-1' });
+    });
+
+    expect(result.current).toBe('/extensions/task-manager');
+  });
+
+  it('should keep the current dashboard expansion when a previous one arrives last', async () => {
+    const OTHER = '/graph/d/node-memory/memory-details';
+    let resolveFirst: (value: { url: string }) => void = () => {};
+    vi.mocked(messenger.sendMessageWithResult)
+      .mockReturnValueOnce(
+        new Promise((r) => {
+          resolveFirst = r;
+        })
+      )
+      .mockResolvedValueOnce({
+        url: '/d/node-memory/memory-details?var-node_name=node-2',
+      });
+    const { result, rerender } = renderWithUrl(TARGET);
+
+    await waitFor(() =>
+      expect(messenger.sendMessageWithResult).toHaveBeenCalledTimes(1)
+    );
+    rerender({ url: OTHER });
+    await waitFor(() =>
+      expect(result.current).toBe(`${OTHER}?var-node_name=node-2`)
+    );
+    await act(async () => {
+      resolveFirst({ url: '/d/node-cpu/cpu-utilization?var-node_name=node-1' });
+    });
+
+    expect(result.current).toBe(`${OTHER}?var-node_name=node-2`);
   });
 });

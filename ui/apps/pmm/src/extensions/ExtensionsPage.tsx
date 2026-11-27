@@ -1,13 +1,28 @@
 import { FC, PropsWithChildren } from 'react';
+import { useMatch } from 'react-router-dom';
 import Alert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Stack from '@mui/material/Stack';
 import { Page } from 'components/page';
 import { useSettings } from 'contexts/settings';
+import { EXTENSIONS_PATH } from 'lib/constants';
 import { ExtensionsAuthGate } from './ExtensionsAuthGate';
 import { ExtensionsAuthProvider } from './ExtensionsAuthProvider';
 import { ExtensionsVersionMismatchAlert } from './ExtensionsVersionMismatchAlert';
+import { useRefreshExtensionsApps } from 'hooks/api/useExtensionsApps';
+
+/**
+ * Fetches the app list again once the page holds a bearer, and again for each
+ * app the user moves to, so the Apps section catches up with apps enabled or
+ * disabled since the page loaded.
+ */
+const RefreshExtensionsApps: FC = () => {
+  const appSlug = useMatch(`${EXTENSIONS_PATH}/:appSlug/*`)?.params.appSlug;
+
+  useRefreshExtensionsApps(appSlug);
+  return null;
+};
 
 /**
  * Shared container for PMM Extensions apps mounted as native PMM routes.
@@ -65,6 +80,7 @@ export const ExtensionsPage: FC<PropsWithChildren> = ({ children }) => {
       <Stack gap={3} sx={{ flex: 1 }}>
         <ExtensionsAuthProvider>
           <ExtensionsAuthGate>
+            <RefreshExtensionsApps />
             <Stack gap={3} sx={{ flex: 1 }}>
               <ExtensionsVersionMismatchAlert />
               {/*

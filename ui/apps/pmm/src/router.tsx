@@ -13,6 +13,7 @@ import {
   PMM_SERVICENOW_SETTINGS_PATH,
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_PATH,
   OM_PATH,
 } from 'lib/constants';
 import { RealtimeSessionsPage } from 'pages/rta/sessions';
@@ -50,6 +51,8 @@ import {
   isMysqlRestorePluginName,
 } from './extensions/mysql-backups/restoreExecuteConfirm';
 import { ExtensionsPage } from './extensions/ExtensionsPage';
+import { ExtensionsAppRoute } from './extensions/ExtensionsAppRoute';
+import { ExtensionsAppGuard } from './extensions/ExtensionsAppGuard';
 
 // Route paths below are relative to the `PMM_NEW_NAV_PATH` parent, while the
 // shared PMM Extensions constants are absolute (the nav and each plugin's `routeBase` need
@@ -192,8 +195,9 @@ const router = createBrowserRouter(
                 },
               ],
             },
-            // PMM Extensions apps mounted as native routes. Both plugins compose their own
-            // <Routes>, so the paths are splats.
+            // PMM Extensions apps mounted as native routes. Every plugin composes its own
+            // <Routes>, so the paths are splats. ExtensionsAppGuard keeps a disabled
+            // app's plugin from mounting.
             {
               // ATW ("Support diagnostics") is now incident-first: AtwApp
               // composes its own <Routes> (incident list at index, workspace at
@@ -207,7 +211,11 @@ const router = createBrowserRouter(
               path: `${relativeToNav(EXTENSIONS_ATW_PATH)}/*`,
               element: (
                 <ExtensionsPage>
-                  <AtwApp deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH} />
+                  <ExtensionsAppGuard appKey="atw">
+                    <AtwApp
+                      deliverySettingsPath={PMM_SERVICENOW_SETTINGS_PATH}
+                    />
+                  </ExtensionsAppGuard>
                 </ExtensionsPage>
               ),
             },
@@ -239,12 +247,27 @@ const router = createBrowserRouter(
               // full path below the /pmm-ui basename.
               element: (
                 <ExtensionsPage>
-                  <SchemaDrivenPlugin
-                    pluginName="mysql_backups"
-                    routeBase={EXTENSIONS_MYSQL_BACKUPS_PATH}
-                    getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
-                    disableScheduling={isMysqlRestorePluginName}
-                  />
+                  <ExtensionsAppGuard appKey="mysql_backups">
+                    <SchemaDrivenPlugin
+                      pluginName="mysql_backups"
+                      routeBase={EXTENSIONS_MYSQL_BACKUPS_PATH}
+                      getTaskExecuteActions={getMysqlBackupsTaskExecuteActions}
+                      disableScheduling={isMysqlRestorePluginName}
+                    />
+                  </ExtensionsAppGuard>
+                </ExtensionsPage>
+              ),
+            },
+            {
+              // Any other schema-driven app the side-car lists, by slug. The
+              // dedicated routes above are static segments, so the router ranks
+              // them first and this never sees `atw` or `mysql-backups`.
+              path: `${relativeToNav(EXTENSIONS_PATH)}/:appSlug/*`,
+              element: (
+                <ExtensionsPage>
+                  <ExtensionsAppGuard>
+                    <ExtensionsAppRoute />
+                  </ExtensionsAppGuard>
                 </ExtensionsPage>
               ),
             },

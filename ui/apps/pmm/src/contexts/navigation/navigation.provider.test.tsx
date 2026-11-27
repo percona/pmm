@@ -6,8 +6,14 @@ import { User } from 'types/user.types';
 import {
   EXTENSIONS_ATW_PATH,
   EXTENSIONS_MYSQL_BACKUPS_PATH,
+  EXTENSIONS_PATH,
   OM_PATH,
 } from 'lib/constants';
+import { useExtensionsApps } from 'hooks/api/useExtensionsApps';
+import {
+  DEFAULT_EXTENSIONS_APP_ICON,
+  type ExtensionsApp,
+} from 'extensions/extensionsApps';
 import { findActiveNavItem } from 'utils/navigation.utils';
 import {
   TEST_USER_ADMIN,
@@ -47,6 +53,36 @@ vi.mock('hooks/api/useHA', () => ({
 vi.mock('hooks/theme', () => ({
   useColorMode: () => ({ colorMode: 'light', toggleColorMode: () => {} }),
 }));
+
+// The list is fetched from the side-car; these tests decide what it returned.
+vi.mock('hooks/api/useExtensionsApps', () => ({
+  useExtensionsApps: vi.fn(() => ({ data: undefined })),
+}));
+
+const extensionsApps = vi.mocked(useExtensionsApps);
+
+const listApps = (apps: ExtensionsApp[]) =>
+  extensionsApps.mockReturnValue({ data: apps } as ReturnType<
+    typeof useExtensionsApps
+  >);
+
+const listedApp = (overrides: Partial<ExtensionsApp>): ExtensionsApp => ({
+  key: 'pg_backups',
+  slug: 'pg-backups',
+  label: 'PostgreSQL Backups',
+  icon: DEFAULT_EXTENSIONS_APP_ICON,
+  order: 10,
+  enabled: true,
+  customUi: false,
+  blockedBy: [],
+  ...overrides,
+});
+
+beforeEach(() => {
+  extensionsApps.mockReturnValue({ data: undefined } as ReturnType<
+    typeof useExtensionsApps
+  >);
+});
 
 const renderNavTree = (
   user: User | null = TEST_USER_ADMIN,
@@ -149,8 +185,8 @@ describe('NavigationProvider', () => {
       expect(management?.text).toBe('Apps');
       expect(management?.url).toBeUndefined();
       expect(management?.children?.map((child) => child.id)).toEqual([
-        'extensions-mysql-backups',
         'extensions-atw',
+        'extensions-mysql-backups',
       ]);
     });
 
@@ -163,7 +199,7 @@ describe('NavigationProvider', () => {
 
     it('preserves each child url, matches and icon', () => {
       const management = findById(renderNavTree(), 'management');
-      const [mysqlBackups, atw] = management?.children || [];
+      const [atw, mysqlBackups] = management?.children || [];
 
       expect(mysqlBackups).toMatchObject({
         text: 'MySQL Backups',
@@ -201,6 +237,60 @@ describe('NavigationProvider', () => {
     });
 
     it('is withheld when PMM Extensions is disabled in server settings', () => {
+      const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
+        extensionsEnabled: false,
+      }).map((item) => item.id);
+
+      expect(ids).not.toContain('management');
+    });
+
+    it('is built from the app list once it arrives', () => {
+      listApps([
+        listedApp({ key: 'atw', slug: 'atw', order: 3, customUi: true }),
+        listedApp({ key: 'mysql_backups', slug: 'mysql-backups', order: 8 }),
+        listedApp({}),
+      ]);
+
+      const management = findById(
+        renderNavTree(TEST_USER_VIEWER),
+        'management'
+      );
+
+      expect(management?.children?.map((child) => child.id)).toEqual([
+        'extensions-atw',
+        'extensions-mysql-backups',
+        'extensions-pg-backups',
+      ]);
+      expect(management?.children?.[2]).toMatchObject({
+        text: 'PostgreSQL Backups',
+        url: `${EXTENSIONS_PATH}/pg-backups`,
+      });
+    });
+
+    it('leaves out the apps the list reports as disabled', () => {
+      listApps([
+        listedApp({ key: 'atw', slug: 'atw', enabled: false, customUi: true }),
+        listedApp({ key: 'mysql_backups', slug: 'mysql-backups' }),
+      ]);
+
+      const management = findById(renderNavTree(), 'management');
+
+      expect(management?.children?.map((child) => child.id)).toEqual([
+        'extensions-mysql-backups',
+      ]);
+    });
+
+    it('is withheld when the list enables no app', () => {
+      listApps([listedApp({ enabled: false })]);
+
+      const ids = renderNavTree().map((item) => item.id);
+
+      expect(ids).not.toContain('management');
+    });
+
+    it('is withheld when PMM Extensions is disabled, whatever the list says', () => {
+      listApps([listedApp({})]);
+
       const ids = renderNavTree(TEST_USER_ADMIN, undefined, {
         extensionsEnabled: false,
       }).map((item) => item.id);
@@ -273,6 +363,19 @@ describe('NavigationProvider', () => {
   });
 
   describe('deep links into a PMM Extensions app', () => {
+    it('marks a listed app active for a path below it', () => {
+      listApps([listedApp({})]);
+      const path = `${EXTENSIONS_PATH}/pg-backups/backups/123`;
+      const navTree = renderNavTree(TEST_USER_VIEWER, {
+        initialEntries: [path],
+      });
+      const management = findById(navTree, 'management');
+      const active = findActiveNavItem(navTree, path);
+
+      expect(active?.id).toBe('extensions-pg-backups');
+      expect(management?.children).toContain(active);
+    });
+
     it.each([
       ['extensions-atw', EXTENSIONS_ATW_PATH],
       ['extensions-atw', `${EXTENSIONS_ATW_PATH}/runs/abc`],
