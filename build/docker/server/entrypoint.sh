@@ -170,8 +170,15 @@ unset PMM_POSTGRES_DBPASSWORD GF_DATABASE_PASSWORD PMM_CLICKHOUSE_PASSWORD PMM_C
 if [ -L /run/pmm/secrets/grafana-secret-key ]; then
     unset GF_SECURITY_SECRET_KEY
 fi
-# The pmm-ha chart also passes the database passwords under its Secret's key names, which PMM doesn't read.
-unset PG_PASSWORD GF_PASSWORD
+# The VictoriaMetrics password lives in its file, or was dropped for having no username, so PMM's programs get the URL
+# without it. A URL without a password passes unchanged.
+if [ -n "${PMM_VM_URL:-}" ]; then
+    PMM_VM_URL=$(pmm-managed-init vm-url)
+    export PMM_VM_URL
+fi
+# The pmm-ha chart also passes the database and VictoriaMetrics passwords under its Secret's key names, which PMM
+# doesn't read.
+unset PG_PASSWORD GF_PASSWORD PMM_HA_VM_PASSWORD
 
 # The script owns the embedded cluster: it upgrades a PostgreSQL 14 data directory,
 # creates the cluster on a fresh installation, and repairs older ones.

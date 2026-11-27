@@ -44,6 +44,8 @@ const (
 	envRemoteWriteURL      = envvars.EnvVMAgentRemoteWriteURL
 	envRemoteWriteUsername = envvars.EnvVMAgentRemoteWriteUsername
 	envRemoteWritePassword = envvars.EnvVMAgentRemoteWritePassword
+
+	envRemoteWritePasswordFile = envvars.EnvVMAgentRemoteWritePasswordFile
 )
 
 // Placeholders rendered on the client from its own pmm-agent.yaml (agent/agents/supervisor).
@@ -61,6 +63,8 @@ type vmAgentDeployment struct {
 	haEnabled bool
 	// This is PMM Server's own built-in agent.
 	isServerAgent bool
+	// The VictoriaMetrics password file the server's own agent reads instead of the password, if any.
+	passwordFile string
 }
 
 // credentialSource names where a remote-write credential comes from. Used in logs only.
@@ -71,6 +75,8 @@ const (
 	credentialPMMServer credentialSource = "pmm-server"
 	// The userinfo of PMM_VM_URL.
 	credentialVMURL credentialSource = "vm-url"
+	// The username of PMM_VM_URL and the vm-password file.
+	credentialVMPasswordFile credentialSource = "vm-password-file"
 	// Operator-injected VMAGENT_remoteWrite_* authentication.
 	credentialInjected credentialSource = "injected"
 	// No credential: the endpoint needs none, or PMM has none for it.
@@ -80,10 +86,11 @@ const (
 // remoteWrite is the default (url, credential) pair a path picks for one vmagent.
 // Operator-injected VMAGENT_* variables are layered on top of it by buildVMAgentProcess.
 type remoteWrite struct {
-	url      string
-	username string
-	password string
-	source   credentialSource
+	url          string
+	username     string
+	password     string
+	passwordFile string
+	source       credentialSource
 }
 
 // vmAgentConfig returns the desired configuration of a vmagent process. The deployment mode is
@@ -96,6 +103,10 @@ func vmAgentConfig(l *logrus.Entry, scrapeCfg string, params victoriaMetricsPara
 		rw = haRemoteWrite(params, d.isServerAgent)
 	} else {
 		rw = standaloneRemoteWrite(params)
+	}
+	// PMM Server's own agent reads the password from its file, like the server's other programs.
+	if d.passwordFile != "" && rw.source == credentialVMURL && rw.password != "" {
+		rw.password, rw.passwordFile, rw.source = "", d.passwordFile, credentialVMPasswordFile
 	}
 
 	return buildVMAgentProcess(l, scrapeCfg, rw)
@@ -211,6 +222,9 @@ func buildVMAgentProcess(l *logrus.Entry, scrapeCfg string, rw remoteWrite) *age
 		}
 		if rw.password != "" {
 			envs = append(envs, envRemoteWritePassword+"="+rw.password)
+		}
+		if rw.passwordFile != "" {
+			envs = append(envs, envRemoteWritePasswordFile+"="+rw.passwordFile)
 		}
 	}
 

@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/managed/models"
+	"github.com/percona/pmm/managed/utils/secrets"
 )
 
 func TestGroupRDSExporters(t *testing.T) {
@@ -98,20 +99,37 @@ func TestGroupRDSExporters(t *testing.T) {
 }
 
 func TestStateUpdaterVMAgentDeployment(t *testing.T) {
+	const clientAgentID = "00000000-0000-4000-8000-000000000001"
+	passwordFile := secrets.Path(secrets.VMPassword)
 	testCases := []struct {
-		name      string
-		haEnabled bool
-		agentID   string
-		want      vmAgentDeployment
+		name       string
+		haEnabled  bool
+		fileExists bool
+		agentID    string
+		want       vmAgentDeployment
 	}{
-		{name: "standalone, client agent", agentID: "00000000-0000-4000-8000-000000000001"},
+		{name: "standalone, client agent", agentID: clientAgentID},
 		{name: "standalone, server agent", agentID: models.PMMServerAgentID, want: vmAgentDeployment{isServerAgent: true}},
-		{name: "HA, client agent", haEnabled: true, agentID: "00000000-0000-4000-8000-000000000001", want: vmAgentDeployment{haEnabled: true}},
+		{name: "HA, client agent", haEnabled: true, agentID: clientAgentID, want: vmAgentDeployment{haEnabled: true}},
 		{name: "HA, server agent", haEnabled: true, agentID: models.PMMServerAgentID, want: vmAgentDeployment{haEnabled: true, isServerAgent: true}},
+		{
+			name: "HA, server agent, password file", haEnabled: true, fileExists: true, agentID: models.PMMServerAgentID,
+			want: vmAgentDeployment{haEnabled: true, isServerAgent: true, passwordFile: passwordFile},
+		},
+		{
+			name: "HA, client agent, password file", haEnabled: true, fileExists: true, agentID: clientAgentID,
+			want: vmAgentDeployment{haEnabled: true},
+		},
+		{
+			name: "standalone, client agent, password file", fileExists: true, agentID: clientAgentID,
+		},
 	}
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			u := &StateUpdater{r: &Registry{haService: haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled}}}}
+			u := &StateUpdater{
+				r:            &Registry{haService: haServiceStub{params: &models.HAParams{Enabled: tc.haEnabled}}},
+				secretExists: func(name secrets.Name) bool { return tc.fileExists && name == secrets.VMPassword },
+			}
 			assert.Equal(t, tc.want, u.vmAgentDeployment(tc.agentID))
 		})
 	}

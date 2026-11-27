@@ -18,6 +18,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
@@ -26,6 +27,7 @@ import (
 	"github.com/alecthomas/kong"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm/utils/secretfile"
 	"github.com/percona/pmm/version"
 	"github.com/percona/pmm/vmproxy/proxy"
 )
@@ -34,11 +36,13 @@ import (
 type flags struct {
 	Debug bool `help:"Enable debug logging"`
 
-	TargetURL       *url.URL `default:"http://127.0.0.1:9090" help:"Target URL where to proxy requests"`
-	ListenPort      int      `default:"1280" help:"Listen port for proxy"`
-	ListenAddress   string   `default:"127.0.0.1" help:"Listen address for proxy"`
-	HeaderName      string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."`
-	AdminHeaderName string   `default:"X-Proxy-Admin" help:"Header name pmm-managed sets to mark a request as coming from an admin, which allows the admin-only VictoriaMetrics diagnostics. nginx overwrites it on every route reaching this proxy, so clients cannot set it."`
+	TargetURL          *url.URL `default:"http://127.0.0.1:9090" help:"Target URL where to proxy requests"`
+	TargetUsername     string   `help:"Username for the target with --target-password-file, in place of the one in the target URL"`
+	TargetPasswordFile string   `help:"File with the password for the target, in place of the one in the target URL"`
+	ListenPort         int      `default:"1280" help:"Listen port for proxy"`
+	ListenAddress      string   `default:"127.0.0.1" help:"Listen address for proxy"`
+	HeaderName         string   `default:"X-Proxy-Filter" help:"Header name to read filter configuration from. The content of the header shall be a base64 encoded JSON array with strings. Each string is a filter. Multiple filters are joined with a logical OR."`
+	AdminHeaderName    string   `default:"X-Proxy-Admin" help:"Header name pmm-managed sets to mark a request as coming from an admin, which allows the admin-only VictoriaMetrics diagnostics. nginx overwrites it on every route reaching this proxy, so clients cannot set it."`
 }
 
 func main() {
@@ -65,11 +69,16 @@ func runProxy(opts flags, proxyFn func(cfg proxy.Config) error) error {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 
-	err := proxyFn(proxy.Config{
+	target, err := targetWithCredentials(opts.TargetURL, opts.TargetUsername, opts.TargetPasswordFile)
+	if err != nil {
+		return err
+	}
+
+	err = proxyFn(proxy.Config{
 		HeaderName:      opts.HeaderName,
 		AdminHeaderName: opts.AdminHeaderName,
 		ListenAddress:   net.JoinHostPort(opts.ListenAddress, strconv.Itoa(opts.ListenPort)),
-		TargetURL:       opts.TargetURL,
+		TargetURL:       target,
 	})
 
 	if !errors.Is(err, http.ErrServerClosed) {
@@ -79,4 +88,21 @@ func runProxy(opts flags, proxyFn func(cfg proxy.Config) error) error {
 	logrus.Info(err)
 
 	return nil
+}
+
+// targetWithCredentials returns the target URL with the username and the password from passwordFile, when that is set.
+func targetWithCredentials(target *url.URL, username, passwordFile string) (*url.URL, error) {
+	if passwordFile == "" {
+		return target, nil
+	}
+	password, err := secretfile.Read(passwordFile)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read the target password: %w", err)
+	}
+	if username == "" {
+		username = target.User.Username()
+	}
+	u := *target
+	u.User = url.UserPassword(username, password)
+	return &u, nil
 }

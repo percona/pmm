@@ -178,6 +178,45 @@ func TestVMAgentConfigSelectsPath(t *testing.T) {
 	})
 }
 
+func TestVMAgentConfigServerPasswordFile(t *testing.T) {
+	clearVMAgentEnv(t)
+	const file = "/run/pmm/secrets/vm-password"
+	params := newVMParams(t, testVMAuth)
+
+	for _, ha := range []bool{true, false} {
+		server := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: ha, isServerAgent: true, passwordFile: file})
+		assertEnv(t, server.Env, envRemoteWritePasswordFile, file)
+		assertEnv(t, server.Env, envRemoteWriteUsername, "victoriametrics_pmm")
+		assert.NotContains(t, strings.Join(server.Env, " "), "vm-password@", "ha=%v", ha)
+		assert.NotContains(t, strings.Join(server.Env, " "), envRemoteWritePassword+"=", "ha=%v", ha)
+	}
+
+	// PMM Clients, which have no access to the file, keep receiving the password.
+	client := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: true})
+	assertEnv(t, client.Env, envRemoteWritePassword, "vm-password")
+	assert.NotContains(t, strings.Join(client.Env, " "), envRemoteWritePasswordFile)
+
+	// An operator's own remote-write credential replaces PMM's pair, the password file included.
+	for key, value := range map[string]string{
+		envRemoteWritePassword:     "injected-pass",
+		envRemoteWritePasswordFile: "/etc/operator/vm-password",
+	} {
+		t.Run("injected "+key, func(t *testing.T) {
+			t.Setenv(envRemoteWriteUsername, "injected-user")
+			t.Setenv(key, value)
+			server := vmAgentConfig(testLogger(), "", params, vmAgentDeployment{haEnabled: true, isServerAgent: true, passwordFile: file})
+			assertEnv(t, server.Env, envRemoteWriteUsername, "injected-user")
+			var passwords []string
+			for _, e := range server.Env {
+				if k, _, _ := strings.Cut(e, "="); k == envRemoteWritePassword || k == envRemoteWritePasswordFile {
+					passwords = append(passwords, e)
+				}
+			}
+			assert.Equal(t, []string{key + "=" + value}, passwords)
+		})
+	}
+}
+
 func TestVMAgentConfigDebugLog(t *testing.T) {
 	clearVMAgentEnv(t)
 	logger, hook := test.NewNullLogger()
@@ -194,6 +233,14 @@ func TestVMAgentConfigDebugLog(t *testing.T) {
 		line, err := entry.String()
 		require.NoError(t, err)
 		assert.NotContains(t, line, "vm-password")
+	})
+
+	t.Run("names the password file as the source when the server agent reads it", func(t *testing.T) {
+		hook.Reset()
+		d := vmAgentDeployment{haEnabled: true, isServerAgent: true, passwordFile: "/run/pmm/secrets/vm-password"}
+		vmAgentConfig(l, "", newVMParams(t, testVMAuth), d)
+		require.Len(t, hook.Entries, 1)
+		assert.Equal(t, credentialVMPasswordFile, hook.LastEntry().Data["credential_source"])
 	})
 
 	t.Run("an injected URL is logged without its userinfo", func(t *testing.T) {

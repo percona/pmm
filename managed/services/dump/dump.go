@@ -138,53 +138,7 @@ func (s *Service) StartDump(params *Params) (string, error) {
 		instances = append(instances, nodeName)
 	}
 
-	pmmDumpCmd := exec.CommandContext(ctx, //nolint:gosec
-		pmmDumpBin,
-		"export",
-		"--pmm-url=http://127.0.0.1:8080",
-		"--click-house-url="+s.urls.ClickhouseURL,
-		"--victoria-metrics-url="+s.urls.VMURL,
-		"--dump-path="+getDumpFilePath(dump.ID, false))
-
-	if params.Token != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-token="+params.Token)
-	}
-
-	if params.Cookie != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-cookie="+params.Cookie)
-	}
-
-	if params.User != "" {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-user="+params.User)
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pmm-pass="+params.Password)
-	}
-
-	for _, instance := range instances {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--instance="+instance)
-	}
-
-	if params.StartTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--start-ts="+params.StartTime.Format(time.RFC3339))
-	}
-
-	if params.EndTime != nil {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--end-ts="+params.EndTime.Format(time.RFC3339))
-	}
-
-	if params.ExportQAN {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--dump-qan")
-	}
-
-	if params.IgnoreLoad {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--ignore-load")
-	}
-
-	if params.EnableEncryption {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--encryption")
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--pass="+params.EncryptionPassword)
-	} else {
-		pmmDumpCmd.Args = append(pmmDumpCmd.Args, "--no-encryption")
-	}
+	pmmDumpCmd := pmmDumpCommand(ctx, s.urls, dump.ID, instances, params)
 
 	pReader, pWriter := io.Pipe()
 	pmmDumpCmd.Stdout = pWriter
@@ -220,6 +174,60 @@ func (s *Service) StartDump(params *Params) (string, error) {
 	}()
 
 	return dump.ID, nil
+}
+
+// pmmDumpCommand returns the pmm-dump command that exports the given instances.
+func pmmDumpCommand(ctx context.Context, urls *URLs, dumpID string, instances []string, params *Params) *exec.Cmd {
+	cmd := exec.CommandContext(ctx, //nolint:gosec
+		pmmDumpBin,
+		"export",
+		"--pmm-url=http://127.0.0.1:8080",
+		"--click-house-url="+urls.ClickhouseURL,
+		"--dump-path="+getDumpFilePath(dumpID, false))
+	// The VictoriaMetrics URL can carry its password, so it goes into this process's environment, not its command line.
+	cmd.Env = append(os.Environ(), "PMM_DUMP_VICTORIA_METRICS_URL="+urls.VMURL)
+
+	if params.Token != "" {
+		cmd.Args = append(cmd.Args, "--pmm-token="+params.Token)
+	}
+
+	if params.Cookie != "" {
+		cmd.Args = append(cmd.Args, "--pmm-cookie="+params.Cookie)
+	}
+
+	if params.User != "" {
+		cmd.Args = append(cmd.Args, "--pmm-user="+params.User)
+		cmd.Args = append(cmd.Args, "--pmm-pass="+params.Password)
+	}
+
+	for _, instance := range instances {
+		cmd.Args = append(cmd.Args, "--instance="+instance)
+	}
+
+	if params.StartTime != nil {
+		cmd.Args = append(cmd.Args, "--start-ts="+params.StartTime.Format(time.RFC3339))
+	}
+
+	if params.EndTime != nil {
+		cmd.Args = append(cmd.Args, "--end-ts="+params.EndTime.Format(time.RFC3339))
+	}
+
+	if params.ExportQAN {
+		cmd.Args = append(cmd.Args, "--dump-qan")
+	}
+
+	if params.IgnoreLoad {
+		cmd.Args = append(cmd.Args, "--ignore-load")
+	}
+
+	if params.EnableEncryption {
+		cmd.Args = append(cmd.Args, "--encryption")
+		cmd.Args = append(cmd.Args, "--pass="+params.EncryptionPassword)
+	} else {
+		cmd.Args = append(cmd.Args, "--no-encryption")
+	}
+
+	return cmd
 }
 
 // DeleteDump removes a specific dump associated with the dump service.

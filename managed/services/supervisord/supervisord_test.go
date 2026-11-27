@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -289,4 +290,143 @@ func TestProgramRunningStatuses(t *testing.T) {
 			assert.Equal(t, tc.running, s.ProgramRunning(t.Context(), "program"))
 		})
 	}
+}
+
+func vmConfigs(t *testing.T, vmURL string, fileExists bool) map[string]string {
+	t.Helper()
+
+	vmParams, err := models.NewVictoriaMetricsParams(models.BasePrometheusConfigPath, vmURL)
+	require.NoError(t, err)
+	pgParams := &models.PGParams{Addr: "127.0.0.1:5432", DBName: "postgres", DBUsername: "db_username"}
+	settings := &models.Settings{DataRetention: 30 * 24 * time.Hour}
+	s := New(t.TempDir(), &models.Params{VMParams: vmParams, PGParams: pgParams, HAParams: &models.HAParams{}})
+	s.secretExists = func(name secrets.Name) bool { return fileExists && name == secrets.VMPassword }
+	m := make(map[string]string)
+	for _, tmpl := range templates.Templates() {
+		if tmpl.Name() == "" {
+			continue
+		}
+		b, err := s.marshalConfig(tmpl, settings)
+		require.NoError(t, err)
+		m[tmpl.Name()] = string(b)
+	}
+	return m
+}
+
+func TestConfigVictoriaMetricsPasswordFile(t *testing.T) {
+	t.Parallel()
+
+	const vmURL = "http://vmuser:q7v-secret@vmauth:8427/"
+	configs := func(fileExists bool) map[string]string { return vmConfigs(t, vmURL, fileExists) }
+
+	t.Run("with the password file", func(t *testing.T) {
+		t.Parallel()
+
+		c := configs(true)
+		for name, config := range c {
+			assert.NotContains(t, config, "q7v-secret", name)
+		}
+		for _, flag := range []string{
+			"--external.url=http://vmauth:8427/\n",
+			"--datasource.url=http://vmauth:8427/\n",
+			"--datasource.basicAuth.username=vmuser\n",
+			"--datasource.basicAuth.passwordFile=/run/pmm/secrets/vm-password\n",
+			"--remoteRead.basicAuth.passwordFile=/run/pmm/secrets/vm-password\n",
+			"--remoteWrite.basicAuth.username=vmuser\n",
+		} {
+			assert.Contains(t, c["vmalert"], flag)
+		}
+		assert.Contains(t, c["vmproxy"], "--target-url=http://vmauth:8427/\n")
+		assert.Contains(t, c["vmproxy"], "--target-username=vmuser\n")
+		assert.Contains(t, c["vmproxy"], "--target-password-file=/run/pmm/secrets/vm-password\n")
+	})
+
+	t.Run("without it, as in the development container", func(t *testing.T) {
+		t.Parallel()
+
+		c := configs(false)
+		assert.Contains(t, c["vmalert"], "--external.url=http://vmuser:q7v-secret@vmauth:8427/\n")
+		assert.Contains(t, c["vmalert"], "--datasource.url=http://vmuser:q7v-secret@vmauth:8427/\n")
+		assert.NotContains(t, c["vmalert"], "basicAuth")
+		assert.Contains(t, c["vmproxy"], "--target-url=http://vmuser:q7v-secret@vmauth:8427/\n")
+		assert.NotContains(t, c["vmproxy"], "--target-password-file")
+	})
+}
+
+func TestConfigVictoriaMetricsPercent(t *testing.T) {
+	t.Parallel()
+
+	// The username is vm@us%er and the path segment p/q, both percent-encoded in the URL.
+	const vmURL = "http://vm%40us%25er:q7v%25pw@vmauth:8427/p%2Fq/"
+	// supervisordValue undoes the doubling the way supervisord does before it starts a program.
+	supervisordValue := func(t *testing.T, config string) string {
+		t.Helper()
+		assert.NotRegexp(t, `%[^%]|%$`, strings.ReplaceAll(config, "%%", ""), "a single %% makes supervisord refuse the configuration")
+		return strings.ReplaceAll(config, "%%", "%")
+	}
+
+	t.Run("with the password file", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, true)
+		vmalert, vmproxy := supervisordValue(t, c["vmalert"]), supervisordValue(t, c["vmproxy"])
+		assert.Contains(t, vmalert, "--external.url=http://vmauth:8427/p%2Fq/\n")
+		assert.Contains(t, vmalert, "--datasource.url=http://vmauth:8427/p%2Fq/\n")
+		assert.Contains(t, vmalert, "--datasource.basicAuth.username=vm@us%er\n")
+		assert.Contains(t, vmalert, "--remoteWrite.basicAuth.username=vm@us%er\n")
+		assert.Contains(t, vmproxy, "--target-url=http://vmauth:8427/p%2Fq/\n")
+		assert.Contains(t, vmproxy, "--target-username=vm@us%er\n")
+	})
+
+	t.Run("without it, as in the development container", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, false)
+		assert.Contains(t, supervisordValue(t, c["vmalert"]), "--datasource.url=http://vm%40us%25er:q7v%25pw@vmauth:8427/p%2Fq/\n")
+		assert.Contains(t, supervisordValue(t, c["vmproxy"]), "--target-url=http://vm%40us%25er:q7v%25pw@vmauth:8427/p%2Fq/\n")
+	})
+
+	t.Run("leaves configurations without % unchanged", func(t *testing.T) {
+		t.Parallel()
+
+		for name, config := range vmConfigs(t, "http://vmuser:q7v-secret@vmauth:8427/", true) {
+			assert.NotContains(t, config, "%", name)
+		}
+	})
+}
+
+func TestConfigVictoriaMetricsQuoting(t *testing.T) {
+	t.Parallel()
+
+	// The username is vm'"\ us%er and the path p'q.
+	const vmURL = `http://vm'%22%5C%20us%25er@vmauth:8427/p'q/`
+
+	t.Run("with the password file", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, true)
+		assert.Contains(t, c["vmalert"], `--datasource.url='http://vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmalert"], `--datasource.basicAuth.username='vm'"'"'"\ us%%er'`+"\n")
+		assert.Contains(t, c["vmalert"], `--remoteWrite.basicAuth.username='vm'"'"'"\ us%%er'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-url='http://vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-username='vm'"'"'"\ us%%er'`+"\n")
+	})
+
+	t.Run("without it, as in the development container", func(t *testing.T) {
+		t.Parallel()
+
+		c := vmConfigs(t, vmURL, false)
+		assert.Contains(t, c["vmalert"], `--datasource.url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
+		assert.Contains(t, c["vmproxy"], `--target-url='http://vm%%27%%22%%5C%%20us%%25er@vmauth:8427/p'"'"'q/'`+"\n")
+	})
+
+	t.Run("closes the quotes before a comment character after whitespace", func(t *testing.T) {
+		t.Parallel()
+
+		// The username is "my ;us #er<no-break space>;x".
+		c := vmConfigs(t, "http://my%20;us%20%23er%C2%A0;x@vmauth:8427/", true)
+		const want = "'my '';us ''#er '';x'\n"
+		assert.Contains(t, c["vmalert"], "--datasource.basicAuth.username="+want)
+		assert.Contains(t, c["vmproxy"], "--target-username="+want)
+	})
 }

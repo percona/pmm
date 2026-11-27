@@ -51,6 +51,14 @@ func main() {
 		}
 		return
 	}
+	if len(os.Args) > 1 && os.Args[1] == "vm-url" {
+		err := runVMURL()
+		if err != nil {
+			logrus.Errorf("PMM_VM_URL: %s", err)
+			os.Exit(1)
+		}
+		return
+	}
 
 	envSettings, errs, warns := envvars.ParseEnvVars(os.Environ())
 	disableInternalClickhouse, _ := strconv.ParseBool(os.Getenv("PMM_DISABLE_BUILTIN_CLICKHOUSE"))

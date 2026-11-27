@@ -962,11 +962,15 @@ func main() { //nolint:gocognit,maintidx,cyclop
 	qanDB := ds.QanDBSelect
 	qanDB.DSN = chParams.URL().String()
 
-	ds.VM.Address = *victoriaMetricsURLF
+	vmURL, err := secrets.VMURL(*victoriaMetricsURLF)
+	if err != nil {
+		l.Fatalf("Cannot read credential %s: %s.", secrets.VMPassword, err)
+	}
+	ds.VM.Address = vmURL
 
 	vmParams, err := models.NewVictoriaMetricsParams(
 		models.BasePrometheusConfigPath,
-		*victoriaMetricsURLF,
+		vmURL,
 	)
 	if err != nil {
 		l.Panicf("cannot load victoriametrics params problem: %+v", err)
@@ -1122,7 +1126,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	actionsService := agents.NewActionsService(qanClient, agentsRegistry)
 
-	vmClient, err := metrics.NewClient(metrics.Config{Address: *victoriaMetricsURLF})
+	vmClient, err := metrics.NewClient(metrics.Config{Address: vmURL})
 	if err != nil {
 		l.Fatalf("Could not create Victoria Metrics client: %s", err)
 	}
@@ -1171,7 +1175,7 @@ func main() { //nolint:gocognit,maintidx,cyclop
 
 	dumpService := dump.New(db, &dump.URLs{
 		ClickhouseURL: chParams.URL().String(),
-		VMURL:         *victoriaMetricsURLF,
+		VMURL:         vmURL,
 	})
 
 	// Constructed ahead of serverParams so server.Server can hold it for the OpenManager enable/disable switch.
