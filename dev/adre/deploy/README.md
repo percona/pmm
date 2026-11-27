@@ -53,11 +53,15 @@ with the prototype image, the same data volume and ports, and what is missing:
 - for a container you started with `docker run` or `podman run`, a ready `run` command;
 - for a Podman container that a systemd unit runs (as in PMM's Podman guide), the lines to add to the unit's env
   file and its `podman run` line, then `systemctl --user daemon-reload && systemctl --user restart pmm-server`.
+  On an SELinux host that includes `:z` on the unit's `/srv` volume (`--volume=${PMM_VOLUME_NAME}:/srv:z`): the
+  unit recreates the container on every start, and without it PMM fails with "Permission denied" on `/srv`.
 
 Do that, then run `bash install.sh --existing-server` again.
 
-Switching a stock PMM's data to the prototype image is one-way: going back to stock PMM or upgrading to a later
-official release is not supported. Use a test server, or back up its data volume first.
+The prototype is based on PMM 3.10, so the server must run PMM 3.10.x or older: the script stops for a later release
+(such as `percona/pmm-server:3` once it is 3.11), whose data the prototype cannot read. Switching a stock PMM's data
+to the prototype image is one-way: going back to stock PMM or upgrading to a later official release is not supported.
+Use a test server, or back up its data volume first.
 
 ### Monitor databases and collect their logs
 
@@ -107,11 +111,12 @@ shared directory belong to your user.
 
 ## Existing-server mode in detail
 
-`install.sh --existing-server[=CONTAINER]` first checks the container and changes nothing until the check passes.
-It never changes the admin password.
+`install.sh --existing-server[=CONTAINER]` first checks the container and changes nothing until the check passes,
+except that it creates the config directory (`./holmes-config`) it asks you to mount. It never changes the admin
+password.
 
-- **Stops with an error** when the container is missing or stopped, the password is wrong, or a `holmesgpt`
-  container installed from another directory exists.
+- **Stops with an error** when the container is missing or stopped, the password is wrong, a `holmesgpt`
+  container installed from another directory exists, or a stock server runs a PMM release later than 3.10.
 - **Asks for a recreate** (exit code 2) when the container lacks something only set when a container is created:
   an image with the Assistant (a stock PMM server is switched to `PMM_IMAGE`; that move is one-way, because the
   prototype adds its own database changes, so going back to stock PMM or upgrading to a later official release is
@@ -126,6 +131,10 @@ It never changes the admin password.
 - **Shares the server's network.** HolmesGPT and the renderer join the server's own network (`pmm_default` in PMM's
   Podman guide). A server on the default network only is connected to a new `pmm` network, unless a systemd unit
   runs it: then the unit needs `--network pmm`, and the check says so.
+- **Adds `:z` to `/srv` on SELinux hosts.** SELinux gives every new container its own labels, so a recreated
+  container must relabel the data volume it reuses. The draft `run` command mounts `/srv` with `:z`, and a systemd
+  unit whose `/srv` volume lacks it is told to add it (with a warning when nothing else needs changing). A new
+  install mounts `/srv` with `:z` on SELinux hosts too.
 - **Warns** when in-app updates are on (`PMM_ENABLE_UPDATES=false` is missing).
 
 When the check passes it starts the renderer (unless one is already running, or the server points to another

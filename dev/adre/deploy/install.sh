@@ -53,6 +53,8 @@ fi
 # The images this version installs: a new build changes DEFAULT_PMM_IMAGE here and nowhere else. Fully qualified, so
 # Podman never asks which registry a short name means.
 DEFAULT_PMM_IMAGE=docker.io/perconalab/pmm-server-fb:PR-4259-19150b4
+# The PMM release that build is based on; it cannot take the data of a later release.
+BASE_VERSION=3.10
 PMM_IMAGE="${PMM_IMAGE:-$DEFAULT_PMM_IMAGE}"
 HOLMES_IMAGE="${HOLMES_IMAGE:-docker.io/robustadev/holmes:0.45.0}"
 RENDERER_IMAGE="${RENDERER_IMAGE:-docker.io/grafana/grafana-image-renderer:latest}"
@@ -88,6 +90,9 @@ if [ -z "${DOCKER:-}" ]; then
   else echo "ERROR: Docker or Podman is required."; exit 1
   fi
 fi
+# SELinux gives every new container its own labels, so the data volume a recreated container reuses needs :z.
+SRV_LABEL=''
+[ ! -r /sys/fs/selinux/enforce ] || SRV_LABEL=':z'
 PODMAN='' ROOTLESS='' SYSTEMCTL=systemctl
 if $DOCKER --version 2>/dev/null | grep -qi podman; then
   PODMAN=1
@@ -205,7 +210,7 @@ fi
 # checked before anything is changed; what only a recreate can fix is listed with the options that fix it.
 check_existing_server() {
   local c=$EXISTING running env cfg_dir mount drop_mount='' callback ip port where image new_image='' unit unit_file server_net=''
-  local env_file opts added user_env rerun e
+  local env_file opts added user_env rerun e ver srv_fix=''
   local -a recreate=() envs=() runopts=()
   running=$($DOCKER container inspect -f '{{.State.Running}}' "$c" 2>/dev/null) || { echo "ERROR: there is no container named '$c'."; exit 1; }
   [ "$running" = true ] || { echo "ERROR: container '$c' is not running."; exit 1; }
@@ -264,6 +269,13 @@ check_existing_server() {
           echo "         from that image with the same options (data in the volume is kept)."
         fi ;;
       404)
+        ver=$(curl -ks -u "admin:$PMM_ADMIN_PASSWORD" "$PMM_LOCAL/v1/server/version" |
+          grep -o '"version": *"[0-9][0-9.]*' | head -n1 | grep -o '[0-9][0-9.]*$' || true)
+        if [ -n "$ver" ] && [ "$(printf '%s\n' "$ver" "$BASE_VERSION.999" | sort -V | tail -n1)" != "$BASE_VERSION.999" ]; then
+          echo "ERROR: '$c' runs PMM $ver. The prototype is based on PMM $BASE_VERSION and cannot take the data of a later"
+          echo "       release. Use it with a PMM $BASE_VERSION.x (or older) server, or install it on another host."
+          exit 1
+        fi
         new_image=$PMM_IMAGE
         recreate+=("its image has no PMM Assistant (stock PMM); it has to run $new_image") ;;
       *) echo "ERROR: $PMM_LOCAL/v1/adre/settings failed; check: $DOCKER logs $c"; exit 1 ;;
@@ -278,6 +290,8 @@ check_existing_server() {
     HOLMES_CONFIG_DIR=$(cut -d'|' -f2 <<<"$mount")
   else
     recreate+=("PMM renders the HolmesGPT config into $cfg_dir, which is not a host directory HolmesGPT can mount too")
+    # Podman, unlike Docker, does not create a missing bind-mount source.
+    mkdir -p "$HOLMES_CONFIG_DIR"
     runopts+=(-v "$(realpath -m "$HOLMES_CONFIG_DIR"):$cfg_dir:z")
     drop_mount=$cfg_dir
     [ -n "$(getenv ADRE_CONFIG_DIR)" ] || envs+=("ADRE_CONFIG_DIR=$cfg_dir")
@@ -311,7 +325,18 @@ check_existing_server() {
       envs+=(PMM_ENABLE_UPDATES=false) ;;
   esac
 
-  [ ${#recreate[@]} -eq 0 ] && return
+  # A unit like the one in PMM's Podman guide recreates the container on every start.
+  if [ -n "$unit" ] && [ -n "$SRV_LABEL" ] && ! $SYSTEMCTL cat "$unit" 2>/dev/null | grep -Eq ':/srv:[^ ]*[zZ]'; then
+    srv_fix=1
+  fi
+  if [ ${#recreate[@]} -eq 0 ]; then
+    if [ -n "$srv_fix" ]; then
+      echo "         WARNING: SELinux is on and the unit $unit mounts /srv without :z. The unit recreates the container on"
+      echo "         every start, with new SELinux labels, so PMM can fail with 'Permission denied' on /srv after a restart."
+      echo "         Make the unit's volume end in :z (--volume=\${PMM_VOLUME_NAME}:/srv:z)."
+    fi
+    return
+  fi
   image=$($DOCKER container inspect -f '{{.Config.Image}}' "$c")
   rerun="bash install.sh --existing-server"
   [ "$c" = pmm-server ] || rerun+="=$c"
@@ -334,8 +359,10 @@ check_existing_server() {
     echo "       1. Set these in ${env_file:-the env file the unit passes with --env-file} (replace a line for the same name):"
     [ -z "$new_image" ] || echo "            PMM_IMAGE=$new_image"
     for e in "${envs[@]}"; do echo "            $e"; done
-    if [ ${#runopts[@]} -gt 0 ]; then
-      echo "       2. Add to the unit's podman run line: ${runopts[*]}"
+    if [ ${#runopts[@]} -gt 0 ] || [ -n "$srv_fix" ]; then
+      echo "       2. In the unit's podman run line:"
+      [ ${#runopts[@]} -eq 0 ] || echo "            add: ${runopts[*]}"
+      [ -z "$srv_fix" ] || echo "            make the /srv volume end in :z (--volume=\${PMM_VOLUME_NAME}:/srv:z); SELinux is on"
       [[ " ${runopts[*]} " != *" --network pmm "* ]] || echo "          and create that network first: $DOCKER network create pmm"
     else
       echo "       2. Nothing to change in the unit's podman run line."
@@ -343,7 +370,7 @@ check_existing_server() {
     [ -z "$new_image" ] || echo "          The unit must take the image from PMM_IMAGE (\${PMM_IMAGE}), as in PMM's Podman guide."
     echo "       3. $SYSTEMCTL daemon-reload && $SYSTEMCTL restart $unit"
     echo "       Then run: $rerun"
-    echo "       Nothing else was changed."
+    echo "       Nothing else was changed${drop_mount:+ (only $HOLMES_CONFIG_DIR was created, for the mount above)}."
     exit 2
   fi
 
@@ -351,7 +378,7 @@ check_existing_server() {
   opts=$($DOCKER container inspect -f '{{with .HostConfig.RestartPolicy.Name}}{{if ne . "no"}}--restart {{.}}{{println}}{{end}}{{end}}
 {{- range $p, $b := .HostConfig.PortBindings}}{{range $b}}-p {{$ip := printf "%s" .HostIP}}{{if and $ip (ne $ip "invalid IP")}}{{$ip}}:{{end}}{{.HostPort}}:{{$p}}{{println}}{{end}}{{end}}
 {{- range .Mounts}}{{if eq .Type "volume"}}-v {{.Name}}:{{.Destination}}{{else}}-v {{.Source}}:{{.Destination}}{{end}}{{println}}{{end}}' "$c" |
-    { grep -v -e '^$' ${drop_mount:+-e "^-v .*:$drop_mount\$"} || true; } | paste -sd' ')
+    { grep -v -e '^$' ${drop_mount:+-e "^-v .*:$drop_mount\$"} || true; } | sed "s#^\(-v .*:/srv\)\$#\1$SRV_LABEL#" | paste -sd' ')
   # The -e options it was started with (not from the image, not set by Podman, not replaced above) go to an env
   # file, so the new container keeps them and no value is printed.
   added=$(printf '%s\n' "${envs[@]}" HOME HOSTNAME container | sed 's/=.*//')
@@ -375,7 +402,7 @@ check_existing_server() {
   echo "         $DOCKER stop -t 120 $c && $DOCKER rm $c"
   echo "         $DOCKER run -d --name $c $opts ${runopts[*]} ${new_image:-$image}"
   echo "       Then run: $rerun"
-  echo "       Nothing else was changed."
+  echo "       Nothing else was changed${drop_mount:+ (only $HOLMES_CONFIG_DIR was created, for the mount above)}."
   exit 2
 }
 
@@ -473,7 +500,7 @@ else
   fi
   ensure_network
   server_args=(--network "$NET" -p "$PMM_HTTPS_PORT:8443" --restart always --stop-timeout 120
-    -v "$PMM_VOLUME:/srv" -v "$CFG_ABS:/holmes-config:z"
+    -v "$PMM_VOLUME:/srv$SRV_LABEL" -v "$CFG_ABS:/holmes-config:z"
     # PMM renders the Holmes config into the shared directory.
     -e ADRE_CONFIG_DIR=/holmes-config
     # The in-app updater would replace this build with a stock PMM release, which has no Assistant.
