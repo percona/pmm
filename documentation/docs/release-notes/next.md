@@ -2,12 +2,7 @@
 
 **Release date**: TBD
 
-Percona Monitoring and Management (PMM) is an open source database monitoring, management, and observability solution for MySQL, PostgreSQL, MongoDB, Valkey and Redis. PMM empowers you to:
-
-- monitor the health and performance of your database systems
-- identify patterns and trends in database behavior
-- diagnose and resolve issues faster with actionable insights
-- manage databases across on-premises, cloud, and hybrid environments
+Percona Monitoring and Management (PMM) is an open source solution for monitoring and managing MySQL, PostgreSQL, MongoDB, Valkey, and Redis databases, on premises or in the cloud.
 
 ## 📋 Release summary
 
@@ -18,6 +13,8 @@ Percona Monitoring and Management (PMM) is an open source database monitoring, m
 ## 📈 Improvements
 
 ## ✅ Fixed issues
+
+- [PMM-15773](https://perconadev.atlassian.net/browse/PMM-15773): Fixed an issue where a node could stop sending metrics when another `vmagent` process held the metrics queue of PMM Client. PMM Client now stops a `vmagent` that was left running from before it started. If another process takes the queue later, PMM Client logs which process holds it. PMM Server load no longer rises while a `vmagent` keeps failing to start.
 
 ## 🔶 Known issues
 
