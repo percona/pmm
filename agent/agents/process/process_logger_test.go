@@ -130,7 +130,7 @@ func TestProcessLogger(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.testName, func(t *testing.T) {
-			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords)
+			pl := newProcessLogger(nil, tt.writerLines, tt.redactWords, 0)
 			for _, arg := range tt.writeArgs {
 				_, err := pl.Write([]byte(arg))
 				require.NoError(t, err)
@@ -140,5 +140,24 @@ func TestProcessLogger(t *testing.T) {
 			assert.Len(t, pl.buf, tt.expectedLen, "Unexpected buf len.")
 			assert.Equal(t, tt.expectedCap, cap(pl.buf), "Unexpected buf cap. buf: %s", pl.buf)
 		})
+	}
+}
+
+func TestBindFailed(t *testing.T) {
+	t.Parallel()
+
+	pl := newProcessLogger(nil, 1, nil, 42000)
+	for _, tc := range []struct {
+		line string
+		want bool
+	}{
+		{`err="listen tcp :42000: bind: address already in use"`, true},
+		{"cannot start http server: listen tcp4 127.0.0.1:42000: bind: address already in use", true},
+		{"listen tcp [::]:42000: bind: permission denied", true},
+		{"listen tcp :9187: bind: address already in use", false},
+		{"address already in use", false},
+		{"cannot acquire lock on file", false},
+	} {
+		assert.Equal(t, tc.want, pl.bindFailed(tc.line), tc.line)
 	}
 }
