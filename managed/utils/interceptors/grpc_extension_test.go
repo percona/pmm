@@ -32,8 +32,11 @@ func TestCallerOriginFromRequest(t *testing.T) {
 	}{
 		"API client":             {method: "/server.v1.ServerService/Version", expected: externalCallerOrigin},
 		"UI":                     {referer: "https://pmm-server/", method: "/server.v1.ServerService/Version", expected: internalCallerOrigin},
+		"readiness probe":        {method: "/server.v1.ServerService/Readiness", expected: internalCallerOrigin},
 		"HAProxy health check":   {method: "/server.v1.ServerService/LeaderHealthCheck", expected: internalCallerOrigin},
+		"pmm-agent stream":       {method: "/agent.v1.AgentService/Connect", expected: internalCallerOrigin},
 		"PMM 2 pmm-agent stream": {method: "/agent.Agent/Connect", expected: internalCallerOrigin},
+		"RTA collector":          {method: "/realtimeanalytics.v1.CollectorService/Collect", expected: internalCallerOrigin},
 	} {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()

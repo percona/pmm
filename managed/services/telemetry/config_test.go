@@ -417,20 +417,22 @@ func TestDefaultConfigReportsAPIUsage(t *testing.T) {
 	assert.False(t, agg.Without)
 	assert.ElementsMatch(t, dataLabels, agg.Grouping)
 
-	selectors := parser.ExtractSelectors(expr)
-	require.Len(t, selectors, 1)
+	// Sum the raw counter: a function such as rate() would change what the value means.
+	selector, ok := agg.Expr.(*parser.VectorSelector)
+	require.True(t, ok, "query must sum a plain selector: %s", apiUsage.Query)
 
-	var metricName, jobMatcher string
-	for _, m := range selectors[0] {
-		switch m.Name {
-		case model.MetricNameLabel:
+	// Only the job matcher: qan-api2 exports a metric with the same name but without
+	// caller_origin, and any other matcher would drop part of the usage.
+	var metricName string
+	matchers := make([]string, 0, len(selector.LabelMatchers))
+	for _, m := range selector.LabelMatchers {
+		if m.Name == model.MetricNameLabel {
 			metricName = m.Value
-		case "job":
-			jobMatcher = m.String()
+			continue
 		}
+		matchers = append(matchers, m.String())
 	}
-	// qan-api2 exports a metric with the same name but without caller_origin.
-	assert.Equal(t, `job="pmm-managed"`, jobMatcher)
+	assert.Equal(t, []string{`job="pmm-managed"`}, matchers)
 
 	grpcMetrics := interceptors.NewServerMetricsWithExtension(&interceptors.GRPCMetricsExtension{})
 	registry := prometheus.NewRegistry()
