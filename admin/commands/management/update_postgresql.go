@@ -122,6 +122,12 @@ func (cmd *UpdatePostgreSQLCommand) RunCmd() (commands.Result, error) {
 		}
 	}
 
+	if cmd.typed["enable-collectors"] {
+		body.EnableCollectors = &mservice.UpdateServiceParamsBodyPostgresqlEnableCollectors{
+			Values: cmd.list("enable-collectors", cmd.EnableCollectors),
+		}
+	}
+
 	target, err := cmd.target(cmd.typedName(cmd.ServiceName, cmd.AddCommonFlags), allServiceTypes["postgresql"])
 	if err != nil {
 		return nil, err
@@ -167,6 +173,7 @@ func postgresqlSettings(svc *mservice.UpdateServiceOKBodyAfter) []setting {
 		),
 		[]setting{
 			{Flag: "--disable-collectors", Value: strings.Join(exporter.DisabledCollectors, ",")},
+			{Flag: "--enable-collectors", Value: strings.Join(exporter.EnabledCollectors, ",")},
 			{Flag: "--auto-discovery-limit", Value: strconv.Itoa(int(autoDiscoveryLimit))},
 			{Flag: "--max-exporter-connections", Value: strconv.Itoa(int(maxExporterConnections))},
 		},

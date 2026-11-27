@@ -5323,6 +5323,9 @@ type AddServiceOKBodyPostgresqlPostgresExporter struct {
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
 
+	// List of collector names to enable, as configured, which can include collectors that the exporter runs by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
+
 	// AgentStatus represents actual Agent status.
 	//
 	//  - AGENT_STATUS_STARTING: Agent is starting.
@@ -7780,6 +7783,9 @@ type AddServiceOKBodyRDSPostgresqlExporter struct {
 
 	// List of disabled collector names.
 	DisabledCollectors []string `json:"disabled_collectors"`
+
+	// List of collector names to enable, as configured, which can include collectors that the exporter runs by default.
+	EnabledCollectors []string `json:"enabled_collectors"`
 
 	// AgentStatus represents actual Agent status.
 	//
@@ -11009,6 +11015,10 @@ type AddServiceParamsBodyPostgresql struct {
 
 	// List of collector names to disable in this exporter.
 	DisableCollectors []string `json:"disable_collectors"`
+
+	// List of postgres_exporter collector names to enable in this exporter, e.g. long_running_transactions; one that the
+	// exporter runs by default needs no entry, and a name can't also be in disable_collectors.
+	EnableCollectors []string `json:"enable_collectors"`
 
 	// TLS CA certificate.
 	TLSCa string `json:"tls_ca,omitempty"`

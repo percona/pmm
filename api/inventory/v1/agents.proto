@@ -267,6 +267,8 @@ message PostgresExporter {
   bool push_metrics_enabled = 9;
   // List of disabled collector names.
   repeated string disabled_collectors = 10;
+  // List of collector names to enable, as configured, which can include collectors that the exporter runs by default.
+  repeated string enabled_collectors = 29;
 
   //
   // Status fields below.
