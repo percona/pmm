@@ -80,7 +80,7 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
     helm repo update
     ```
 
-4. Choose your PMM version by checking available chart versions:
+4. Choose your PMM version by checking available chart versions. The **APP VERSION** column shows the PMM version that each chart installs:
 
     ```bash
     helm search repo percona/pmm --versions
@@ -88,16 +88,16 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
 
     ??? info "Example output"
         ```text
-        NAME        CHART VERSION   APP VERSION DESCRIPTION
-        percona/pmm	1.4.9        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.8        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.7        	3.3.1      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.6        	3.3.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.5        	3.2.0      	A Helm chart for Percona Monitoring and Managem...
-        percona/pmm	1.4.4        	3.1.0      	A Helm chart for Percona Monitoring and Managem...
+        NAME            CHART VERSION   APP VERSION     DESCRIPTION
+        percona/pmm     1.11.1          3.11.0          A Helm chart for Percona Monitoring and Managem...
+        percona/pmm     1.11.0          3.10.0          A Helm chart for Percona Monitoring and Managem...
+        percona/pmm     1.10.0          3.10.0          A Helm chart for Percona Monitoring and Managem...
+        percona/pmm     1.9.1           3.9.1           A Helm chart for Percona Monitoring and Managem...
+        percona/pmm     1.9.0           3.9.0           A Helm chart for Percona Monitoring and Managem...
+        percona/pmm     1.8.1           3.8.1           A Helm chart for Percona Monitoring and Managem...
         ```
         
-5. Deploy PMM Server with your chosen version and secret:
+5. Deploy PMM Server with your secret. The following commands install the latest chart, which ships the latest PMM version. To install the PMM version that you chose, add `--version <chart-version>` with the chart version from the previous step:
 
     === "On Kubernetes"
         Use Helm to deploy PMM Server on standard Kubernetes clusters. This approach works with most Kubernetes distributions and cloud providers.
@@ -106,7 +106,6 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
         helm install pmm \
         --set secret.create=false \
         --set secret.name=pmm-secret \
-        --version 1.4.8 \
         percona/pmm
         ```
 
@@ -132,7 +131,6 @@ Create the required Kubernetes secret and deploy PMM Server using Helm:
            ```bash
            helm install pmm \
            -f openshift-values.yaml \
-           --version 1.4.3 \
            percona/pmm
            ```
 
