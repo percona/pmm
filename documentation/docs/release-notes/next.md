@@ -12,6 +12,8 @@ Percona Monitoring and Management (PMM) is an open source solution for monitorin
 
 ## 📈 Improvements
 
+- [PMM-15683](https://perconadev.atlassian.net/browse/PMM-15683): **MongoDB > Operations > Settings** now shows the range each number field accepts, for example **A whole number from 1 to 8**, and refuses a value outside it before you save. When PMM Extensions refuses a save or reset, the page lists each reason on a readable line that names the fields it applies to by their labels, instead of raw JSON. **Period** no longer offers `seconds`, which the scan schedule never accepted. For details, see [Operations for MongoDB](../use/mongodb-operations.md#change-the-scan-schedule).
+
 ## ✅ Fixed issues
 
 ## 🔶 Known issues
