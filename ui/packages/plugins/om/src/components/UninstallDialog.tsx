@@ -21,6 +21,7 @@ import {
   Box,
   Button,
   Chip,
+  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -83,7 +84,13 @@ const ReadinessChip = ({ readiness }: { readiness: OmUninstallReadiness }) => {
     );
   }
   if (readiness === 'checking') {
-    return <Chip size="small" label="Checking…" />;
+    return (
+      <Chip
+        size="small"
+        icon={<CircularProgress size={12} color="inherit" />}
+        label="Checking"
+      />
+    );
   }
   if (readiness === 'drift') {
     return <Chip size="small" color="warning" label="Packages changed" />;
@@ -316,9 +323,8 @@ export const UninstallDialog = ({
         )}
 
         {!running && !terminal && !report && (
-          <Stack spacing={1}>
-            <Typography variant="body2">Checking readiness…</Typography>
-            <LinearProgress />
+          <Stack alignItems="center" sx={{ py: 3 }}>
+            <CircularProgress aria-label="Checking readiness" />
           </Stack>
         )}
 

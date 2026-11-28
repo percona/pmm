@@ -173,6 +173,9 @@ export function useUninstallReport(
         ? OPERATION_POLL_MS
         : false,
     refetchIntervalInBackground: true,
+    // The query key carries the operation version, so a version bump re-keys it; keep the last
+    // report on screen while it refetches instead of blanking to the checking state.
+    placeholderData: keepPreviousData,
   });
 }
 
