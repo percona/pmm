@@ -74,9 +74,24 @@ const PROGRESSING_STATUSES: readonly OmOperationStatus[] = [
   'cancelling',
 ];
 
+/**
+ * Statuses in which an operation holds its cluster but has not begun tearing it down, so its
+ * dialog can be reopened to confirm or cancel it rather than leaving the action a dead end.
+ */
+const PENDING_STATUSES: readonly OmOperationStatus[] = [
+  'checking',
+  'awaiting_confirmation',
+  'queued',
+];
+
 /** Whether an operation still holds its cluster, for gating a second trigger. */
 export function isOperationBusy(op: Pick<OmOperation, 'status'>): boolean {
   return BUSY_STATUSES.includes(op.status);
+}
+
+/** Whether an operation holds its cluster but can still be reopened to confirm or cancel. */
+export function isOperationPending(op: Pick<OmOperation, 'status'>): boolean {
+  return PENDING_STATUSES.includes(op.status);
 }
 
 /** Whether an operation is still moving on its own, for a poll cadence. */

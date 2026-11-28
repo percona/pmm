@@ -77,7 +77,11 @@ import {
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
-import { isOperationBusy, useOmOperations } from './operationHooks';
+import {
+  isOperationBusy,
+  isOperationPending,
+  useOmOperations,
+} from './operationHooks';
 import { UninstallDialog } from './components/UninstallDialog';
 import { isBootstrapRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
@@ -897,6 +901,17 @@ export const NodesPage = () => {
     }
     return busy;
   }, [operations.data]);
+  // Clusters whose holding operation has not started tearing down: Uninstall reopens that
+  // pending operation (the trigger is idempotent) instead of being a dead disabled item.
+  const pendingClusterIds = useMemo(() => {
+    const pending = new Set<string>();
+    for (const op of operations.data ?? []) {
+      if (op.cluster_id && isOperationPending(op)) {
+        pending.add(op.cluster_id);
+      }
+    }
+    return pending;
+  }, [operations.data]);
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
   const rows = useMemo(() => toHostRows(data), [data]);
@@ -1100,10 +1115,14 @@ export const NodesPage = () => {
                 </Box>
               </Tooltip>,
               /* One Uninstall item per cluster the host's services belong to - a host can
-                 carry more than one, and Uninstall is cluster-scoped. Visible but disabled
-                 while that cluster already has an operation, like Install's busy state. */
+                 carry more than one, and Uninstall is cluster-scoped. A pending operation
+                 reopens its dialog to confirm or cancel; only an active teardown disables it. */
               ...uninstallableClustersOf(row.original).map((cluster) => {
-                const clusterBusy = busyClusterIds.has(cluster.cluster_id);
+                const clusterPending = pendingClusterIds.has(
+                  cluster.cluster_id
+                );
+                const clusterBusy =
+                  busyClusterIds.has(cluster.cluster_id) && !clusterPending;
                 return (
                   <Tooltip
                     key={`uninstall-${cluster.cluster_id}`}
@@ -1120,7 +1139,8 @@ export const NodesPage = () => {
                           close();
                         }}
                       >
-                        Uninstall {cluster.name}
+                        {clusterPending ? 'Resume uninstall' : 'Uninstall'}{' '}
+                        {cluster.name}
                       </MenuItem>
                     </Box>
                   </Tooltip>
