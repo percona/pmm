@@ -153,6 +153,13 @@ export interface OmHostCluster {
   name: string;
 }
 
+/** Whether a host carries a database PMM Operations manages, not merely monitors. */
+export function hostHasManagedService(
+  host: Pick<OmInventoryHost, 'services'>
+): boolean {
+  return host.services.some((service) => Boolean(service.om_cluster_id));
+}
+
 /**
  * The clusters on a host that Uninstall offers, one per distinct cluster id.
  *

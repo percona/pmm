@@ -65,6 +65,7 @@ import { formatCompactDuration, pluralize } from './format';
 import {
   ageSeconds,
   describeScanFailure,
+  hostHasManagedService,
   isFailing,
   toHostRows,
   uninstallableClustersOf,
@@ -441,19 +442,28 @@ const RepoCell = ({ row }: { row: OmHostRow }) => {
  * machine and invite someone to install over a port already in use.
  */
 const DatabaseCell = ({ row }: { row: OmHostRow }) => {
+  // A registered service that belongs to an Operations cluster reads as Managed, not just Monitored.
+  const managed =
+    row.database_state === 'has_service' && hostHasManagedService(row);
   const extra =
     row.database_state === 'has_service'
       ? ` (${row.service_count})`
       : row.database_state === 'unregistered_only'
         ? ` (${row.unregistered_mongods.length})`
         : '';
+  const label = managed
+    ? 'Managed'
+    : HOST_DATABASE_STATE_LABEL[row.database_state];
+  const phrase = managed
+    ? 'At least one MongoDB service here belongs to a cluster PMM Operations manages.'
+    : HOST_DATABASE_STATE_PHRASE[row.database_state];
   return (
-    <Tooltip title={HOST_DATABASE_STATE_PHRASE[row.database_state]}>
+    <Tooltip title={phrase}>
       <Chip
         size="small"
         color={HOST_DATABASE_STATE_COLOR[row.database_state]}
         variant={row.database_state === 'has_service' ? 'filled' : 'outlined'}
-        label={`${HOST_DATABASE_STATE_LABEL[row.database_state]}${extra}`}
+        label={`${label}${extra}`}
       />
     </Tooltip>
   );
