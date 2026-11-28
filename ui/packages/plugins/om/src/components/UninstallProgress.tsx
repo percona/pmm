@@ -34,7 +34,11 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { OPERATION_STATUS_LABEL, UNINSTALL_STEP_LABEL } from '../constants';
-import { useOmOperation, useUninstallReport } from '../operationHooks';
+import {
+  isOperationProgressing,
+  useOmOperation,
+  useUninstallReport,
+} from '../operationHooks';
 import type { OmOperation, OmOperationStep } from '../types';
 import { OmError } from './OmError';
 
@@ -54,10 +58,26 @@ const UNINSTALL_STEPS = Object.keys(UNINSTALL_STEP_LABEL);
 /** Whether a step is on a member host, the only kind an uninstall plans. */
 const isMemberStep = (step: OmOperationStep) => step.target_kind === 'member';
 
-/** One step's icon: grey until it starts, a spinner while it runs, green or red once it settles. */
-const StepStatusIcon = ({ step }: { step: OmOperationStep }) => {
+/**
+ * One step's icon: grey until it starts, a spinner while it runs, green or red once it settles.
+ * An operation step in flight reads as `unknown` (the driver re-probes it for proof); it spins
+ * while the operation is still progressing, so a running teardown shows a spinner like an install.
+ */
+const StepStatusIcon = ({
+  step,
+  active,
+}: {
+  step: OmOperationStep;
+  active: boolean;
+}) => {
+  const running =
+    step.status === 'running' ||
+    step.status === 'dispatching' ||
+    (active && step.status === 'unknown');
   const label = `${UNINSTALL_STEP_LABEL[step.step] ?? step.step}: ${
-    STEP_STATUS_LABEL[step.status] ?? step.status
+    running
+      ? STEP_STATUS_LABEL.running
+      : (STEP_STATUS_LABEL[step.status] ?? step.status)
   }${step.attempt > 1 ? ` (attempt ${step.attempt})` : ''}`;
   return (
     <Tooltip title={label}>
@@ -69,7 +89,7 @@ const StepStatusIcon = ({ step }: { step: OmOperationStep }) => {
           <CheckCircleIcon fontSize="small" color="success" />
         ) : step.status === 'failed' ? (
           <CancelIcon fontSize="small" color="error" />
-        ) : step.status === 'running' || step.status === 'dispatching' ? (
+        ) : running ? (
           <CircularProgress size={16} />
         ) : (
           <RadioButtonUncheckedIcon
@@ -152,6 +172,7 @@ export const UninstallProgress = ({
   const done = steps.filter((step) => step.status === 'succeeded').length;
   const total = members.length * UNINSTALL_STEPS.length;
   const failed = live.status === 'failed' || live.status === 'abandoned';
+  const active = isOperationProgressing(live);
 
   return (
     <Stack spacing={1.5} sx={{ py: 1 }}>
@@ -196,7 +217,7 @@ export const UninstallProgress = ({
                         }
                       >
                         {step ? (
-                          <StepStatusIcon step={step} />
+                          <StepStatusIcon step={step} active={active} />
                         ) : (
                           <PendingStepIcon name={name} />
                         )}
