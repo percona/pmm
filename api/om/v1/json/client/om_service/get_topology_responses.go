@@ -804,6 +804,10 @@ type GetTopologyOKBodyEnvironmentsItems0ClustersItems0 struct {
 	// later schema change -- see the om package's health-pipeline comment.
 	// Enum: ["CLUSTER_HEALTH_UNSPECIFIED"]
 	Health *string `json:"health,omitempty"`
+
+	// Whether Operations manages this cluster: at least one observed service is a live
+	// member of a managed cluster record. A plain monitored cluster is false.
+	Managed bool `json:"managed,omitempty"`
 }
 
 // Validate validates this get topology OK body environments items0 clusters items0

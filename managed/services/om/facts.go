@@ -114,6 +114,9 @@ var defaultPrecedence = map[string][]string{
 	fieldClusterRole:     {sourceMetrics},
 	fieldNodeType:        {sourceMetrics},
 	fieldIsMongos:        {sourceMetrics},
+	fieldFCV:             {sourceMetrics},
+	fieldRSConfigVersion: {sourceMetrics},
+	fieldRSConfigTerm:    {sourceMetrics},
 }
 
 // mergeFacts folds every source's facts into one view per service, by per-field precedence.

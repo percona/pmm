@@ -286,6 +286,7 @@ function rollUpCluster(
     by_process_role: byProcessRole,
     by_state: byState,
     type: cluster.type,
+    managed: cluster.managed,
     versions: sortedVersions(versions),
     version_sets: sets,
     version_drift: sets.some((set) => set.versions.length > 1),

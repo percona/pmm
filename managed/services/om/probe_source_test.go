@@ -281,7 +281,7 @@ func TestProbeFactsReachTheDocument(t *testing.T) {
 	probe := source.collect(asService(context.Background()), services)
 
 	merged := mergeFacts([]SourceResult{metrics, probe}, defaultPrecedence)
-	doc := buildDocument(services, merged, projectionNow, projectionMaxAge)
+	doc := buildDocument(services, merged, projectionNow, projectionMaxAge, nil)
 
 	var svc *omv1.TopologyService
 	for _, cluster := range doc.environments[0].Clusters {

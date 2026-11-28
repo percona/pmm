@@ -162,6 +162,8 @@ export interface OmCluster {
    */
   id: string;
   type: OmClusterType;
+  /** Whether Operations manages this cluster (an installed or adopted cluster), vs monitored only. */
+  managed: boolean;
 }
 
 /** One monitoring environment. `env_name` is null when unset. */
@@ -252,6 +254,8 @@ export interface OmClusterRow {
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;
   type: OmClusterType;
+  /** Whether Operations manages this cluster (installed or adopted), vs monitored only. */
+  managed: boolean;
   /** Distinct running versions, oldest first. */
   versions: string[];
   /** Each replica set's distinct versions among its data-bearing members. */

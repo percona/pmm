@@ -34101,6 +34101,81 @@
         }
       }
     },
+    "/v1/om/clusters/{cluster_id}:uninstall": {
+      "post": {
+        "description": "Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Uninstall a managed cluster",
+        "operationId": "TriggerUninstall",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The managed cluster to uninstall.",
+            "name": "cluster_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "TriggerUninstallRequest asks to uninstall one managed cluster PMM installed.",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "TriggerUninstallResponse acknowledges a checking uninstall operation, before any host is touched.",
+              "type": "object",
+              "properties": {
+                "operation_id": {
+                  "description": "The uninstall operation's id. Poll GetOperation for its progress.",
+                  "type": "string",
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/om/inventory/bootstrap-runs": {
       "get": {
         "description": "Returns the recorded bootstrap runs, newest first, each in the same full detail GetBootstrapRun answers with.",
@@ -35553,6 +35628,24 @@
                                 }
                               },
                               "x-order": 14
+                            },
+                            "om_cluster_id": {
+                              "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 15
+                            },
+                            "cluster_origin": {
+                              "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 16
+                            },
+                            "cluster_kind": {
+                              "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                              "type": "string",
+                              "x-nullable": true,
+                              "x-order": 17
                             }
                           }
                         },
@@ -35971,6 +36064,24 @@
                               }
                             },
                             "x-order": 14
+                          },
+                          "om_cluster_id": {
+                            "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 15
+                          },
+                          "cluster_origin": {
+                            "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 16
+                          },
+                          "cluster_kind": {
+                            "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 17
                           }
                         }
                       },
@@ -36237,11 +36348,11 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "TriggerHostBootstrapResponse acknowledges a planned bootstrap run, before any host is touched.",
+              "description": "TriggerHostBootstrapResponse acknowledges a managed install operation, before any host is touched.",
               "type": "object",
               "properties": {
-                "run_id": {
-                  "description": "The om_bootstrap run's id. Poll GetBootstrapRun for its progress.",
+                "operation_id": {
+                  "description": "The install operation's id. Poll GetOperation for its progress.",
                   "type": "string",
                   "x-order": 0
                 },
@@ -37061,6 +37172,24 @@
                           }
                         },
                         "x-order": 14
+                      },
+                      "om_cluster_id": {
+                        "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 15
+                      },
+                      "cluster_origin": {
+                        "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 16
+                      },
+                      "cluster_kind": {
+                        "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 17
                       }
                     }
                   },
@@ -37267,6 +37396,24 @@
                         }
                       },
                       "x-order": 14
+                    },
+                    "om_cluster_id": {
+                      "description": "The managed cluster this service is a member of, as PMM's cluster ID. Unset for a\nservice OM does not manage as part of a cluster.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 15
+                    },
+                    "cluster_origin": {
+                      "description": "The owning cluster's origin, \"installed\" or \"imported\". Unset when om_cluster_id is.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 16
+                    },
+                    "cluster_kind": {
+                      "description": "The owning cluster's kind, \"replica_set\" or \"sharded\". Unset when om_cluster_id is.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 17
                     }
                   },
                   "x-order": 0
@@ -37329,6 +37476,2057 @@
             "schema": {
               "description": "DeleteInventoryServiceResponse acknowledges forgetting a service.",
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations": {
+      "get": {
+        "description": "Returns the managed-cluster operations, newest first, with each one's lifecycle status and provenance. Pass cluster_id to scope the list to one cluster.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "List operations",
+        "operationId": "ListOperations",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "When set, return only this cluster's operations; unset returns all of them.",
+            "name": "cluster_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ListOperationsResponse returns the operation history, newest first.",
+              "type": "object",
+              "properties": {
+                "operations": {
+                  "description": "The operations.",
+                  "type": "array",
+                  "items": {
+                    "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The operation's ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "kind": {
+                        "description": "The operation kind, a feature's registered name.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "kind_version": {
+                        "description": "The kind's contract version at creation; a resume refuses a different one.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 2
+                      },
+                      "cluster_id": {
+                        "description": "The cluster it acts on; unset for a cluster-less operation.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 3
+                      },
+                      "parent_operation_id": {
+                        "description": "The parent operation, when this is a child.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 4
+                      },
+                      "status": {
+                        "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                        "type": "string",
+                        "x-order": 5
+                      },
+                      "version": {
+                        "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 6
+                      },
+                      "params_revision": {
+                        "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 7
+                      },
+                      "trigger": {
+                        "description": "What started it: user, schedule or policy.",
+                        "type": "string",
+                        "x-order": 8
+                      },
+                      "report_digest": {
+                        "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 9
+                      },
+                      "error_code": {
+                        "description": "A stable machine-readable failure code, set once it fails.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 10
+                      },
+                      "confirmed_by": {
+                        "description": "Who confirmed it, when a confirmation was required.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 11
+                      },
+                      "cancelled_by": {
+                        "description": "Who cancelled it.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 12
+                      },
+                      "created_at": {
+                        "description": "When it was created.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 13
+                      },
+                      "started_at": {
+                        "description": "When it entered running. Unset until it does.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 14
+                      },
+                      "finished_at": {
+                        "description": "When it reached a terminal status. Unset while not terminal.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 15
+                      },
+                      "not_before": {
+                        "description": "The earliest it may run, for a scheduled operation.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 16
+                      },
+                      "deadline_at": {
+                        "description": "When it will be abandoned if still unfinished.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 17
+                      },
+                      "residual_hosts": {
+                        "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                        "type": "array",
+                        "items": {
+                          "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                          "type": "object",
+                          "properties": {
+                            "host": {
+                              "description": "The host the outcome is for.",
+                              "type": "string",
+                              "x-order": 0
+                            },
+                            "status": {
+                              "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                              "type": "string",
+                              "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "enum": [
+                                "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                                "RESIDUAL_HOST_STATUS_REMOVED",
+                                "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                                "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                              ],
+                              "x-order": 1
+                            }
+                          }
+                        },
+                        "x-order": 18
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}": {
+      "get": {
+        "description": "Returns one operation by ID, with its lifecycle status and every step it has dispatched.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an operation",
+        "operationId": "GetOperation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The operation to return.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetOperationResponse returns one operation and its dispatched steps.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                },
+                "steps": {
+                  "description": "Its steps, by attempt then step.",
+                  "type": "array",
+                  "items": {
+                    "description": "OperationStep is one dispatch within an operation.\n\nThe step's result payload is withheld for the same reason as the operation's params: it is\narbitrary executor output that can carry secrets, and this surface cannot yet gate it.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "The step's ID.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "target_kind": {
+                        "description": "What the step targets: member, replica_set, node or run.",
+                        "type": "string",
+                        "x-order": 1
+                      },
+                      "target_id": {
+                        "description": "The targeted resource's ID.",
+                        "type": "string",
+                        "x-order": 2
+                      },
+                      "phase": {
+                        "description": "The phase it belongs to, e.g. \"run\".",
+                        "type": "string",
+                        "x-order": 3
+                      },
+                      "step": {
+                        "description": "The step name within the phase.",
+                        "type": "string",
+                        "x-order": 4
+                      },
+                      "attempt": {
+                        "description": "Which attempt this is, from 1.",
+                        "type": "integer",
+                        "format": "int32",
+                        "x-order": 5
+                      },
+                      "status": {
+                        "description": "One of: planned, dispatching, running, succeeded, failed, unknown.",
+                        "type": "string",
+                        "x-order": 6
+                      },
+                      "epoch": {
+                        "description": "The leader epoch it was dispatched under.",
+                        "type": "string",
+                        "format": "int64",
+                        "x-order": 7
+                      },
+                      "task_history_id": {
+                        "description": "The executor's task history ID, when it has one.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 8
+                      },
+                      "dispatched_at": {
+                        "description": "When it was dispatched. Unset until it is.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 9
+                      },
+                      "finished_at": {
+                        "description": "When it finished. Unset while it runs.",
+                        "type": "string",
+                        "format": "date-time",
+                        "x-order": 10
+                      }
+                    }
+                  },
+                  "x-order": 1
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}/uninstallReport": {
+      "get": {
+        "description": "Returns what an uninstall operation will remove -- the cluster, each member's host, the paths and packages the teardown deletes -- with each member's readiness, the confirm phrase and the reviewed report digest. The redacted review the operator confirms against; carries no secret.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get an uninstall operation's readiness report",
+        "operationId": "GetUninstallReport",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The uninstall operation to report on.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetUninstallReportResponse returns one uninstall operation's readiness report.",
+              "type": "object",
+              "properties": {
+                "report": {
+                  "description": "UninstallReport is an uninstall operation's readiness report: what the teardown will remove and\nwhether each member is ready, for the operator to review before confirming. It carries no secret --\nthe sealed plan's host paths and package names and the members' readiness, never the operation's\nparams or the executor output.",
+                  "type": "object",
+                  "properties": {
+                    "operation_id": {
+                      "description": "The operation this report is for.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "cluster_id": {
+                      "description": "The cluster being uninstalled.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "cluster_name": {
+                      "description": "The cluster's name, for display. Unset when the cluster has none.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 2
+                    },
+                    "confirm_phrase": {
+                      "description": "The phrase the operator types to confirm, e.g. \"REMOVE rs-prod ab12cd\" -- pass it to\nConfirmOperation, or to AbandonOperation. The short id disambiguates non-unique cluster names.",
+                      "type": "string",
+                      "x-order": 3
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, echoing Operation.report_digest, to pass to ConfirmOperation. Unset\nuntil the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "ready": {
+                      "description": "Whether every member is ready and the operation can be confirmed.",
+                      "type": "boolean",
+                      "x-order": 5
+                    },
+                    "drifted": {
+                      "description": "Whether readiness blocked on package drift, so the operator may adopt the live plan with\nConfirmUninstallLivePlan rather than being hard-refused.",
+                      "type": "boolean",
+                      "x-order": 6
+                    },
+                    "members": {
+                      "description": "Each member the teardown will remove, and whether it is ready.",
+                      "type": "array",
+                      "items": {
+                        "description": "UninstallReportMember is one member's entry in an uninstall readiness report: what the teardown\ndeletes on its host and whether it is ready.",
+                        "type": "object",
+                        "properties": {
+                          "member_id": {
+                            "description": "The member's id.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "host": {
+                            "description": "The host the member runs on.",
+                            "type": "string",
+                            "x-order": 1
+                          },
+                          "node_id": {
+                            "description": "PMM's node id for the host, when the plan sealed one.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 2
+                          },
+                          "data_path": {
+                            "description": "The data directory the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 3
+                          },
+                          "config_file": {
+                            "description": "The config file the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 4
+                          },
+                          "keyfile_path": {
+                            "description": "The keyfile the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 5
+                          },
+                          "log_path": {
+                            "description": "The log file the teardown deletes. Unset when the plan recorded none.",
+                            "type": "string",
+                            "x-nullable": true,
+                            "x-order": 6
+                          },
+                          "packages": {
+                            "description": "The packages the teardown purges.",
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            },
+                            "x-order": 7
+                          },
+                          "readiness": {
+                            "description": "This member's readiness: \"ready\", \"checking\" when no fresh scan has reported, or a reason code --\n\"marker_absent\", \"marker_mismatch\", \"host_unreachable\", \"cannot_elevate\" or \"drift\".",
+                            "type": "string",
+                            "x-order": 8
+                          }
+                        }
+                      },
+                      "x-order": 7
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}:abandon": {
+      "post": {
+        "description": "Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Abandon an operation",
+        "operationId": "AbandonOperation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The failed operation to abandon.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "AbandonOperationRequest is the request for AbandonOperation.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller read, fencing the abandon against a concurrent change.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "confirm_phrase": {
+                  "description": "The server-validated confirm phrase, for a kind that seals one on the operation; a\nkind that seals none ignores it.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "AbandonOperationResponse returns the operation as it now stands.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}:cancel": {
+      "post": {
+        "description": "Cancels a pre-running operation outright, releasing its locks; a running operation whose kind allows it goes to cancelling for compensation. Fenced by version.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Cancel an operation",
+        "operationId": "CancelOperation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The operation to cancel.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "CancelOperationRequest is the request for CancelOperation.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller read, fencing the cancel against a concurrent change.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "CancelOperationResponse returns the operation as it now stands.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}:confirm": {
+      "post": {
+        "description": "Releases an operation awaiting confirmation to run, binding the reviewed plan by version: a rescan or other change since the review moves nothing and returns 409.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Confirm an operation",
+        "operationId": "ConfirmOperation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The operation awaiting confirmation.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ConfirmOperationRequest is the request for ConfirmOperation.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller reviewed. The confirm's optimistic fence: a rescan or any other\nchange since the review has bumped it, so a stale confirm moves nothing.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "confirm_phrase": {
+                  "description": "The server-validated confirm phrase, for a kind that seals one on the operation; a\nkind that seals none ignores it.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ConfirmOperationResponse returns the operation as it now stands.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}:confirmLivePlan": {
+      "post": {
+        "description": "Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Adopt the live plan of a drifted uninstall",
+        "operationId": "ConfirmUninstallLivePlan",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The uninstall operation blocked on drift.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ConfirmUninstallLivePlanRequest asks to re-seal an uninstall plan that readiness blocked on drift to\nthe hosts' live package sets, so the operator adopts what is on the hosts now and readiness re-runs.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller read, fencing the reseal against a concurrent change.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ConfirmUninstallLivePlanResponse returns the re-sealed operation, back in checking.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/operations/{operation_id}:resume": {
+      "post": {
+        "description": "Returns a failed, resumable operation to running, keeping the locks it held and clearing the attention it raised. Refused when the kind's contract version has moved. Fenced by version.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Resume an operation",
+        "operationId": "ResumeOperation",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The failed operation to resume.",
+            "name": "operation_id",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ResumeOperationRequest is the request for ResumeOperation.",
+              "type": "object",
+              "properties": {
+                "version": {
+                  "description": "The version the caller read, fencing the resume against a concurrent change.",
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ResumeOperationResponse returns the operation as it now stands.",
+              "type": "object",
+              "properties": {
+                "operation": {
+                  "description": "Operation is one managed-cluster operation's history row: its lifecycle status and the\nprovenance around it.\n\nThe inputs (params) and the review report are deliberately not on this surface. Both can\ncarry secrets, and until a caller's role reaches this service there is nothing to redact\nthem against, so they are withheld from every reader rather than shown to the wrong one.\nreport_digest, a hash, is safe and stands in for the reviewed report.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "The operation's ID.",
+                      "type": "string",
+                      "x-order": 0
+                    },
+                    "kind": {
+                      "description": "The operation kind, a feature's registered name.",
+                      "type": "string",
+                      "x-order": 1
+                    },
+                    "kind_version": {
+                      "description": "The kind's contract version at creation; a resume refuses a different one.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 2
+                    },
+                    "cluster_id": {
+                      "description": "The cluster it acts on; unset for a cluster-less operation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 3
+                    },
+                    "parent_operation_id": {
+                      "description": "The parent operation, when this is a child.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 4
+                    },
+                    "status": {
+                      "description": "One of: checking, awaiting_confirmation, queued, running, cancelling, succeeded,\nfailed, cancelled, rolled_back, abandoned, external. A string, not an enum, because\nthe set is this service's own and a caller renders it rather than branching on it.",
+                      "type": "string",
+                      "x-order": 5
+                    },
+                    "version": {
+                      "description": "The monotonic version the optimistic-concurrency fence reads; pass it back to a\nconfirm, cancel, resume or abandon to bind the action to the state that was read.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 6
+                    },
+                    "params_revision": {
+                      "description": "The plan revision a confirm binds to; a return-to-checking bumps it.",
+                      "type": "integer",
+                      "format": "int32",
+                      "x-order": 7
+                    },
+                    "trigger": {
+                      "description": "What started it: user, schedule or policy.",
+                      "type": "string",
+                      "x-order": 8
+                    },
+                    "report_digest": {
+                      "description": "The reviewed report's digest, sealed when the operation awaits confirmation.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 9
+                    },
+                    "error_code": {
+                      "description": "A stable machine-readable failure code, set once it fails.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 10
+                    },
+                    "confirmed_by": {
+                      "description": "Who confirmed it, when a confirmation was required.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 11
+                    },
+                    "cancelled_by": {
+                      "description": "Who cancelled it.",
+                      "type": "string",
+                      "x-nullable": true,
+                      "x-order": 12
+                    },
+                    "created_at": {
+                      "description": "When it was created.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 13
+                    },
+                    "started_at": {
+                      "description": "When it entered running. Unset until it does.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 14
+                    },
+                    "finished_at": {
+                      "description": "When it reached a terminal status. Unset while not terminal.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 15
+                    },
+                    "not_before": {
+                      "description": "The earliest it may run, for a scheduled operation.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 16
+                    },
+                    "deadline_at": {
+                      "description": "When it will be abandoned if still unfinished.",
+                      "type": "string",
+                      "format": "date-time",
+                      "x-order": 17
+                    },
+                    "residual_hosts": {
+                      "description": "Per-host cleanup outcome a destructive kind records when a run is abandoned partway;\nempty for an operation that recorded none.",
+                      "type": "array",
+                      "items": {
+                        "description": "ResidualHost is one host's cleanup outcome in an abandoned operation's residual-hosts record.",
+                        "type": "object",
+                        "properties": {
+                          "host": {
+                            "description": "The host the outcome is for.",
+                            "type": "string",
+                            "x-order": 0
+                          },
+                          "status": {
+                            "description": "ResidualHostStatus is a host's cleanup outcome after a destructive operation is abandoned.",
+                            "type": "string",
+                            "default": "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                            "enum": [
+                              "RESIDUAL_HOST_STATUS_UNSPECIFIED",
+                              "RESIDUAL_HOST_STATUS_REMOVED",
+                              "RESIDUAL_HOST_STATUS_NOT_REMOVED",
+                              "RESIDUAL_HOST_STATUS_STILL_RUNNING"
+                            ],
+                            "x-order": 1
+                          }
+                        }
+                      },
+                      "x-order": 18
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/settings": {
+      "get": {
+        "description": "Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Get Operations settings",
+        "operationId": "GetSettingsMixin10",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "Unset selects the global scope; set selects a cluster's effective settings.",
+            "name": "cluster_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetSettingsResponse returns the settings resolved for a scope.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "description": "OmSetting is one Operations policy setting's effective value for a scope.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The setting key.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The effective value; omitted for a secret key.",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "description": "OmSettingSource says where an effective setting value came from.",
+                        "type": "string",
+                        "default": "OM_SETTING_SOURCE_UNSPECIFIED",
+                        "enum": [
+                          "OM_SETTING_SOURCE_UNSPECIFIED",
+                          "OM_SETTING_SOURCE_CLUSTER",
+                          "OM_SETTING_SOURCE_GLOBAL",
+                          "OM_SETTING_SOURCE_DEFAULT"
+                        ],
+                        "x-order": 2
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, i.e. the value is not the registry default.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
+                      "secret": {
+                        "description": "Whether the value is held encrypted and never returned.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "is_set": {
+                        "description": "Whether a secret key has a value set.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "description": {
+                        "description": "The setting's documentation, where it has any.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "description": "Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Change Operations settings",
+        "operationId": "UpdateSettings",
+        "parameters": [
+          {
+            "description": "UpdateSettingsRequest is the request for UpdateSettings.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "UpdateSettingsRequest is the request for UpdateSettings.",
+              "type": "object",
+              "properties": {
+                "cluster_id": {
+                  "description": "Unset selects the global scope; set selects a cluster.",
+                  "type": "string",
+                  "x-nullable": true,
+                  "x-order": 0
+                },
+                "values": {
+                  "description": "The keys to change, as `{key: value}`; the batch is validated and applied atomically.",
+                  "type": "object",
+                  "x-order": 1
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "UpdateSettingsResponse returns the settings as they now stand for the scope.",
+              "type": "object",
+              "properties": {
+                "settings": {
+                  "type": "array",
+                  "items": {
+                    "description": "OmSetting is one Operations policy setting's effective value for a scope.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "description": "The setting key.",
+                        "type": "string",
+                        "x-order": 0
+                      },
+                      "value": {
+                        "description": "The effective value; omitted for a secret key.",
+                        "x-order": 1
+                      },
+                      "source": {
+                        "description": "OmSettingSource says where an effective setting value came from.",
+                        "type": "string",
+                        "default": "OM_SETTING_SOURCE_UNSPECIFIED",
+                        "enum": [
+                          "OM_SETTING_SOURCE_UNSPECIFIED",
+                          "OM_SETTING_SOURCE_CLUSTER",
+                          "OM_SETTING_SOURCE_GLOBAL",
+                          "OM_SETTING_SOURCE_DEFAULT"
+                        ],
+                        "x-order": 2
+                      },
+                      "has_override": {
+                        "description": "Whether an override is in effect, i.e. the value is not the registry default.",
+                        "type": "boolean",
+                        "x-order": 3
+                      },
+                      "secret": {
+                        "description": "Whether the value is held encrypted and never returned.",
+                        "type": "boolean",
+                        "x-order": 4
+                      },
+                      "is_set": {
+                        "description": "Whether a secret key has a value set.",
+                        "type": "boolean",
+                        "x-order": 5
+                      },
+                      "description": {
+                        "description": "The setting's documentation, where it has any.",
+                        "type": "string",
+                        "x-nullable": true,
+                        "x-order": 6
+                      }
+                    }
+                  },
+                  "x-order": 0
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32",
+                  "x-order": 0
+                },
+                "message": {
+                  "type": "string",
+                  "x-order": 1
+                },
+                "details": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "@type": {
+                        "type": "string",
+                        "x-order": 0
+                      }
+                    },
+                    "additionalProperties": true
+                  },
+                  "x-order": 2
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/om/settings/overrides/{key}": {
+      "delete": {
+        "description": "Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing.",
+        "tags": [
+          "OmService"
+        ],
+        "summary": "Revert an Operations setting",
+        "operationId": "DeleteSettingOverride",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "The setting whose override to remove for the scope.",
+            "name": "key",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "description": "Unset selects the global scope; set selects a cluster.",
+            "name": "cluster_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "DeleteSettingOverrideResponse acknowledges the revert.",
+              "type": "object",
+              "properties": {
+                "removed": {
+                  "description": "Whether an override was removed; false when none was in effect.",
+                  "type": "boolean",
+                  "x-order": 0
+                }
+              }
             }
           },
           "default": {
@@ -37679,6 +39877,11 @@
                                 "CLUSTER_HEALTH_UNSPECIFIED"
                               ],
                               "x-order": 4
+                            },
+                            "managed": {
+                              "description": "Whether Operations manages this cluster: at least one observed service is a live\nmember of a managed cluster record. A plain monitored cluster is false.",
+                              "type": "boolean",
+                              "x-order": 5
                             }
                           }
                         },
