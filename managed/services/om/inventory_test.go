@@ -895,6 +895,54 @@ func TestAutomationEligibility(t *testing.T) {
 	})
 }
 
+func TestLiveServicesDropsRowsPMMNoLongerHas(t *testing.T) {
+	t.Parallel()
+
+	services := []extensionsService{{ServiceID: "live"}, {ServiceID: "stale"}}
+
+	assert.Equal(t, []extensionsService{{ServiceID: "live"}}, liveServices(services, map[string]bool{"live": true}))
+	assert.Empty(t, liveServices(services, map[string]bool{}))
+}
+
+func TestInventoryHostToProtoIgnoresAServicePMMDeregistered(t *testing.T) {
+	t.Parallel()
+
+	address := "node-1.example"
+	host := extensionsHost{
+		NodeID:   "n1",
+		Address:  &address,
+		Observed: map[string]any{"os_id": "ubuntu", "os_version_id": "22.04"},
+		Services: []extensionsService{{ServiceID: "30"}},
+	}
+
+	// A sweep re-added a service PMM already deregistered; the authoritative read drops it, so the host is a
+	// clean target again before the sweep reconciles the estate.
+	stale := inventoryHostToProto(host, true, false, testSupport, nil, map[string]bool{})
+	assert.Empty(t, stale.Services)
+	assert.NotContains(t, strings.Join(stale.AutomationBlockedReasons, " "), "already registered")
+
+	// PMM still has the service, so the host is not a target.
+	live := inventoryHostToProto(host, true, false, testSupport, nil, map[string]bool{"30": true})
+	assert.Len(t, live.Services, 1)
+	assert.Contains(t, strings.Join(live.AutomationBlockedReasons, " "), "already registered")
+}
+
+func TestRefuseNodesThatAreNotTargetsReadsPMMNotTheEstate(t *testing.T) {
+	svc := &Service{db: storeTestDB(t), l: logrus.WithField("test", t.Name())}
+	host := extensionsHost{
+		NodeID:   "n1",
+		Name:     "db-01",
+		Observed: map[string]any{"os_id": "ubuntu"},
+		Services: []extensionsService{{ServiceID: "ghost"}},
+	}
+
+	// The estate still lists a service PMM has no row for -- a sweep re-added it after the deregister. The
+	// gate reads PMM's own inventory, so it does not refuse the node for a service that no longer exists.
+	err := svc.refuseNodesThatAreNotTargets([]string{"n1"}, []extensionsHost{host})
+
+	require.NoError(t, err)
+}
+
 func TestInventoryServiceProjection(t *testing.T) {
 	t.Parallel()
 

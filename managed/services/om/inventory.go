@@ -107,9 +107,13 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 	if err != nil {
 		return nil, err
 	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return nil, err
+	}
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters)
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters, liveServiceIDs)
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
@@ -167,6 +171,39 @@ func (s *Service) serviceClusters() (map[string]models.ServiceCluster, error) {
 	return clusters, nil
 }
 
+// liveMongoDBServiceIDs is the set of MongoDB services PMM still registers, the authoritative answer to
+// whether a node is occupied that an install decision reads instead of the estate PMM's own copy lags.
+func (s *Service) liveMongoDBServiceIDs() (map[string]bool, error) {
+	if s.db == nil {
+		//nolint:nilnil // absent store: nil tells liveServices to leave the estate untouched
+		return nil, nil
+	}
+	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{ServiceType: new(models.MongoDBServiceType)})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list MongoDB services: %s", err)
+	}
+	ids := make(map[string]bool, len(services))
+	for _, service := range services {
+		ids[service.ServiceID] = true
+	}
+	return ids, nil
+}
+
+// liveServices drops the estate services PMM no longer registers, so a sweep that re-added a just-removed
+// service does not make the host read as occupied before the sweep reconciles the estate.
+func liveServices(services []extensionsService, live map[string]bool) []extensionsService {
+	if live == nil {
+		return services
+	}
+	kept := make([]extensionsService, 0, len(services))
+	for _, service := range services {
+		if live[service.ServiceID] {
+			kept = append(kept, service)
+		}
+	}
+	return kept
+}
+
 // GetInventoryHost returns one host.
 func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHostRequest) (*omv1.GetInventoryHostResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -195,8 +232,12 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 	if err != nil {
 		return nil, err
 	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return nil, err
+	}
 	return &omv1.GetInventoryHostResponse{
-		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters),
+		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters, liveServiceIDs),
 	}, nil
 }
 
@@ -580,9 +621,14 @@ func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensi
 	if err != nil {
 		return err
 	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return err
+	}
 
 	blocked := make([]string, 0, len(hosts))
 	for i, host := range hosts {
+		host.Services = liveServices(host.Services, liveServiceIDs)
 		reasons := hostNotATargetReasons(serverNodes[nodeIDs[i]], host)
 		if len(reasons) == 0 {
 			continue
@@ -1218,7 +1264,9 @@ func inventoryHostToProto(
 	isPMMServer bool,
 	support installSupport,
 	serviceClusters map[string]models.ServiceCluster,
+	liveServiceIDs map[string]bool,
 ) *omv1.InventoryHost {
+	host.Services = liveServices(host.Services, liveServiceIDs)
 	executor := executorToProto(host.Observed)
 	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host, support)
 	out := &omv1.InventoryHost{
