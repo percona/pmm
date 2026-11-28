@@ -162,6 +162,8 @@ export interface OmCluster {
    */
   id: string;
   type: OmClusterType;
+  /** Whether Operations manages this cluster (an installed or adopted cluster), vs monitored only. */
+  managed: boolean;
 }
 
 /** One monitoring environment. `env_name` is null when unset. */
@@ -252,6 +254,8 @@ export interface OmClusterRow {
   /** Replica-set member states, counted. Empty for routers and standalones. */
   by_state: Record<string, number>;
   type: OmClusterType;
+  /** Whether Operations manages this cluster (installed or adopted), vs monitored only. */
+  managed: boolean;
   /** Distinct running versions, oldest first. */
   versions: string[];
   /** Each replica set's distinct versions among its data-bearing members. */
@@ -470,7 +474,27 @@ export interface OmInventoryService {
   replication_set?: string | null;
   observed: Record<string, unknown>;
   freshness: OmInventoryFreshness;
+
+  /**
+   * The managed cluster this service is a member of, as PMM's cluster id. Unset for a
+   * service OM does not manage as part of a cluster. This is `om_clusters.id`, not the
+   * observational topology-snapshot id - use it, never that, to key a cluster operation.
+   */
+  om_cluster_id?: string | null;
+  /** The owning cluster's origin. Unset when `om_cluster_id` is. */
+  cluster_origin?: OmClusterOrigin | null;
+  /** The owning cluster's kind. Unset when `om_cluster_id` is. */
+  cluster_kind?: OmManagedClusterKind | null;
 }
+
+/** How a managed cluster came to be: PMM installed it, or PMM adopted an existing one. */
+export type OmClusterOrigin = 'installed' | 'imported';
+
+/**
+ * A managed cluster's topology kind. Not {@link OmClusterType}, which is the
+ * observational snapshot's derivation; this is the managed record's own `kind`.
+ */
+export type OmManagedClusterKind = 'replica_set' | 'sharded';
 
 /**
  * One host OM keeps a row for, whether or not a database runs on it.
@@ -809,4 +833,149 @@ export interface OmInventorySetting {
   has_override: boolean;
   is_advanced: boolean;
   description?: string | null;
+}
+
+/*
+ * ---------------------------------------------------------------------------
+ * Managed-cluster operations: the lifecycle API at /v1/om/operations and the
+ * uninstall trigger + readiness report the confirm flow drives.
+ * ---------------------------------------------------------------------------
+ */
+
+/**
+ * One managed-cluster operation's lifecycle status, as pmm-managed's own set. A string
+ * the UI renders; only the active/terminal questions below are branched on.
+ */
+export type OmOperationStatus =
+  | 'checking'
+  | 'awaiting_confirmation'
+  | 'queued'
+  | 'running'
+  | 'cancelling'
+  | 'succeeded'
+  | 'failed'
+  | 'cancelled'
+  | 'rolled_back'
+  | 'abandoned'
+  | 'external';
+
+/** A host's cleanup outcome recorded when a destructive operation is abandoned partway. */
+export type OmResidualHostStatus =
+  | 'RESIDUAL_HOST_STATUS_UNSPECIFIED'
+  | 'RESIDUAL_HOST_STATUS_REMOVED'
+  | 'RESIDUAL_HOST_STATUS_NOT_REMOVED'
+  | 'RESIDUAL_HOST_STATUS_STILL_RUNNING';
+
+/** One host's cleanup outcome in an abandoned operation's residual-hosts record. */
+export interface OmResidualHost {
+  host: string;
+  status: OmResidualHostStatus;
+}
+
+/**
+ * One managed-cluster operation, from `GET /v1/om/operations/{id}`.
+ *
+ * Params and the review report are withheld from this surface -- they can carry secrets.
+ * The uninstall report is a separate, redacted read; see {@link OmUninstallReport}.
+ */
+export interface OmOperation {
+  id: string;
+  kind: string;
+  kind_version: number;
+  cluster_id?: string | null;
+  parent_operation_id?: string | null;
+  status: OmOperationStatus;
+  /** The optimistic-concurrency fence; pass it back to confirm/cancel/resume/abandon. */
+  version: number;
+  params_revision: number;
+  trigger: string;
+  report_digest?: string | null;
+  /** A stable reason code set once readiness blocks or the operation fails. */
+  error_code?: string | null;
+  confirmed_by?: string | null;
+  cancelled_by?: string | null;
+  created_at: string;
+  started_at?: string | null;
+  finished_at?: string | null;
+  not_before?: string | null;
+  deadline_at?: string | null;
+  /** Per-host cleanup outcomes recorded when the operation was abandoned partway. Empty otherwise. */
+  residual_hosts: OmResidualHost[];
+}
+
+/** One dispatch within an operation, from `GET /v1/om/operations/{id}`. */
+export interface OmOperationStep {
+  id: string;
+  target_kind: string;
+  target_id: string;
+  phase: string;
+  step: string;
+  attempt: number;
+  status: string;
+  epoch: number;
+  task_history_id?: string | null;
+  dispatched_at?: string | null;
+  finished_at?: string | null;
+}
+
+/** One operation with its dispatched steps, from `GET /v1/om/operations/{id}`. */
+export interface OmGetOperationResponse {
+  operation: OmOperation;
+  steps: OmOperationStep[];
+}
+
+/**
+ * A member's uninstall readiness, from the report. `ready` and `checking` are states; the
+ * rest are hard refusals the dialog renders and that keep Remove disabled.
+ */
+export type OmUninstallReadiness =
+  | 'ready'
+  | 'checking'
+  | 'marker_absent'
+  | 'marker_mismatch'
+  | 'host_unreachable'
+  | 'cannot_elevate'
+  | 'drift';
+
+/**
+ * One member's entry in an uninstall readiness report: what the teardown deletes on its
+ * host and whether it is ready.
+ */
+export interface OmUninstallReportMember {
+  member_id: string;
+  host: string;
+  node_id?: string | null;
+  data_path?: string | null;
+  config_file?: string | null;
+  keyfile_path?: string | null;
+  log_path?: string | null;
+  packages: string[];
+  readiness: OmUninstallReadiness;
+}
+
+/**
+ * An uninstall operation's readiness report, from
+ * `GET /v1/om/operations/{id}/uninstallReport`.
+ *
+ * The redacted review the operator confirms against: what will be removed and whether
+ * each member is ready, the confirm phrase and the reviewed digest. Carries no secret.
+ */
+export interface OmUninstallReport {
+  operation_id: string;
+  cluster_id: string;
+  cluster_name?: string | null;
+  /** The phrase the operator types to confirm, e.g. "REMOVE rs-prod ab12cd". */
+  confirm_phrase: string;
+  /** Echoes the operation's digest; pass it to confirm. Unset until awaiting confirmation. */
+  report_digest?: string | null;
+  /** Every member is ready and the operation can be confirmed. */
+  ready: boolean;
+  /** Readiness blocked on package drift: the operator may adopt the live plan rather than be refused. */
+  drifted: boolean;
+  members: OmUninstallReportMember[];
+}
+
+/** A checking uninstall operation, from `POST /v1/om/clusters/{id}:uninstall`. */
+export interface OmTriggerUninstallResponse {
+  operation_id: string;
 }

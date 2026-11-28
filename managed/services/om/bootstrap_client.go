@@ -65,6 +65,9 @@ type extensionsBootstrapRun struct {
 	RunSteps        []extensionsBootstrapStep         `json:"run_steps"`
 	Error           *string                           `json:"error"`
 	CancelRequested bool                              `json:"cancel_requested"`
+	Repo            string                            `json:"repo"`
+	Packages        []string                          `json:"packages"`
+	ControlUnit     string                            `json:"control_unit"`
 }
 
 type extensionsTriggerBootstrapRunRequest struct {

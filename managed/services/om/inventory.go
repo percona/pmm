@@ -18,6 +18,7 @@ package om
 import (
 	"context"
 	"crypto/rand"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"maps"
@@ -30,11 +31,14 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/xdg-go/stringprep"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"gopkg.in/reform.v1"
 
 	omv1 "github.com/percona/pmm/api/om/v1"
 	"github.com/percona/pmm/managed/models"
@@ -99,9 +103,17 @@ func (s *Service) ListInventoryHosts(ctx context.Context, req *omv1.ListInventor
 	}
 
 	support := s.readInstallSupport(ctx)
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return nil, err
+	}
 	response := &omv1.ListInventoryHostsResponse{Hosts: make([]*omv1.InventoryHost, 0, len(hosts))}
 	for _, host := range hosts {
-		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support)
+		proto := inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters, liveServiceIDs)
 		if req.AutomationEligible != nil && proto.AutomationEligible != req.GetAutomationEligible() {
 			continue
 		}
@@ -146,6 +158,52 @@ func (s *Service) pmmServerNodeIDs() (map[string]bool, error) {
 	return servers, nil
 }
 
+// serviceClusters maps each service to the managed cluster it belongs to, so the inventory
+// read can tell a client which cluster a service is part of.
+func (s *Service) serviceClusters() (map[string]models.ServiceCluster, error) {
+	if s.db == nil {
+		return map[string]models.ServiceCluster{}, nil
+	}
+	clusters, err := models.ServiceClustersByServiceID(s.db.Querier)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to map services to clusters: %s", err)
+	}
+	return clusters, nil
+}
+
+// liveMongoDBServiceIDs is the set of MongoDB services PMM still registers, the authoritative answer to
+// whether a node is occupied that an install decision reads instead of the estate PMM's own copy lags.
+func (s *Service) liveMongoDBServiceIDs() (map[string]bool, error) {
+	if s.db == nil {
+		//nolint:nilnil // absent store: nil tells liveServices to leave the estate untouched
+		return nil, nil
+	}
+	services, err := models.FindServices(s.db.Querier, models.ServiceFilters{ServiceType: new(models.MongoDBServiceType)})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to list MongoDB services: %s", err)
+	}
+	ids := make(map[string]bool, len(services))
+	for _, service := range services {
+		ids[service.ServiceID] = true
+	}
+	return ids, nil
+}
+
+// liveServices drops the estate services PMM no longer registers, so a sweep that re-added a just-removed
+// service does not make the host read as occupied before the sweep reconciles the estate.
+func liveServices(services []extensionsService, live map[string]bool) []extensionsService {
+	if live == nil {
+		return services
+	}
+	kept := make([]extensionsService, 0, len(services))
+	for _, service := range services {
+		if live[service.ServiceID] {
+			kept = append(kept, service)
+		}
+	}
+	return kept
+}
+
 // GetInventoryHost returns one host.
 func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHostRequest) (*omv1.GetInventoryHostResponse, error) {
 	probe, err := s.inventoryProbe()
@@ -170,8 +228,16 @@ func (s *Service) GetInventoryHost(ctx context.Context, req *omv1.GetInventoryHo
 		return nil, err
 	}
 	support := s.readInstallSupport(ctx)
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return nil, err
+	}
 	return &omv1.GetInventoryHostResponse{
-		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support),
+		Host: inventoryHostToProto(host, connectedNodes[host.NodeID], serverNodes[host.NodeID], support, serviceClusters, liveServiceIDs),
 	}, nil
 }
 
@@ -220,9 +286,13 @@ func (s *Service) ListInventoryServices(ctx context.Context, req *omv1.ListInven
 		return nil, err
 	}
 
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
 	response := &omv1.ListInventoryServicesResponse{Services: make([]*omv1.InventoryService, 0, len(services))}
 	for _, service := range services {
-		response.Services = append(response.Services, inventoryServiceToProto(service))
+		response.Services = append(response.Services, inventoryServiceToProto(service, serviceClusters))
 	}
 	return response, nil
 }
@@ -240,7 +310,11 @@ func (s *Service) GetInventoryService(ctx context.Context, req *omv1.GetInventor
 	if err != nil {
 		return nil, err
 	}
-	return &omv1.GetInventoryServiceResponse{Service: inventoryServiceToProto(service)}, nil
+	serviceClusters, err := s.serviceClusters()
+	if err != nil {
+		return nil, err
+	}
+	return &omv1.GetInventoryServiceResponse{Service: inventoryServiceToProto(service, serviceClusters)}, nil
 }
 
 // DeleteInventoryService forgets one service.
@@ -416,50 +490,6 @@ func validateMemberConfigs(nodeIDs []string, memberConfigs map[string]*omv1.Boot
 	return nil
 }
 
-// runIgnoredSettings names the requested settings the accepted run does not echo back, or "".
-// An om_bootstrap older than these fields accepts the request but silently ignores them.
-func runIgnoredSettings(planned extensionsTriggerBootstrapRunRequest, accepted *extensionsBootstrapRun) string {
-	var ignored []string
-	if planned.DataPath != "" && accepted.DataPath != planned.DataPath {
-		ignored = append(ignored, "the data path")
-	}
-	if planned.LogPath != "" && accepted.LogPath != planned.LogPath {
-		ignored = append(ignored, "the log path")
-	}
-	if planned.Port != 0 && accepted.Port != planned.Port {
-		ignored = append(ignored, "the port")
-	}
-	if planned.BindIP != "" && accepted.BindIP != planned.BindIP {
-		ignored = append(ignored, "the bind address")
-	}
-	for host, member := range planned.MemberConfigs {
-		got, ok := accepted.MemberConfigs[host]
-		if !ok || !sameMemberConfig(got, member) {
-			ignored = append(ignored, "the per-member replica-set settings")
-			break
-		}
-	}
-	if _, ok := runStep(*accepted, createAdminUserStep); planned.CreateAdminUser && !ok {
-		ignored = append(ignored, "the administrator user")
-	}
-	return strings.Join(ignored, ", ")
-}
-
-// sameMemberConfig compares requested and accepted settings for one host. Optional fields left unset
-// are skipped, since the app echoes back its own default for them.
-func sameMemberConfig(accepted, planned extensionsMemberConfig) bool {
-	if pointer.GetUint32(planned.Priority) != pointer.GetUint32(accepted.Priority) && planned.Priority != nil {
-		return false
-	}
-	if planned.Votes != nil && pointer.GetBool(planned.Votes) != pointer.GetBool(accepted.Votes) {
-		return false
-	}
-	if planned.BindIP != nil && pointer.GetString(planned.BindIP) != pointer.GetString(accepted.BindIP) {
-		return false
-	}
-	return planned.Hidden == accepted.Hidden && planned.DelaySecs == accepted.DelaySecs
-}
-
 // abandonRun cancels a run PMM cannot carry through, best-effort.
 func (s *Service) abandonRun(ctx context.Context, runID, reason string) {
 	s.l.Warnf("bootstrap run %s: cancelling it: %s", runID, reason)
@@ -591,9 +621,14 @@ func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensi
 	if err != nil {
 		return err
 	}
+	liveServiceIDs, err := s.liveMongoDBServiceIDs()
+	if err != nil {
+		return err
+	}
 
 	blocked := make([]string, 0, len(hosts))
 	for i, host := range hosts {
+		host.Services = liveServices(host.Services, liveServiceIDs)
 		reasons := hostNotATargetReasons(serverNodes[nodeIDs[i]], host)
 		if len(reasons) == 0 {
 			continue
@@ -609,8 +644,8 @@ func (s *Service) refuseNodesThatAreNotTargets(nodeIDs []string, hosts []extensi
 		len(blocked), strings.Join(blocked, "; "))
 }
 
-// TriggerHostBootstrap plans installing MongoDB on one or three hosts and initializing them as one replica set.
-// The om_bootstrap app keys hosts by executor host name rather than node ID, since that is the name Nomad knows.
+// TriggerHostBootstrap validates a request to install MongoDB on one or three nodes as one replica set
+// and records a checking install operation the driver then gates on its readiness and carries out.
 func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHostBootstrapRequest) (*omv1.TriggerHostBootstrapResponse, error) {
 	probe, err := s.inventoryProbe()
 	if err != nil {
@@ -666,70 +701,78 @@ func (s *Service) TriggerHostBootstrap(ctx context.Context, req *omv1.TriggerHos
 		return nil, err
 	}
 
-	// Nothing below can fail: every node has been judged, so this only assembles.
-	executorHosts := make([]string, 0, len(nodeIDs))
-	memberConfigs := make(map[string]extensionsMemberConfig, len(req.GetMemberConfigs()))
+	hostsByNode := make(map[string]string, len(nodeIDs))
 	for i, nodeID := range nodeIDs {
-		executorHost := *hosts[i].ExecutorHost
-		executorHosts = append(executorHosts, executorHost)
-		if member, ok := req.GetMemberConfigs()[nodeID]; ok {
-			memberConfigs[executorHost] = extensionsMemberConfig{
-				Priority:  member.Priority,
-				Votes:     member.Votes,
-				Hidden:    member.GetHidden(),
-				DelaySecs: member.GetDelaySecs(),
-				BindIP:    member.BindIp,
-			}
-		}
+		hostsByNode[nodeID] = pointer.GetString(hosts[i].ExecutorHost)
 	}
-
-	planned := extensionsTriggerBootstrapRunRequest{
-		Hosts:           executorHosts,
-		InstallMethod:   "packages",
-		OS:              osID,
-		MongoDBVersion:  req.GetMongodbVersion(),
-		ReplicaSetName:  req.GetReplicaSetName(),
-		DataPath:        req.GetDataPath(),
-		LogPath:         req.GetLogPath(),
-		Port:            req.GetPort(),
-		BindIP:          req.GetBindIp(),
-		MemberConfigs:   memberConfigs,
-		CreateAdminUser: secret != nil,
-	}
-	run, err := s.bootstrap.triggerRun(ctx, planned)
+	params, err := installPlanParams(nodeIDs, hostsByNode, osID, req)
 	if err != nil {
 		return nil, err
 	}
-
-	ignored := runIgnoredSettings(planned, run)
-	if ignored != "" {
-		s.abandonRun(ctx, run.ID, "PMM Extensions did not apply "+ignored)
-		return nil, status.Errorf(codes.FailedPrecondition,
-			"PMM Extensions accepted the run but did not apply %s, so it would come up on its own defaults "+
-				"instead of the settings you chose; its om_bootstrap app is older than this PMM. "+
-				"The run has been cancelled", ignored)
+	operationID := uuid.New().String()
+	op := &models.OmOperation{
+		ID:             operationID,
+		Kind:           installKind,
+		KindVersion:    1,
+		Status:         models.OmOperationChecking,
+		Version:        1,
+		ParamsRevision: 1,
+		Trigger:        models.OmTriggerUser,
+		Principal:      []byte(`{"actor":"operator"}`),
+		Params:         params,
+		ErrorFields:    []byte("{}"),
 	}
-
-	if secret != nil {
-		secret.RunID = run.ID
-		err = models.CreateOmBootstrapSecret(s.db.Querier, secret)
-		if err != nil {
-			s.abandonRun(ctx, run.ID, fmt.Sprintf("failed to store its credentials: %s", err))
-			return nil, status.Errorf(codes.Internal,
-				"failed to store the run's credentials, so the run has been cancelled: %s", err)
+	err = s.db.InTransactionContext(ctx, nil, func(tx *reform.TX) error {
+		insertErr := tx.Insert(op)
+		if insertErr != nil {
+			return insertErr
 		}
-	}
-
-	if environment, cluster := req.GetEnvironment(), req.GetCluster(); environment != "" || cluster != "" {
-		config := &models.OmBootstrapRunConfig{RunID: run.ID, Environment: environment, Cluster: cluster}
-		err = models.CreateOmBootstrapRunConfig(s.db.Querier, config)
-		if err != nil {
-			// The run is already under way, so failing the request would misreport it; leave it unlabelled instead.
-			s.l.Warnf("bootstrap run %s: failed to persist environment/cluster: %s", run.ID, err)
+		if secret != nil {
+			secret.RunID = operationID
+			return models.CreateOmBootstrapSecret(tx.Querier, secret)
 		}
+		return nil
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to record the install operation: %s", err)
 	}
 
-	return &omv1.TriggerHostBootstrapResponse{RunId: run.ID, GeneratedAdminPassword: generatedPassword}, nil
+	return &omv1.TriggerHostBootstrapResponse{
+		OperationId:            operationID,
+		GeneratedAdminPassword: generatedPassword,
+	}, nil
+}
+
+// installPlanParams seals the request's non-secret settings into the install operation's params; the
+// admin password is never placed here, only in the write-ahead secret.
+func installPlanParams(nodeIDs []string, hostsByNode map[string]string, osID string, req *omv1.TriggerHostBootstrapRequest) ([]byte, error) {
+	memberConfigs := make(map[string]json.RawMessage, len(req.GetMemberConfigs()))
+	for nodeID, member := range req.GetMemberConfigs() {
+		raw, err := protojson.Marshal(member)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "failed to encode the config for node %s: %s", nodeID, err)
+		}
+		memberConfigs[nodeID] = raw
+	}
+	params, err := json.Marshal(installParams{
+		NodeIDs:        nodeIDs,
+		Hosts:          hostsByNode,
+		OS:             osID,
+		ReplicaSetName: req.GetReplicaSetName(),
+		MongoDBVersion: req.GetMongodbVersion(),
+		DataPath:       req.GetDataPath(),
+		LogPath:        req.GetLogPath(),
+		Port:           req.GetPort(),
+		BindIP:         req.GetBindIp(),
+		MemberConfigs:  memberConfigs,
+		Environment:    req.GetEnvironment(),
+		Cluster:        req.GetCluster(),
+		AdminUsername:  req.GetAdminUsername(),
+	})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to encode the install plan: %s", err)
+	}
+	return params, nil
 }
 
 // inventoryHostsByExecutor returns every inventory host that has an executor, keyed by executor host name.
@@ -846,6 +889,15 @@ func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []s
 	s.markRefreshed(due, time.Now())
 }
 
+// nudgeInventory resyncs the estate and re-probes the given nodes, so a just-deregistered service leaves
+// om_inventory without waiting for the periodic sweep. Best-effort: both triggers are themselves debounced.
+func (s *Service) nudgeInventory(ctx context.Context, nodeIDs []string) {
+	s.triggerInventorySync(ctx)
+	if len(nodeIDs) > 0 {
+		s.triggerScopedInventoryRefresh(ctx, nodeIDs)
+	}
+}
+
 func (s *Service) refreshDue(nodeIDs []string, now time.Time) []string {
 	s.refreshRequestedMu.Lock()
 	defer s.refreshRequestedMu.Unlock()
@@ -919,7 +971,7 @@ func (s *Service) GetBootstrapRun(ctx context.Context, req *omv1.GetBootstrapRun
 	}
 
 	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
-	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster), nil
+	return bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), s.bootstrapRunRegistered(run.ID), environment, cluster), nil
 }
 
 // CancelBootstrapRun asks PMM Extensions to flag a run for cancellation and, best-effort, stop its
@@ -937,7 +989,7 @@ func (s *Service) CancelBootstrapRun(ctx context.Context, req *omv1.CancelBootst
 
 	environment, cluster := s.bootstrapRunConfigLabels(run.ID)
 	return &omv1.CancelBootstrapRunResponse{
-		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), environment, cluster),
+		Run: bootstrapRunToProto(run, s.confirmMonitoringLookup(ctx, run.Status), s.bootstrapRunRegistered(run.ID), environment, cluster),
 	}, nil
 }
 
@@ -970,9 +1022,25 @@ func (s *Service) ListBootstrapRuns(ctx context.Context, req *omv1.ListBootstrap
 	proto := make([]*omv1.GetBootstrapRunResponse, 0, len(runs))
 	for i := range runs {
 		environment, cluster := s.bootstrapRunConfigLabels(runs[i].ID)
-		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, environment, cluster))
+		proto = append(proto, bootstrapRunToProto(&runs[i], hostsByExecutor, s.bootstrapRunRegistered(runs[i].ID), environment, cluster))
 	}
 	return &omv1.ListBootstrapRunsResponse{Runs: proto}, nil
+}
+
+// bootstrapRunRegistered reports whether PMM has registered every host of the run. A missing config row means
+// the run was never registered, as MarkOmBootstrapRunRegistered is what creates it.
+func (s *Service) bootstrapRunRegistered(runID string) bool {
+	if s.db == nil {
+		return false
+	}
+	config, err := models.FindOmBootstrapRunConfigByRunID(s.db.Querier, runID)
+	if err != nil {
+		if !errors.Is(err, models.ErrNotFound) {
+			s.l.Warnf("bootstrap run %s: failed to load whether it is registered: %s", runID, err)
+		}
+		return false
+	}
+	return config.RegisteredAt != nil
 }
 
 func (s *Service) bootstrapRunConfigLabels(runID string) (string, string) {
@@ -1008,23 +1076,28 @@ func (s *Service) confirmMonitoringLookup(ctx context.Context, statuses ...strin
 // has noticed the registered service. It is appended to finalize_steps so it renders wherever steps do.
 const confirmMonitoringStepName = "confirm_monitoring"
 
-func confirmMonitoringStep(runStatus, executorHost string, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
+// A registered run was confirmed once, before PMM marked it registered (see completeSucceededRun), so it stays
+// confirmed. Checking the live inventory instead would make it pending again as soon as the service is removed
+// by an uninstall, and the run would keep its node busy ("Installing") for good.
+func confirmMonitoringStep(runStatus, executorHost string, registered bool, hostsByExecutor map[string]extensionsHost) *omv1.BootstrapStep {
 	stepStatus := bootstrapStepPending
 	if runStatus == bootstrapRunSucceeded {
 		stepStatus = bootstrapStepRunning
-		if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
+		if registered {
+			stepStatus = bootstrapStepSucceeded
+		} else if host, ok := hostsByExecutor[executorHost]; ok && len(host.Services) > 0 {
 			stepStatus = bootstrapStepSucceeded
 		}
 	}
 	return &omv1.BootstrapStep{Name: confirmMonitoringStepName, Status: stepStatus}
 }
 
-func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, environment, cluster string) *omv1.GetBootstrapRunResponse {
+func bootstrapRunToProto(run *extensionsBootstrapRun, hostsByExecutor map[string]extensionsHost, registered bool, environment, cluster string) *omv1.GetBootstrapRunResponse {
 	hosts := make([]*omv1.BootstrapHost, 0, len(run.Hosts))
 	for _, host := range run.Hosts {
 		finalizeSteps := bootstrapStepsToProto(host.FinalizeSteps)
 		finalizeSteps = append(finalizeSteps,
-			confirmMonitoringStep(run.Status, host.Host, hostsByExecutor))
+			confirmMonitoringStep(run.Status, host.Host, registered, hostsByExecutor))
 		hosts = append(hosts, &omv1.BootstrapHost{
 			Host:          host.Host,
 			Steps:         bootstrapStepsToProto(host.Steps),
@@ -1185,7 +1258,15 @@ func (s *Service) DeleteInventoryConfigOverride(
 	return &omv1.DeleteInventoryConfigOverrideResponse{}, nil
 }
 
-func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServer bool, support installSupport) *omv1.InventoryHost {
+func inventoryHostToProto(
+	host extensionsHost,
+	pmmAgentConnected bool,
+	isPMMServer bool,
+	support installSupport,
+	serviceClusters map[string]models.ServiceCluster,
+	liveServiceIDs map[string]bool,
+) *omv1.InventoryHost {
+	host.Services = liveServices(host.Services, liveServiceIDs)
 	executor := executorToProto(host.Observed)
 	eligible, reasons, byDesign := automationEligibility(executor, pmmAgentConnected, isPMMServer, host, support)
 	out := &omv1.InventoryHost{
@@ -1208,7 +1289,7 @@ func inventoryHostToProto(host extensionsHost, pmmAgentConnected bool, isPMMServ
 		SupportedMongodbVersions:  support.release(host.Observed).versions,
 	}
 	for _, service := range host.Services {
-		out.Services = append(out.Services, inventoryServiceToProto(service))
+		out.Services = append(out.Services, inventoryServiceToProto(service, serviceClusters))
 	}
 	return out
 }
@@ -1280,8 +1361,8 @@ func unregisteredMongodCount(observed map[string]any) int {
 	return len(entries)
 }
 
-func inventoryServiceToProto(service extensionsService) *omv1.InventoryService {
-	return &omv1.InventoryService{
+func inventoryServiceToProto(service extensionsService, serviceClusters map[string]models.ServiceCluster) *omv1.InventoryService {
+	out := &omv1.InventoryService{
 		ServiceId:        service.ServiceID,
 		NodeId:           service.NodeID,
 		Name:             service.Name,
@@ -1298,6 +1379,16 @@ func inventoryServiceToProto(service extensionsService) *omv1.InventoryService {
 		Observed:         observedToStruct(service.Observed),
 		Freshness:        freshnessToProto(service.extensionsFreshness),
 	}
+	cluster, ok := serviceClusters[service.ServiceID]
+	if ok {
+		clusterID := cluster.ClusterID
+		origin := string(cluster.Origin)
+		kind := string(cluster.Kind)
+		out.OmClusterId = &clusterID
+		out.ClusterOrigin = &origin
+		out.ClusterKind = &kind
+	}
+	return out
 }
 
 func inventoryRunToProto(run extensionsRun) *omv1.InventoryRun {

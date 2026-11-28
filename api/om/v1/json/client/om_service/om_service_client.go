@@ -51,13 +51,23 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
+	AbandonOperation(params *AbandonOperationParams, opts ...ClientOption) (*AbandonOperationOK, error)
+
 	CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...ClientOption) (*CancelBootstrapRunOK, error)
+
+	CancelOperation(params *CancelOperationParams, opts ...ClientOption) (*CancelOperationOK, error)
+
+	ConfirmOperation(params *ConfirmOperationParams, opts ...ClientOption) (*ConfirmOperationOK, error)
+
+	ConfirmUninstallLivePlan(params *ConfirmUninstallLivePlanParams, opts ...ClientOption) (*ConfirmUninstallLivePlanOK, error)
 
 	DeleteInventoryConfigOverride(params *DeleteInventoryConfigOverrideParams, opts ...ClientOption) (*DeleteInventoryConfigOverrideOK, error)
 
 	DeleteInventoryHost(params *DeleteInventoryHostParams, opts ...ClientOption) (*DeleteInventoryHostOK, error)
 
 	DeleteInventoryService(params *DeleteInventoryServiceParams, opts ...ClientOption) (*DeleteInventoryServiceOK, error)
+
+	DeleteSettingOverride(params *DeleteSettingOverrideParams, opts ...ClientOption) (*DeleteSettingOverrideOK, error)
 
 	GetBootstrapRun(params *GetBootstrapRunParams, opts ...ClientOption) (*GetBootstrapRunOK, error)
 
@@ -69,9 +79,15 @@ type ClientService interface {
 
 	GetInventoryService(params *GetInventoryServiceParams, opts ...ClientOption) (*GetInventoryServiceOK, error)
 
+	GetOperation(params *GetOperationParams, opts ...ClientOption) (*GetOperationOK, error)
+
+	GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error)
+
 	GetTopology(params *GetTopologyParams, opts ...ClientOption) (*GetTopologyOK, error)
 
 	GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOption) (*GetTopologyRunOK, error)
+
+	GetUninstallReport(params *GetUninstallReportParams, opts ...ClientOption) (*GetUninstallReportOK, error)
 
 	ListBootstrapRuns(params *ListBootstrapRunsParams, opts ...ClientOption) (*ListBootstrapRunsOK, error)
 
@@ -81,7 +97,11 @@ type ClientService interface {
 
 	ListInventoryServices(params *ListInventoryServicesParams, opts ...ClientOption) (*ListInventoryServicesOK, error)
 
+	ListOperations(params *ListOperationsParams, opts ...ClientOption) (*ListOperationsOK, error)
+
 	ListTopologyRuns(params *ListTopologyRunsParams, opts ...ClientOption) (*ListTopologyRunsOK, error)
+
+	ResumeOperation(params *ResumeOperationParams, opts ...ClientOption) (*ResumeOperationOK, error)
 
 	TriggerHostBootstrap(params *TriggerHostBootstrapParams, opts ...ClientOption) (*TriggerHostBootstrapOK, error)
 
@@ -89,9 +109,57 @@ type ClientService interface {
 
 	TriggerTopologyCollection(params *TriggerTopologyCollectionParams, opts ...ClientOption) (*TriggerTopologyCollectionOK, error)
 
+	TriggerUninstall(params *TriggerUninstallParams, opts ...ClientOption) (*TriggerUninstallOK, error)
+
 	UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts ...ClientOption) (*UpdateInventoryConfigOK, error)
 
+	UpdateSettings(params *UpdateSettingsParams, opts ...ClientOption) (*UpdateSettingsOK, error)
+
 	SetTransport(transport runtime.ClientTransport)
+}
+
+/*
+AbandonOperation abandons an operation
+
+Resolves a failed operation that will not be resumed: releases its locks and clears the attention it raised, leaving it abandoned. Fenced by version.
+*/
+func (a *Client) AbandonOperation(params *AbandonOperationParams, opts ...ClientOption) (*AbandonOperationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewAbandonOperationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "AbandonOperation",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:abandon",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AbandonOperationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*AbandonOperationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*AbandonOperationDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
 /*
@@ -134,6 +202,138 @@ func (a *Client) CancelBootstrapRun(params *CancelBootstrapRunParams, opts ...Cl
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*CancelBootstrapRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+CancelOperation cancels an operation
+
+Cancels a pre-running operation outright, releasing its locks; a running operation whose kind allows it goes to cancelling for compensation. Fenced by version.
+*/
+func (a *Client) CancelOperation(params *CancelOperationParams, opts ...ClientOption) (*CancelOperationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewCancelOperationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "CancelOperation",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:cancel",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &CancelOperationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*CancelOperationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*CancelOperationDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ConfirmOperation confirms an operation
+
+Releases an operation awaiting confirmation to run, binding the reviewed plan by version: a rescan or other change since the review moves nothing and returns 409.
+*/
+func (a *Client) ConfirmOperation(params *ConfirmOperationParams, opts ...ClientOption) (*ConfirmOperationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewConfirmOperationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ConfirmOperation",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:confirm",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ConfirmOperationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ConfirmOperationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ConfirmOperationDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ConfirmUninstallLivePlan adopts the live plan of a drifted uninstall
+
+Re-seals an uninstall operation that readiness blocked on package drift to the hosts' live package sets, bumps its plan revision and returns it to checking so readiness re-runs. The operator still confirms the re-sealed plan before any host is touched. Fenced by version.
+*/
+func (a *Client) ConfirmUninstallLivePlan(params *ConfirmUninstallLivePlanParams, opts ...ClientOption) (*ConfirmUninstallLivePlanOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewConfirmUninstallLivePlanParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ConfirmUninstallLivePlan",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:confirmLivePlan",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ConfirmUninstallLivePlanReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ConfirmUninstallLivePlanOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ConfirmUninstallLivePlanDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -266,6 +466,50 @@ func (a *Client) DeleteInventoryService(params *DeleteInventoryServiceParams, op
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*DeleteInventoryServiceDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+DeleteSettingOverride reverts an operations setting
+
+Removes a scope's override for one setting. Idempotent: removing an absent override changes nothing.
+*/
+func (a *Client) DeleteSettingOverride(params *DeleteSettingOverrideParams, opts ...ClientOption) (*DeleteSettingOverrideOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewDeleteSettingOverrideParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "DeleteSettingOverride",
+		Method:             "DELETE",
+		PathPattern:        "/v1/om/settings/overrides/{key}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &DeleteSettingOverrideReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*DeleteSettingOverrideOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*DeleteSettingOverrideDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -491,6 +735,94 @@ func (a *Client) GetInventoryService(params *GetInventoryServiceParams, opts ...
 }
 
 /*
+GetOperation gets an operation
+
+Returns one operation by ID, with its lifecycle status and every step it has dispatched.
+*/
+func (a *Client) GetOperation(params *GetOperationParams, opts ...ClientOption) (*GetOperationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetOperationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetOperation",
+		Method:             "GET",
+		PathPattern:        "/v1/om/operations/{operation_id}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetOperationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetOperationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetOperationDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetSettings gets operations settings
+
+Returns every Operations policy setting resolved for a scope: a cluster override, else the global value, else the registry default. A secret setting reports only whether it is set.
+*/
+func (a *Client) GetSettings(params *GetSettingsParams, opts ...ClientOption) (*GetSettingsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetSettings",
+		Method:             "GET",
+		PathPattern:        "/v1/om/settings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetSettingsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetSettingsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 GetTopology gets the mongo DB topology
 
 Returns every monitored MongoDB service, grouped by environment then cluster, with its identity, replica-set state, reachability and load.
@@ -574,6 +906,50 @@ func (a *Client) GetTopologyRun(params *GetTopologyRunParams, opts ...ClientOpti
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*GetTopologyRunDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+GetUninstallReport gets an uninstall operation s readiness report
+
+Returns what an uninstall operation will remove -- the cluster, each member's host, the paths and packages the teardown deletes -- with each member's readiness, the confirm phrase and the reviewed report digest. The redacted review the operator confirms against; carries no secret.
+*/
+func (a *Client) GetUninstallReport(params *GetUninstallReportParams, opts ...ClientOption) (*GetUninstallReportOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewGetUninstallReportParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "GetUninstallReport",
+		Method:             "GET",
+		PathPattern:        "/v1/om/operations/{operation_id}/uninstallReport",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetUninstallReportReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*GetUninstallReportOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*GetUninstallReportDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -755,6 +1131,50 @@ func (a *Client) ListInventoryServices(params *ListInventoryServicesParams, opts
 }
 
 /*
+ListOperations lists operations
+
+Returns the managed-cluster operations, newest first, with each one's lifecycle status and provenance. Pass cluster_id to scope the list to one cluster.
+*/
+func (a *Client) ListOperations(params *ListOperationsParams, opts ...ClientOption) (*ListOperationsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewListOperationsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ListOperations",
+		Method:             "GET",
+		PathPattern:        "/v1/om/operations",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ListOperationsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ListOperationsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ListOperationsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 ListTopologyRuns lists collection runs
 
 Returns the recorded collection runs, newest first, with what each one saw and any errors it hit.
@@ -794,6 +1214,50 @@ func (a *Client) ListTopologyRuns(params *ListTopologyRunsParams, opts ...Client
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*ListTopologyRunsDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+ResumeOperation resumes an operation
+
+Returns a failed, resumable operation to running, keeping the locks it held and clearing the attention it raised. Refused when the kind's contract version has moved. Fenced by version.
+*/
+func (a *Client) ResumeOperation(params *ResumeOperationParams, opts ...ClientOption) (*ResumeOperationOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewResumeOperationParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "ResumeOperation",
+		Method:             "POST",
+		PathPattern:        "/v1/om/operations/{operation_id}:resume",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ResumeOperationReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*ResumeOperationOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*ResumeOperationDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
@@ -931,6 +1395,50 @@ func (a *Client) TriggerTopologyCollection(params *TriggerTopologyCollectionPara
 }
 
 /*
+TriggerUninstall uninstalls a managed cluster
+
+Records a checking uninstall operation that removes a managed cluster PMM installed: it stops the members and deletes the packages, data and config PMM put on each host. Returns as soon as the operation is recorded; the operator confirms it before any host is touched. Poll GetOperation for progress.
+*/
+func (a *Client) TriggerUninstall(params *TriggerUninstallParams, opts ...ClientOption) (*TriggerUninstallOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewTriggerUninstallParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "TriggerUninstall",
+		Method:             "POST",
+		PathPattern:        "/v1/om/clusters/{cluster_id}:uninstall",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &TriggerUninstallReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*TriggerUninstallOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*TriggerUninstallDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
 UpdateInventoryConfig changes the inventory configuration
 
 Applies a batch of configuration changes atomically: one invalid field rejects the whole batch and writes nothing. Only runtime-changeable fields are accepted.
@@ -970,6 +1478,50 @@ func (a *Client) UpdateInventoryConfig(params *UpdateInventoryConfigParams, opts
 	//
 	// a default response is provided: fill this and return an error
 	unexpectedSuccess := result.(*UpdateInventoryConfigDefault)
+
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+UpdateSettings changes operations settings
+
+Applies a batch of settings changes atomically for a scope: one invalid field rejects the whole batch and writes nothing.
+*/
+func (a *Client) UpdateSettings(params *UpdateSettingsParams, opts ...ClientOption) (*UpdateSettingsOK, error) {
+	// NOTE: parameters are not validated before sending
+	if params == nil {
+		params = NewUpdateSettingsParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "UpdateSettings",
+		Method:             "PUT",
+		PathPattern:        "/v1/om/settings",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateSettingsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+
+	// only one success response has to be checked
+	success, ok := result.(*UpdateSettingsOK)
+	if ok {
+		return success, nil
+	}
+
+	// unexpected success response.
+	//
+	// a default response is provided: fill this and return an error
+	unexpectedSuccess := result.(*UpdateSettingsDefault)
 
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }

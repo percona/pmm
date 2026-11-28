@@ -65,8 +65,10 @@ import { formatCompactDuration, pluralize } from './format';
 import {
   ageSeconds,
   describeScanFailure,
+  hostHasManagedService,
   isFailing,
   toHostRows,
+  uninstallableClustersOf,
   type ScanFailure,
 } from './inventory';
 import {
@@ -76,6 +78,12 @@ import {
   useOmInventoryHosts,
   useRefreshInventory,
 } from './inventoryHooks';
+import {
+  isOperationBusy,
+  isOperationPending,
+  useOmOperations,
+} from './operationHooks';
+import { UninstallDialog } from './components/UninstallDialog';
 import { isBootstrapRunActive } from './api';
 import { useScanConflict } from './ScanFeedback';
 import { AdminAction } from './components/AdminAction';
@@ -247,6 +255,9 @@ const ExecutorCell = ({
  * others. Three copies would drift the first time one is reworded.
  */
 const BUSY_TITLE = 'Already part of an install in progress.';
+
+/** Why a cluster's Uninstall is disabled: it already has an operation holding it. */
+const CLUSTER_BUSY_TITLE = 'This cluster already has an operation in progress.';
 
 const PMM_SERVER_TITLE =
   "This is the PMM Server. Operations can't install or change databases here.";
@@ -431,19 +442,28 @@ const RepoCell = ({ row }: { row: OmHostRow }) => {
  * machine and invite someone to install over a port already in use.
  */
 const DatabaseCell = ({ row }: { row: OmHostRow }) => {
+  // A registered service that belongs to an Operations cluster reads as Managed, not just Monitored.
+  const managed =
+    row.database_state === 'has_service' && hostHasManagedService(row);
   const extra =
     row.database_state === 'has_service'
       ? ` (${row.service_count})`
       : row.database_state === 'unregistered_only'
         ? ` (${row.unregistered_mongods.length})`
         : '';
+  const label = managed
+    ? 'Managed'
+    : HOST_DATABASE_STATE_LABEL[row.database_state];
+  const phrase = managed
+    ? 'At least one MongoDB service here belongs to a cluster PMM Operations manages.'
+    : HOST_DATABASE_STATE_PHRASE[row.database_state];
   return (
-    <Tooltip title={HOST_DATABASE_STATE_PHRASE[row.database_state]}>
+    <Tooltip title={phrase}>
       <Chip
         size="small"
         color={HOST_DATABASE_STATE_COLOR[row.database_state]}
         variant={row.database_state === 'has_service' ? 'filled' : 'outlined'}
-        label={`${HOST_DATABASE_STATE_LABEL[row.database_state]}${extra}`}
+        label={`${label}${extra}`}
       />
     </Tooltip>
   );
@@ -838,6 +858,10 @@ export const NodesPage = () => {
   const omBase = useOmBase();
   const { canMutate } = useAuth();
   const [forgetting, setForgetting] = useState<OmHostRow[]>([]);
+  const [uninstalling, setUninstalling] = useState<{
+    clusterId: string;
+    clusterName: string;
+  } | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   // In the URL rather than in state, so another page can link straight to a filtered
   // view (Automations' Install MongoDB opens this page on `unmonitored`).
@@ -875,6 +899,29 @@ export const NodesPage = () => {
     }
     return busy;
   }, [bootstrapRuns.data]);
+  const operations = useOmOperations();
+  // Clusters with an open operation, so a second trigger stays visible but disabled. Gated
+  // on the cluster id, not a row's executor, so it is not wrongly enabled on a sibling member.
+  const busyClusterIds = useMemo(() => {
+    const busy = new Set<string>();
+    for (const op of operations.data ?? []) {
+      if (op.cluster_id && isOperationBusy(op)) {
+        busy.add(op.cluster_id);
+      }
+    }
+    return busy;
+  }, [operations.data]);
+  // Clusters whose holding operation has not started tearing down: Uninstall reopens that
+  // pending operation (the trigger is idempotent) instead of being a dead disabled item.
+  const pendingClusterIds = useMemo(() => {
+    const pending = new Set<string>();
+    for (const op of operations.data ?? []) {
+      if (op.cluster_id && isOperationPending(op)) {
+        pending.add(op.cluster_id);
+      }
+    }
+    return pending;
+  }, [operations.data]);
   const isHostBusy = (row: OmHostRow) =>
     Boolean(row.executor_host && busyExecutorHosts.has(row.executor_host));
   const rows = useMemo(() => toHostRows(data), [data]);
@@ -1077,6 +1124,38 @@ export const NodesPage = () => {
                   </MenuItem>
                 </Box>
               </Tooltip>,
+              /* One Uninstall item per cluster the host's services belong to - a host can
+                 carry more than one, and Uninstall is cluster-scoped. A pending operation
+                 reopens its dialog to confirm or cancel; only an active teardown disables it. */
+              ...uninstallableClustersOf(row.original).map((cluster) => {
+                const clusterPending = pendingClusterIds.has(
+                  cluster.cluster_id
+                );
+                const clusterBusy =
+                  busyClusterIds.has(cluster.cluster_id) && !clusterPending;
+                return (
+                  <Tooltip
+                    key={`uninstall-${cluster.cluster_id}`}
+                    title={clusterBusy ? CLUSTER_BUSY_TITLE : ''}
+                  >
+                    <Box component="span">
+                      <MenuItem
+                        disabled={clusterBusy}
+                        onClick={() => {
+                          setUninstalling({
+                            clusterId: cluster.cluster_id,
+                            clusterName: cluster.name,
+                          });
+                          close();
+                        }}
+                      >
+                        {clusterPending ? 'Resume uninstall' : 'Uninstall'}{' '}
+                        {cluster.name}
+                      </MenuItem>
+                    </Box>
+                  </Tooltip>
+                );
+              }),
             ]}
           </RowOverflowMenu>
         )}
@@ -1296,6 +1375,13 @@ export const NodesPage = () => {
           setRowSelection({});
         }}
       />
+      {uninstalling && (
+        <UninstallDialog
+          clusterId={uninstalling.clusterId}
+          clusterName={uninstalling.clusterName}
+          onClose={() => setUninstalling(null)}
+        />
+      )}
     </Box>
   );
 };

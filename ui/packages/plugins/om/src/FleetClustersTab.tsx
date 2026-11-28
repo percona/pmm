@@ -289,6 +289,22 @@ function useColumns(): MRT_ColumnDef<OmClusterRow>[] {
                 {typeLabel(original)}
               </Typography>
             )}
+            {original.managed && (
+              <Typography
+                variant="caption"
+                data-testid="om-cluster-managed"
+                sx={{
+                  color: 'primary.main',
+                  border: 1,
+                  borderColor: 'primary.main',
+                  borderRadius: 1,
+                  px: 0.5,
+                  lineHeight: 1.5,
+                }}
+              >
+                Managed
+              </Typography>
+            )}
           </Stack>
         ),
       },

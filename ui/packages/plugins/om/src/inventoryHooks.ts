@@ -452,6 +452,7 @@ export function useForgetHost() {
  * the RPC's own proto comment explains.
  */
 export function useTriggerHostBootstrap() {
+  const queryClient = useQueryClient();
   return useMutation<
     OmHostBootstrapAccepted,
     Error,
@@ -510,6 +511,11 @@ export function useTriggerHostBootstrap() {
           ...(adminPassword ? { admin_password: adminPassword } : {}),
         }),
       }),
+    // The page navigates to Automations on success; invalidate the run list so the new
+    // run's row is there on landing rather than after the next poll or a refresh.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BOOTSTRAP_RUNS_KEY });
+    },
   });
 }
 

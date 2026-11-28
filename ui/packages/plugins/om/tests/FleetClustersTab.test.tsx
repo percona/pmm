@@ -188,6 +188,42 @@ describe('FleetClustersTab', () => {
     ).toHaveAttribute('href', OPERATIONS_DOC_URL);
   });
 
+  it('badges a managed cluster and not a monitored-only one', () => {
+    useOmTopology.mockReturnValue({
+      data: topology([
+        {
+          env_name: 'production',
+          clusters: [
+            cluster({
+              name: 'managed-rs',
+              managed: true,
+              services: [service({ service_name: 'managed-1' })],
+            }),
+            cluster({
+              name: 'monitored-rs',
+              managed: false,
+              services: [service({ service_name: 'monitored-1' })],
+            }),
+          ],
+        },
+      ]),
+      isPending: false,
+      isError: false,
+    });
+    renderPage();
+
+    const managedRow = clusterRows().find((row) =>
+      row.textContent?.includes('managed-rs')
+    ) as HTMLElement;
+    const monitoredRow = clusterRows().find((row) =>
+      row.textContent?.includes('monitored-rs')
+    ) as HTMLElement;
+    expect(
+      within(managedRow).getByTestId('om-cluster-managed')
+    ).toHaveTextContent('Managed');
+    expect(within(monitoredRow).queryByTestId('om-cluster-managed')).toBeNull();
+  });
+
   it('names each cluster state and leads with the degraded one', () => {
     renderPage();
 

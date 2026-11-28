@@ -146,6 +146,53 @@ export function toHostRows(hosts: OmInventoryHost[] | undefined): OmHostRow[] {
   }));
 }
 
+/** One managed cluster a host's services belong to, for a per-cluster row action. */
+export interface OmHostCluster {
+  cluster_id: string;
+  /** For the menu label; the server's own name drives the confirm phrase. */
+  name: string;
+}
+
+/** Whether a host carries a database PMM Operations manages, not merely monitors. */
+export function hostHasManagedService(
+  host: Pick<OmInventoryHost, 'services'>
+): boolean {
+  return host.services.some((service) => Boolean(service.om_cluster_id));
+}
+
+/**
+ * The clusters on a host that Uninstall offers, one per distinct cluster id.
+ *
+ * A host carries services from more than one cluster, and Uninstall is cluster-scoped, so
+ * the row offers one item per cluster rather than one "the node's cluster" action. Only a
+ * cluster PMM installed as a replica set qualifies: an imported cluster and a sharded one
+ * are not uninstallable here (the backend refuses them), so offering them then failing
+ * would be the offer-then-refuse the design rules out. A host with no managed service -
+ * an `unregistered_only` host, a bare node - yields none.
+ */
+export function uninstallableClustersOf(
+  host: Pick<OmInventoryHost, 'services'>
+): OmHostCluster[] {
+  const byId = new Map<string, string>();
+  for (const service of host.services) {
+    if (
+      service.om_cluster_id &&
+      service.cluster_origin === 'installed' &&
+      service.cluster_kind === 'replica_set' &&
+      !byId.has(service.om_cluster_id)
+    ) {
+      byId.set(
+        service.om_cluster_id,
+        service.replication_set ?? service.om_cluster_id
+      );
+    }
+  }
+  return [...byId.entries()].map(([cluster_id, name]) => ({
+    cluster_id,
+    name,
+  }));
+}
+
 /**
  * Join PMM's snapshot to OM's estate, one row per service.
  *

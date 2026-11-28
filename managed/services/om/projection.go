@@ -36,9 +36,10 @@ type document struct {
 	staleServices int
 }
 
-func buildDocument(services []*models.Service, merged map[string]map[string]MergedField, now time.Time, maxAge time.Duration) document {
+func buildDocument(services []*models.Service, merged map[string]map[string]MergedField, now time.Time, maxAge time.Duration, managedServices map[string]bool) document {
 	out := document{}
 	grouped := make(map[string]map[string][]*omv1.TopologyService)
+	managed := make(map[string]map[string]bool)
 
 	for _, service := range services {
 		fields := fieldSet{fields: merged[service.ServiceID], now: now, maxAge: maxAge}
@@ -59,6 +60,12 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 			grouped[env] = make(map[string][]*omv1.TopologyService)
 		}
 		grouped[env][cluster] = append(grouped[env][cluster], serviceDocument(service, fields))
+		if managedServices[service.ServiceID] {
+			if _, ok := managed[env]; !ok {
+				managed[env] = make(map[string]bool)
+			}
+			managed[env][cluster] = true
+		}
 	}
 
 	out.environments = make([]*omv1.Environment, 0, len(grouped))
@@ -74,6 +81,7 @@ func buildDocument(services []*models.Service, merged map[string]map[string]Merg
 				Services: svcs,
 				Id:       clusterID(env, cluster),
 				Type:     clusterType(svcs),
+				Managed:  managed[env][cluster],
 			})
 		}
 		out.environments = append(out.environments, &omv1.Environment{EnvName: named(env), Clusters: clusters})

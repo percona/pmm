@@ -142,6 +142,11 @@ var metricSignals = []metricSignal{
 	{metric: metricReplicationLag, valueField: fieldReplicationLag, reduceMax: true},
 	{metric: metricOplogHead, valueField: fieldOplogHead},
 	{metric: metricOplogTail, valueField: fieldOplogTail},
+	// fcv is the `version` label; the config version and term are the metric values, the same across
+	// a set's member series, so any one is the set's value.
+	{metric: metricFCV, labels: []labelSignal{{fieldFCV, "version"}}},
+	{metric: metricRSConfigVersion, valueField: fieldRSConfigVersion},
+	{metric: metricRSConfigTerm, valueField: fieldRSConfigTerm},
 }
 
 type metricsRun struct {
