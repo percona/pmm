@@ -95,6 +95,100 @@ func submittedResponse(id string) *extensionsHostStepResponse {
 	return &extensionsHostStepResponse{SubmissionID: &id}
 }
 
+type fakeForgetter struct {
+	deleted []string
+}
+
+func (f *fakeForgetter) forgetService(_ context.Context, serviceID string) error {
+	f.deleted = append(f.deleted, serviceID)
+	return nil
+}
+
+type fakeNudger struct {
+	nudged [][]string
+}
+
+func (f *fakeNudger) nudgeInventory(_ context.Context, nodeIDs []string) {
+	f.nudged = append(f.nudged, nodeIDs)
+}
+
+// uninstallForgetOp stores a running uninstall whose sealed plan names the given member, so Run resolves it
+// before dispatching the forget step at it.
+func uninstallForgetOp(t *testing.T, db *reform.DB, memberID string) *models.OmOperation {
+	t.Helper()
+	params, err := json.Marshal(uninstallParams{
+		ClusterID: uuid.New().String(), ClusterName: "rs", InstallRunID: "run-9", OS: "ubuntu",
+		Members: []uninstallMember{{MemberID: memberID, Host: "host-a"}},
+	})
+	require.NoError(t, err)
+	op := &models.OmOperation{
+		ID: uuid.New().String(), Kind: uninstallKind, KindVersion: 3,
+		Status: models.OmOperationRunning, Version: 1, ParamsRevision: 1,
+		Trigger: models.OmTriggerUser, Principal: []byte(`{}`), Params: params, ErrorFields: []byte("{}"),
+	}
+	require.NoError(t, db.Insert(op))
+	return op
+}
+
+// memberWithoutService inserts an accepted mongod member with no PMM service linked, which the forget step
+// has nothing to forget on.
+func memberWithoutService(t *testing.T, db *reform.DB, clusterID string) string {
+	t.Helper()
+	nodeID := uuid.New().String()
+	_, err := db.Exec(
+		"INSERT INTO nodes (node_id, node_type, node_name, distro, node_model, az, address, created_at, updated_at) "+
+			"VALUES ($1, 'generic', 'node-nolink', '', '', '', '', now(), now())",
+		nodeID)
+	require.NoError(t, err)
+	replicaSet := &models.OmReplicaSet{
+		ID: uuid.New().String(), ClusterID: clusterID, Name: "rs-nolink", Role: models.OmReplicaSetRolePlain,
+	}
+	require.NoError(t, db.Insert(replicaSet))
+	rsMemberID := int32(2)
+	member := &models.OmClusterMember{
+		ID: uuid.New().String(), ClusterID: clusterID, ReplicaSetRef: &replicaSet.ID, Process: models.OmMemberMongod,
+		Host: "host-nolink", RSMemberID: &rsMemberID, State: models.OmMemberAccepted,
+		NodeID: &nodeID, AddedByOperation: lockOperation(t, db.Querier, clusterID),
+	}
+	require.NoError(t, db.Insert(member))
+	return member.ID
+}
+
+func TestUninstallForgetDeletesTheServiceAndNudges(t *testing.T) {
+	db := lockTestDB(t)
+	serviceID := uuid.New().String()
+	memberID := scanMember(t, db, lockCluster(t, db.Querier), serviceID)
+	op := uninstallForgetOp(t, db, memberID)
+	forgetter := &fakeForgetter{}
+	nudger := &fakeNudger{}
+	e := &uninstallStepExecutor{db: db, forgetter: forgetter, nudger: nudger, op: op, l: logrus.NewEntry(logrus.New())}
+	plan := StepPlan{Phase: uninstallHostPhase, Step: uninstallForgetStep, TargetKind: models.OmStepTargetMember, TargetID: memberID}
+
+	kind, _, err := e.Run(t.Context(), plan, "k")
+
+	require.NoError(t, err)
+	assert.Equal(t, StepResultOk, kind)
+	assert.Equal(t, []string{serviceID}, forgetter.deleted)
+	assert.Len(t, nudger.nudged, 1, "the forget step nudges a resync")
+}
+
+func TestUninstallForgetSkipsAMemberWithNoServiceLink(t *testing.T) {
+	db := lockTestDB(t)
+	memberID := memberWithoutService(t, db, lockCluster(t, db.Querier))
+	op := uninstallForgetOp(t, db, memberID)
+	forgetter := &fakeForgetter{}
+	nudger := &fakeNudger{}
+	e := &uninstallStepExecutor{db: db, forgetter: forgetter, nudger: nudger, op: op, l: logrus.NewEntry(logrus.New())}
+	plan := StepPlan{Phase: uninstallHostPhase, Step: uninstallForgetStep, TargetKind: models.OmStepTargetMember, TargetID: memberID}
+
+	kind, _, err := e.Run(t.Context(), plan, "k")
+
+	require.NoError(t, err)
+	assert.Equal(t, StepResultOk, kind)
+	assert.Empty(t, forgetter.deleted, "a member with no service link forgets nothing")
+	assert.Empty(t, nudger.nudged)
+}
+
 func TestUninstallStepExecutorSubmitsOnFirstRun(t *testing.T) {
 	db := lockTestDB(t)
 	op := uninstallOpWithPlan(t, db)

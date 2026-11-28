@@ -143,6 +143,12 @@ type serviceForgetter interface {
 	forgetService(ctx context.Context, serviceID string) error
 }
 
+// inventoryNudger asks om_inventory to resync and re-probe the given nodes, so a just-deregistered service
+// drops out of the estate and does not return on the next sweep.
+type inventoryNudger interface {
+	nudgeInventory(ctx context.Context, nodeIDs []string)
+}
+
 // inventoryForgetter forgets a service through om_inventory's services route.
 type inventoryForgetter struct {
 	app extensionsApp
@@ -165,6 +171,7 @@ type uninstallStepExecutor struct {
 	db        *reform.DB
 	bootstrap hostStepRunner
 	forgetter serviceForgetter
+	nudger    inventoryNudger
 	reader    factObservationReader
 	op        *models.OmOperation
 	l         *logrus.Entry
@@ -220,22 +227,27 @@ func (e *uninstallStepExecutor) Run(ctx context.Context, plan StepPlan, idempote
 	return dispatchResult(resp)
 }
 
-// forget drops the member's service from om_inventory. The service link is still on the member row here:
-// the success hook clears it only after every member's steps have run. A member with no service link has
-// nothing to forget.
+// forget drops the member's service from om_inventory and nudges a resync to keep the estate tidy; the
+// reinstall gates on PMM's own inventory, not the estate, so the teardown need not wait the estate out.
 func (e *uninstallStepExecutor) forget(ctx context.Context, memberID string) (StepResultKind, []byte, error) {
 	row, err := e.db.FindByPrimaryKeyFrom(models.OmClusterMemberTable, memberID)
 	if err != nil {
 		return "", nil, fmt.Errorf("uninstall %s: failed to read member %s: %w", e.op.ID, memberID, err)
 	}
-	serviceID := row.(*models.OmClusterMember).ServiceID //nolint:forcetypeassert
-	if serviceID == nil || *serviceID == "" {
+	member := row.(*models.OmClusterMember) //nolint:forcetypeassert
+	if member.ServiceID == nil || *member.ServiceID == "" {
 		return StepResultOk, nil, nil
 	}
-	err = e.forgetter.forgetService(ctx, *serviceID)
+	serviceID := *member.ServiceID
+	err = e.forgetter.forgetService(ctx, serviceID)
 	if err != nil {
-		return "", nil, fmt.Errorf("uninstall %s: failed to forget service %s: %w", e.op.ID, *serviceID, err)
+		return "", nil, fmt.Errorf("uninstall %s: failed to forget service %s: %w", e.op.ID, serviceID, err)
 	}
+	var nodeIDs []string
+	if member.NodeID != nil && *member.NodeID != "" {
+		nodeIDs = []string{*member.NodeID}
+	}
+	e.nudger.nudgeInventory(ctx, nodeIDs)
 	return StepResultOk, nil, nil
 }
 

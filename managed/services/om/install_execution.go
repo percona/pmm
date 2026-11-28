@@ -188,6 +188,7 @@ type installStepExecutorProvider struct {
 	db        *reform.DB
 	bootstrap *bootstrapClient
 	forgetter serviceForgetter
+	nudger    inventoryNudger
 	reader    factObservationReader
 	l         *logrus.Entry
 }
@@ -200,7 +201,7 @@ func (p installStepExecutorProvider) Executor(op *models.OmOperation, kind Opera
 	case installKind:
 		return &installStepExecutor{db: p.db, bootstrap: p.bootstrap, op: op, l: p.l}, nil
 	case uninstallKind:
-		return &uninstallStepExecutor{db: p.db, bootstrap: p.bootstrap, forgetter: p.forgetter, reader: p.reader, op: op, l: p.l}, nil
+		return &uninstallStepExecutor{db: p.db, bootstrap: p.bootstrap, forgetter: p.forgetter, nudger: p.nudger, reader: p.reader, op: op, l: p.l}, nil
 	}
 	return pendingStepExecutor{}, nil
 }

@@ -843,6 +843,15 @@ func (s *Service) triggerScopedInventoryRefresh(ctx context.Context, nodeIDs []s
 	s.markRefreshed(due, time.Now())
 }
 
+// nudgeInventory resyncs the estate and re-probes the given nodes, so a just-deregistered service leaves
+// om_inventory without waiting for the periodic sweep. Best-effort: both triggers are themselves debounced.
+func (s *Service) nudgeInventory(ctx context.Context, nodeIDs []string) {
+	s.triggerInventorySync(ctx)
+	if len(nodeIDs) > 0 {
+		s.triggerScopedInventoryRefresh(ctx, nodeIDs)
+	}
+}
+
 func (s *Service) refreshDue(nodeIDs []string, now time.Time) []string {
 	s.refreshRequestedMu.Lock()
 	defer s.refreshRequestedMu.Unlock()
